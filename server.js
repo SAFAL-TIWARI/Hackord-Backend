@@ -4,12 +4,17 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const dns = require("node:dns");
 
-// Use Google / Cloudflare Public DNS for SRV record resolution
-// (fixes ECONNREFUSED on campus / ISP networks that block SRV lookups)
-dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
-
 // Load environment variables
 dotenv.config();
+
+// Use Google / Cloudflare Public DNS for SRV record resolution in local environments
+try {
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+    dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+  }
+} catch (err) {
+  console.warn("[dns] Warning setting custom DNS servers:", err.message);
+}
 
 const User = require("./models/User");
 const authRoutes = require("./routes/auth");
@@ -19,33 +24,105 @@ const roomRoutes = require("./routes/rooms");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ─── Middleware ─────────────────────────────────────────────────────────────
+// ─── Dynamic CORS Middleware ────────────────────────────────────────────────
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((s) => s.trim().replace(/\/+$/, ""))
+  : [];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      "http://0.0.0.0:5173",
-      "http://localhost:5000",
-      "http://127.0.0.1:5000",
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      const cleanedOrigin = origin.replace(/\/+$/, "");
+
+      // Localhost origins
+      if (
+        cleanedOrigin.startsWith("http://localhost") ||
+        cleanedOrigin.startsWith("http://127.0.0.1") ||
+        cleanedOrigin.startsWith("http://0.0.0.0") ||
+        cleanedOrigin.startsWith("http://localhost:5173")||
+        cleanedOrigin.startsWith("http://127.0.0.1:5173")||
+        cleanedOrigin.startsWith("https://hackord-backend.vercel.app")||
+        cleanedOrigin.startsWith("https://hackord-backend.onrender.com")
+      ) {
+        return callback(null, true);
+      }
+
+      // Check configured FRONTEND_URL or common deployment domains
+      if (
+        allowedOrigins.includes("*") ||
+        allowedOrigins.includes(cleanedOrigin) ||
+        cleanedOrigin.endsWith(".vercel.app") ||
+        cleanedOrigin.endsWith(".onrender.com") ||
+        cleanedOrigin.endsWith(".netlify.app")
+      ) {
+        return callback(null, true);
+      }
+
+      // Fallback: allow origin in production to prevent unexpected CORS blocks
+      return callback(null, true);
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
+
 app.use(express.json());
 
-// ─── Routes ─────────────────────────────────────────────────────────────────
-app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/rooms", roomRoutes);
+// ─── MongoDB Connection & Seed Handler ───────────────────────────────────────
+let isConnected = false;
+let dbPromise = null;
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "ok",
-    mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    timestamp: new Date().toISOString(),
-  });
+async function connectDB() {
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return;
+  }
+  if (dbPromise) {
+    return dbPromise;
+  }
+
+  const mongoUri = process.env.MONGODB_URI;
+  if (!mongoUri) {
+    console.error("❌ MONGODB_URI is not set in environment variables");
+    throw new Error("MONGODB_URI environment variable is missing");
+  }
+
+  dbPromise = mongoose
+    .connect(mongoUri, {
+      family: 4,
+      serverSelectionTimeoutMS: 15000,
+      connectTimeoutMS: 15000,
+    })
+    .then(async (db) => {
+      isConnected = true;
+      console.log("[db] ✅ Connected to MongoDB Atlas");
+      await seedAdmin();
+      return db;
+    })
+    .catch((err) => {
+      dbPromise = null;
+      console.error("❌ Failed to connect to MongoDB:", err.message);
+      throw err;
+    });
+
+  return dbPromise;
+}
+
+// Ensure DB connection for every request (essential for Vercel serverless & Render)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("[db middleware error]", err.message);
+    res.status(500).json({
+      error: "Database Connection Error",
+      message: err.message || "Failed to connect to MongoDB Atlas",
+    });
+  }
 });
 
 // ─── Seed Admin User ────────────────────────────────────────────────────────
@@ -91,26 +168,38 @@ async function seedAdmin() {
   }
 }
 
-// ─── Connect to MongoDB & Start Server ──────────────────────────────────────
+// ─── Routes ─────────────────────────────────────────────────────────────────
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/rooms", roomRoutes);
+
+// Root & Health check endpoints
+app.get(["/", "/api"], (req, res) => {
+  res.json({
+    status: "ok",
+    message: "🚀 Hackord Backend API is live and operational",
+    health: "/api/health",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Catch-all 404 for API routes
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.method} ${req.url} not found` });
+});
+
+// ─── Server Start (for Render / Local Node processes) ────────────────────────
 async function start() {
   try {
-    const mongoUri = process.env.MONGODB_URI;
-    if (!mongoUri) {
-      console.error("❌ MONGODB_URI is not set in .env");
-      process.exit(1);
-    }
-
-    console.log("[db] Connecting to MongoDB Atlas...");
-    await mongoose.connect(mongoUri, {
-      family: 4,
-      serverSelectionTimeoutMS: 15000,
-      connectTimeoutMS: 15000,
-    });
-    console.log("[db] ✅ Connected to MongoDB Atlas");
-
-    // Seed admin user after connection
-    await seedAdmin();
-
+    await connectDB();
     app.listen(PORT, () => {
       console.log(`\n🚀 Hackord Backend running on http://localhost:${PORT}`);
       console.log(`   Health: http://localhost:${PORT}/api/health`);
@@ -123,4 +212,9 @@ async function start() {
   }
 }
 
-start();
+if (require.main === module) {
+  start();
+}
+
+// Export express app for Vercel Serverless
+module.exports = app;
