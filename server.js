@@ -14,6 +14,7 @@ dotenv.config();
 const User = require("./models/User");
 const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
+const roomRoutes = require("./routes/rooms");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,7 @@ app.use(express.json());
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/rooms", roomRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -57,21 +59,24 @@ async function seedAdmin() {
       return;
     }
 
-    const existing = await User.findOne({ email: adminEmail });
+    const emailClean = adminEmail.toLowerCase().trim();
+    const existing = await User.findOne({ email: emailClean });
     if (existing) {
-      if (existing.role !== "admin") {
+      const isMatch = await existing.comparePassword(adminPassword);
+      if (!isMatch || existing.role !== "admin") {
+        existing.password = adminPassword; // pre('save') will hash the new password
         existing.role = "admin";
         await existing.save();
-        console.log("[seed] Updated existing user to admin role:", adminEmail);
+        console.log("[seed] ✅ Updated admin password & role for:", emailClean);
       } else {
-        console.log("[seed] Admin user already exists:", adminEmail);
+        console.log("[seed] ✅ Admin user already exists and credentials match:", emailClean);
       }
       return;
     }
 
     await User.create({
       name: "Hackord Admin",
-      email: adminEmail,
+      email: emailClean,
       password: adminPassword,
       role: "admin",
       username: "admin",
@@ -80,7 +85,7 @@ async function seedAdmin() {
       experience: "Advanced",
     });
 
-    console.log("[seed] ✅ Admin user created:", adminEmail);
+    console.log("[seed] ✅ Admin user created:", emailClean);
   } catch (err) {
     console.error("[seed] Error seeding admin:", err.message);
   }
