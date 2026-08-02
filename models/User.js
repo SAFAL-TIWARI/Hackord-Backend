@@ -53,6 +53,23 @@ const userSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    // Contact & Settings fields
+    whatsappNumber: { type: String, trim: true, default: "" },
+    notificationPreferences: {
+      emailEnabled: { type: Boolean, default: true },
+      whatsappEnabled: { type: Boolean, default: true },
+      roomInvites: { type: Boolean, default: true },
+      deadlines: { type: Boolean, default: true },
+      chatMessages: { type: Boolean, default: true },
+      reminders: { type: Boolean, default: false },
+    },
+    privacySettings: {
+      discoverable: { type: Boolean, default: true },
+      allowInvites: { type: Boolean, default: true },
+      showEmail: { type: Boolean, default: true },
+      showPhone: { type: Boolean, default: true },
+      activityStatus: { type: Boolean, default: true },
+    },
   },
   {
     timestamps: true,

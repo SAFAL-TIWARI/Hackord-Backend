@@ -20,6 +20,9 @@ const User = require("./models/User");
 const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const roomRoutes = require("./routes/rooms");
+const userRoutes = require("./routes/users");
+const invitationRoutes = require("./routes/invitations");
+const noteRoutes = require("./routes/notes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -172,6 +175,9 @@ async function seedAdmin() {
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/invitations", invitationRoutes);
+app.use("/api/notes", noteRoutes);
 
 // Root & Health check endpoints
 app.get(["/", "/api"], (req, res) => {

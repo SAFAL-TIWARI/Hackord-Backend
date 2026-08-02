@@ -75,7 +75,36 @@ async function ensureSeedRooms() {
 router.get("/", async (req, res) => {
   try {
     await ensureSeedRooms();
-    const rooms = await Room.find().sort({ createdAt: -1 });
+    const { userId, user_id, email, userName, user_name, all } = req.query;
+
+    let filter = {};
+
+    // If 'all' is not set to true (e.g. non-admin requests), filter rooms by user
+    if (all !== "true" && all !== "1") {
+      const targetId = userId || user_id;
+      const targetEmail = email ? String(email).toLowerCase() : null;
+      const targetName = userName || user_name;
+
+      const orClauses = [];
+      if (targetId) {
+        orClauses.push({ creator_id: String(targetId) });
+        orClauses.push({ "members.user_id": String(targetId) });
+      }
+      if (targetEmail) {
+        orClauses.push({ creator_email: targetEmail });
+        orClauses.push({ "members.user_id": targetEmail });
+      }
+      if (targetName) {
+        orClauses.push({ creator_name: targetName });
+        orClauses.push({ "members.user_name": targetName });
+      }
+
+      if (orClauses.length > 0) {
+        filter = { $or: orClauses };
+      }
+    }
+
+    const rooms = await Room.find(filter).sort({ createdAt: -1 });
     res.json(rooms);
   } catch (err) {
     console.error("[getRooms]", err);
@@ -114,8 +143,14 @@ router.post("/", async (req, res) => {
       deadlineFinal,
       deadlineResult,
       projectLinks,
+      creatorId,
+      creator_id,
+      creatorEmail,
+      creator_email,
       creatorName,
+      creator_name,
       creatorAvatar,
+      creator_avatar,
     } = req.body;
 
     if (!name || !hackathon) {
@@ -134,11 +169,16 @@ router.post("/", async (req, res) => {
 
     const links = Array.isArray(projectLinks) ? projectLinks.filter((l) => l.url) : [];
 
-    const ownerName = creatorName || "Aarav Sharma";
-    const ownerAvatar = creatorAvatar || "https://api.dicebear.com/9.x/glass/svg?seed=Aarav";
+    const ownerId = creatorId || creator_id || "u_me";
+    const ownerEmail = creatorEmail || creator_email || "";
+    const ownerName = creatorName || creator_name || "Aarav Sharma";
+    const ownerAvatar = creatorAvatar || creator_avatar || "https://api.dicebear.com/9.x/glass/svg?seed=Aarav";
 
     const newRoom = new Room({
       id: roomId,
+      creator_id: String(ownerId),
+      creator_email: ownerEmail ? String(ownerEmail).toLowerCase() : "",
+      creator_name: ownerName,
       hackathon,
       name,
       problem: problem || "",
@@ -154,7 +194,7 @@ router.post("/", async (req, res) => {
       project_links: links,
       members: [
         {
-          user_id: "u_me",
+          user_id: String(ownerId),
           user_name: ownerName,
           user_avatar: ownerAvatar,
           role: "Owner",
@@ -231,6 +271,11 @@ router.post("/:id/members", async (req, res) => {
 
     if (!room) return res.status(404).json({ message: "Room not found" });
 
+    const maxSize = room.max_size || 6;
+    if (room.members.length >= maxSize) {
+      return res.status(400).json({ message: `Room capacity limit reached (${room.members.length}/${maxSize} members).` });
+    }
+
     const exists = room.members.some((m) => m.user_id === user_id);
     if (!exists) {
       room.members.push({
@@ -254,6 +299,38 @@ router.post("/:id/members", async (req, res) => {
   } catch (err) {
     console.error("[addMember]", err);
     res.status(500).json({ message: "Server error adding member" });
+  }
+});
+
+// ─── DELETE /api/rooms/:id/members/:userId ────────────────────────────────
+router.delete("/:id/members/:userId", async (req, res) => {
+  try {
+    const { id, userId } = req.params;
+    const room = await Room.findOne({ id });
+
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    const memberIndex = room.members.findIndex(
+      (m) => m.user_id === userId || m.user_name === userId
+    );
+
+    if (memberIndex !== -1) {
+      const removedMember = room.members.splice(memberIndex, 1)[0];
+
+      room.activities.unshift({
+        id: `act_${Date.now()}`,
+        who: req.body?.removedBy || "Owner",
+        what: `removed ${removedMember.user_name} from team`,
+        when: new Date(),
+      });
+
+      await room.save();
+    }
+
+    res.json(room);
+  } catch (err) {
+    console.error("[removeMember]", err);
+    res.status(500).json({ message: "Server error removing member" });
   }
 });
 

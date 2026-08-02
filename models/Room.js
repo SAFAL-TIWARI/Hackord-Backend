@@ -77,6 +77,9 @@ const activitySchema = new mongoose.Schema(
 const roomSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
+    creator_id: { type: String, default: "" },
+    creator_email: { type: String, default: "" },
+    creator_name: { type: String, default: "" },
     hackathon: { type: String, required: true, trim: true },
     name: { type: String, required: true, trim: true },
     problem: { type: String, default: "" },
