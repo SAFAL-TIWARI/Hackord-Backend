@@ -539,5 +539,20 @@ router.post("/:id/links", async (req, res) => {
   }
 });
 
+// ─── DELETE /api/rooms/:id ──────────────────────────────────────────────────
+router.delete("/:id", async (req, res) => {
+  try {
+    const room = await findRoom(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    await Room.deleteOne({ _id: room._id });
+    console.log(`[deleteRoom] ✅ Room deleted: ${req.params.id}`);
+    res.json({ message: "Room deleted successfully", id: req.params.id });
+  } catch (err) {
+    console.error("[deleteRoom]", err);
+    res.status(500).json({ message: "Server error deleting room" });
+  }
+});
 
 module.exports = router;

@@ -23,6 +23,7 @@ const roomRoutes = require("./routes/rooms");
 const userRoutes = require("./routes/users");
 const invitationRoutes = require("./routes/invitations");
 const noteRoutes = require("./routes/notes");
+const hackathonRoutes = require("./routes/hackathons");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -178,6 +179,7 @@ app.use("/api/rooms", roomRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/invitations", invitationRoutes);
 app.use("/api/notes", noteRoutes);
+app.use("/api/hackathons", hackathonRoutes);
 
 // Root & Health check endpoints
 app.get(["/", "/api"], (req, res) => {

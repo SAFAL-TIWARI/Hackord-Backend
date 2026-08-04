@@ -34,14 +34,13 @@ function createEmailTransporter() {
 const transporter = createEmailTransporter();
 
 /**
- * Dispatch notification to Email and WhatsApp based on user preferences.
+ * Dispatch notification to Email (Gmail) based on user preferences.
  */
 async function sendNotification({ recipientUser, type, title, body, link, metadata = {} }) {
   if (!recipientUser) return;
 
   const prefs = recipientUser.notificationPreferences || {
     emailEnabled: true,
-    whatsappEnabled: true,
     roomInvites: true,
     deadlines: true,
     chatMessages: true,
@@ -62,7 +61,7 @@ async function sendNotification({ recipientUser, type, title, body, link, metada
     return;
   }
 
-  const results = { emailSent: false, whatsappSent: false };
+  const results = { emailSent: false };
 
   // 1. Send Email Notification if enabled
   if (prefs.emailEnabled !== false && recipientUser.email) {
@@ -115,53 +114,6 @@ async function sendNotification({ recipientUser, type, title, body, link, metada
     }
   } else {
     console.log(`[notificationService] Email notification skipped for ${recipientUser.email} (disabled in preferences)`);
-  }
-
-  // 2. Send WhatsApp Notification if enabled & phone number present
-  let phone = recipientUser.whatsappNumber || metadata.whatsappNumber;
-  if (phone) {
-    phone = String(phone).replace(/\D/g, "");
-    if (phone.length === 10) {
-      phone = `+91${phone}`;
-    } else if (!phone.startsWith("+") && phone.length > 10) {
-      phone = `+${phone}`;
-    }
-  }
-
-  if (prefs.whatsappEnabled !== false && phone) {
-    try {
-      const messageText = `🚀 *Hackord Alert: ${title}*\n\n${body}\n\n🔗 *Open Now:* http://localhost:5173${link || "/dashboard"}`;
-      
-      const accountSid = process.env.TWILIO_ACCOUNT_SID;
-      const authToken = process.env.TWILIO_AUTH_TOKEN;
-      const fromNumber = process.env.TWILIO_WHATSAPP_NUMBER || "whatsapp:+14155238886";
-
-      if (accountSid && authToken) {
-        const client = require("twilio")(accountSid, authToken);
-        const formattedTo = phone.startsWith("whatsapp:") ? phone : `whatsapp:${phone}`;
-        await client.messages.create({
-          body: messageText,
-          from: fromNumber,
-          to: formattedTo,
-        });
-        console.log(`[notificationService] ✅ WhatsApp message dispatched to ${phone} via Twilio`);
-      } else {
-        // Fallback logger for WhatsApp notification
-        console.log("\n=======================================================");
-        console.log("📱 [WHATSAPP NOTIFICATION DISPATCHED]");
-        console.log(`TO: ${phone}`);
-        console.log("-------------------------------------------------------");
-        console.log(messageText);
-        console.log("=======================================================\n");
-      }
-      results.whatsappSent = true;
-    } catch (err) {
-      console.error(`[notificationService] ❌ Failed to send WhatsApp message to ${phone}:`, err.message);
-    }
-  } else if (!phone) {
-    console.log(`[notificationService] WhatsApp skipped for ${recipientUser.email} (No WhatsApp number set)`);
-  } else {
-    console.log(`[notificationService] WhatsApp skipped for ${recipientUser.email} (Disabled in preferences)`);
   }
 
   return results;

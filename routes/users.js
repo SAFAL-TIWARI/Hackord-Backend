@@ -220,10 +220,8 @@ router.get("/settings", async (req, res) => {
     }
 
     res.json({
-      whatsappNumber: user.whatsappNumber || "",
       notificationPreferences: user.notificationPreferences || {
         emailEnabled: true,
-        whatsappEnabled: true,
         roomInvites: true,
         deadlines: true,
         chatMessages: true,
@@ -233,7 +231,6 @@ router.get("/settings", async (req, res) => {
         discoverable: true,
         allowInvites: true,
         showEmail: true,
-        showPhone: true,
         activityStatus: true,
       },
     });
@@ -268,11 +265,8 @@ router.put("/settings", async (req, res) => {
       return res.status(404).json({ message: "User not found to update settings" });
     }
 
-    const { whatsappNumber, notificationPreferences, privacySettings } = req.body;
+    const { notificationPreferences, privacySettings } = req.body;
 
-    if (typeof whatsappNumber === "string") {
-      user.whatsappNumber = whatsappNumber.trim();
-    }
     if (notificationPreferences) {
       user.notificationPreferences = {
         ...user.notificationPreferences,
@@ -291,7 +285,6 @@ router.put("/settings", async (req, res) => {
 
     res.json({
       message: "Settings updated successfully",
-      whatsappNumber: user.whatsappNumber,
       notificationPreferences: user.notificationPreferences,
       privacySettings: user.privacySettings,
     });
