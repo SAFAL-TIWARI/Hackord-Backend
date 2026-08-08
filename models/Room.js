@@ -84,6 +84,8 @@ const roomSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     problem: { type: String, default: "" },
     description: { type: String, default: "" },
+    github_url: { type: String, default: "" },
+    meeting_code: { type: String, default: "" },
     max_size: { type: Number, default: 6 },
     status: {
       type: String,

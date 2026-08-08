@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Room = require("../models/Room");
+const { RtcTokenBuilder, RtcRole } = require("agora-token");
 const router = express.Router();
 
 async function findRoom(idParam) {
@@ -20,6 +21,7 @@ const INITIAL_ROOM_SEEDS = [
     name: "Team Nebula",
     problem: "AI-driven crop yield prediction for smallholder farmers using satellite imagery and IoT soil sensors.",
     description: "Building an end-to-end platform that combines satellite data, on-ground IoT sensors, and an LLM-powered advisor to help smallholder farmers predict yields and optimize inputs.",
+    github_url: "https://github.com/SAFAL-TIWARI/Hackord",
     max_size: 6,
     status: "Active",
     progress: 62,
@@ -127,6 +129,52 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// ─── GET /api/rooms/:id/token ─────────────────────────────────────────────
+router.get("/:id/token", async (req, res) => {
+  try {
+    const room = await Room.findOne({ id: req.params.id });
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    const appId = process.env.VITE_AGORA_APP_ID ;
+    const appCertificate = process.env.AGORA_APP_CERTIFICATE;
+
+    if (!appCertificate) {
+      console.warn("[AgoraToken] AGORA_APP_CERTIFICATE is not configured in backend .env");
+      return res.json({
+        token: "",
+        appId,
+        warning: "AGORA_APP_CERTIFICATE is not configured in backend .env. Falls back to static/unsecured mode."
+      });
+    }
+
+    const meetingCode = room.meeting_code || room.id || "hackord_meeting";
+    const channelName = meetingCode.toLowerCase().replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 64);
+
+    const uid = 0;
+    const role = RtcRole.PUBLISHER;
+    const expirationTimeInSeconds = 3600 * 2; // 2 hours
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+
+    const token = RtcTokenBuilder.buildTokenWithUid(
+      appId,
+      appCertificate,
+      channelName,
+      uid,
+      role,
+      privilegeExpiredTs
+    );
+
+    console.log(`[AgoraToken] Generated wildcard token for room: ${room.id}, channelName: ${channelName}`);
+    res.json({ token, appId });
+  } catch (err) {
+    console.error("[AgoraToken] Error generating Agora token:", err);
+    res.status(500).json({ message: "Server error generating Agora RTC token" });
+  }
+});
+
 // ─── POST /api/rooms ───────────────────────────────────────────────────────
 router.post("/", async (req, res) => {
   try {
@@ -183,6 +231,8 @@ router.post("/", async (req, res) => {
       name,
       problem: problem || "",
       description: description || "",
+      github_url: req.body.github_url || req.body.githubUrl || "",
+      meeting_code: req.body.meeting_code || req.body.meetingCode || "",
       max_size: maxSize || 6,
       status: "Planning",
       progress: 0,
@@ -235,10 +285,15 @@ router.put("/:id", async (req, res) => {
     if (!room) return res.status(404).json({ message: "Room not found" });
 
     const fields = [
-      "name", "hackathon", "problem", "description", "max_size",
+      "name", "hackathon", "problem", "description", "github_url", "meeting_code", "max_size",
       "deadline_registration", "deadline_ppt", "deadline_prototype",
       "deadline_final", "deadline_result", "status", "progress"
     ];
+
+    let isNewMeeting = false;
+    if (req.body.meeting_code !== undefined && req.body.meeting_code !== "" && req.body.meeting_code !== room.meeting_code) {
+      isNewMeeting = true;
+    }
 
     fields.forEach((f) => {
       if (req.body[f] !== undefined) room[f] = req.body[f];
@@ -248,12 +303,21 @@ router.put("/:id", async (req, res) => {
       room.project_links = req.body.project_links;
     }
 
-    room.activities.unshift({
-      id: `act_${Date.now()}`,
-      who: req.body.updatedBy || "Owner",
-      what: "updated room details",
-      when: new Date(),
-    });
+    if (isNewMeeting) {
+      room.activities.unshift({
+        id: `act_${Date.now()}`,
+        who: req.body.updatedBy || "Owner",
+        what: `started a new meeting (Join meet: ${req.body.meeting_code})`,
+        when: new Date(),
+      });
+    } else {
+      room.activities.unshift({
+        id: `act_${Date.now()}`,
+        who: req.body.updatedBy || "Owner",
+        what: "updated room details",
+        when: new Date(),
+      });
+    }
 
     await room.save();
     res.json(room);

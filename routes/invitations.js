@@ -46,6 +46,40 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ message: "Target room not found" });
     }
 
+    // Verify Sender is Owner of the room or Platform Admin
+    let senderUser = null;
+    if (senderId && senderId !== "u_me") {
+      senderUser = await findUserByIdentifier(senderId);
+    }
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.split(" ")[1];
+        const jwt = require("jsonwebtoken");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenUser = await User.findById(decoded.id);
+        if (tokenUser) senderUser = tokenUser;
+      } catch (e) {}
+    }
+
+    if (senderUser) {
+      const isSenderAdmin = senderUser.role === "admin";
+      const isSenderCreator =
+        (room.creator_id && String(room.creator_id) === String(senderUser._id)) ||
+        (room.creator_email && room.creator_email.toLowerCase() === senderUser.email.toLowerCase());
+      const isSenderOwnerMember = room.members.some(
+        (m) =>
+          (m.user_id === String(senderUser._id) || m.user_id === senderUser.email) &&
+          (m.role === "Owner" || m.role === "Admin")
+      );
+
+      if (!isSenderAdmin && !isSenderCreator && !isSenderOwnerMember) {
+        return res.status(403).json({
+          message: `Only the owner of room "${room.name}" or platform admin can send invitations to this room.`,
+        });
+      }
+    }
+
     // Check room capacity limit
     const maxSize = room.max_size || 6;
     if (room.members.length >= maxSize) {

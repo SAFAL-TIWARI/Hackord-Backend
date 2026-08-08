@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { protect } = require("../middleware/auth");
+const { sendNotification } = require("../services/notificationService");
 
 const router = express.Router();
 
@@ -41,6 +42,15 @@ router.post("/signup", async (req, res) => {
     });
 
     const token = generateToken(user._id);
+
+    // Trigger Welcome Email Notification
+    sendNotification({
+      recipientUser: user,
+      type: "welcome",
+      title: "Welcome to Hackord! 🎉",
+      body: `Hi ${name.split(" ")[0]}, welcome to Hackord! Your account has been created successfully. Explore hackathons, form teams, and build incredible projects.`,
+      link: "/dashboard",
+    }).catch((e) => console.error("[signupWelcomeNotifErr]", e.message));
 
     res.status(201).json({
       token,
