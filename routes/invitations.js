@@ -48,7 +48,7 @@ router.post("/", async (req, res) => {
 
     // Verify Sender is Owner of the room or Platform Admin
     let senderUser = null;
-    if (senderId && senderId !== "u_me") {
+    if (senderId) {
       senderUser = await findUserByIdentifier(senderId);
     }
     const authHeader = req.headers.authorization;
@@ -124,9 +124,9 @@ router.post("/", async (req, res) => {
 
     const invitation = new Invitation({
       sender: {
-        user_id: senderId || "u_me",
-        name: senderName || "Team Lead",
-        avatar: senderAvatar || "https://api.dicebear.com/9.x/glass/svg?seed=Sender",
+        user_id: senderUser ? String(senderUser._id) : (senderId || "unknown"),
+        name: senderName || (senderUser ? senderUser.name : "Team Lead"),
+        avatar: senderAvatar || (senderUser ? senderUser.avatar : "https://api.dicebear.com/9.x/glass/svg?seed=Sender"),
       },
       recipient: {
         user_id: String(recipient._id),

@@ -13,70 +13,9 @@ async function findRoom(idParam) {
   return room;
 }
 
-// ─── Initial Seed Rooms if Collection is Empty ─────────────────────────────
-const INITIAL_ROOM_SEEDS = [
-  {
-    id: "smart-india-2026",
-    hackathon: "Smart India Hackathon 2026",
-    name: "Team Nebula",
-    problem: "AI-driven crop yield prediction for smallholder farmers using satellite imagery and IoT soil sensors.",
-    description: "Building an end-to-end platform that combines satellite data, on-ground IoT sensors, and an LLM-powered advisor to help smallholder farmers predict yields and optimize inputs.",
-    github_url: "https://github.com/SAFAL-TIWARI/Hackord",
-    max_size: 6,
-    status: "Active",
-    progress: 62,
-    deadline_registration: "2026-08-01",
-    deadline_ppt: "2026-08-15",
-    deadline_prototype: "2026-09-01",
-    deadline_final: "2026-09-20",
-    deadline_result: "2026-10-05",
-    project_links: [
-      { label: "GitHub Repo", url: "https://github.com/SAFAL-TIWARI/Hackord" },
-      { label: "Figma Specs", url: "https://figma.com" },
-      { label: "Live Demo", url: "https://demo.hackord.com" },
-    ],
-    members: [
-      { user_id: "u_me", user_name: "Aarav Sharma", user_avatar: "https://api.dicebear.com/9.x/glass/svg?seed=Aarav", role: "Owner" },
-      { user_id: "u_1", user_name: "Priya Nair", user_avatar: "https://api.dicebear.com/9.x/glass/svg?seed=Priya", role: "UI/UX Designer" },
-      { user_id: "u_2", user_name: "Rohan Mehta", user_avatar: "https://api.dicebear.com/9.x/glass/svg?seed=Rohan", role: "ML Engineer" },
-    ],
-    files: [
-      { id: "f_1", name: "Architecture Diagram.pdf", url: "https://example.com/arch.pdf", type: "pdf", uploadedBy: "Rohan", size: "2.4 MB", createdAt: new Date() },
-      { id: "f_2", name: "Pitch Deck v1.pptx", url: "https://example.com/pitch.pptx", type: "ppt", uploadedBy: "Priya", size: "14.2 MB", createdAt: new Date() },
-    ],
-    tasks: [
-      { id: "t_1", title: "Design wireframes in Figma", assignee: "Priya Nair", status: "Completed", priority: "High", deadline: "Aug 10" },
-      { id: "t_2", title: "Train ResNet satellite crop model", assignee: "Rohan Mehta", status: "In Progress", priority: "High", deadline: "Aug 14" },
-      { id: "t_3", title: "Setup Express & MongoDB backend", assignee: "Aarav Sharma", status: "In Progress", priority: "Medium", deadline: "Aug 16" },
-    ],
-    messages: [
-      { id: "msg_1", author_name: "Rohan Mehta", author_avatar: "https://api.dicebear.com/9.x/glass/svg?seed=Rohan", text: "Hey team! I just updated the ML model architecture. Precision is up to 94.2%.", pinned: true, created_at: new Date(Date.now() - 3600000 * 5) },
-      { id: "msg_2", author_name: "Priya Nair", author_avatar: "https://api.dicebear.com/9.x/glass/svg?seed=Priya", text: "Awesome work Rohan! I'm wrapping up the dashboard Figma specs.", pinned: false, created_at: new Date(Date.now() - 3600000 * 4) },
-    ],
-    activities: [
-      { id: "act_1", who: "Aarav", what: "created room Team Nebula", when: new Date(Date.now() - 3600000 * 24) },
-      { id: "act_2", who: "Priya", what: "uploaded Pitch Deck v1.pptx", when: new Date(Date.now() - 3600000 * 12) },
-      { id: "act_3", who: "Rohan", what: "updated ML crop model task", when: new Date(Date.now() - 3600000 * 2) },
-    ],
-  },
-];
-
-async function ensureSeedRooms() {
-  try {
-    const count = await Room.countDocuments();
-    if (count === 0) {
-      await Room.insertMany(INITIAL_ROOM_SEEDS);
-      console.log("[rooms] ✅ Seeded initial rooms in MongoDB");
-    }
-  } catch (err) {
-    console.error("[rooms] Error seeding initial rooms:", err.message);
-  }
-}
-
 // ─── GET /api/rooms ────────────────────────────────────────────────────────
 router.get("/", async (req, res) => {
   try {
-    await ensureSeedRooms();
     const { userId, user_id, email, userName, user_name, all } = req.query;
 
     let filter = {};
@@ -117,7 +56,6 @@ router.get("/", async (req, res) => {
 // ─── GET /api/rooms/:id ───────────────────────────────────────────────────
 router.get("/:id", async (req, res) => {
   try {
-    await ensureSeedRooms();
     const room = await Room.findOne({ id: req.params.id });
     if (!room) {
       return res.status(404).json({ message: "Room not found" });
@@ -217,10 +155,10 @@ router.post("/", async (req, res) => {
 
     const links = Array.isArray(projectLinks) ? projectLinks.filter((l) => l.url) : [];
 
-    const ownerId = creatorId || creator_id || "u_me";
+    const ownerId = creatorId || creator_id || "";
     const ownerEmail = creatorEmail || creator_email || "";
-    const ownerName = creatorName || creator_name || "Aarav Sharma";
-    const ownerAvatar = creatorAvatar || creator_avatar || "https://api.dicebear.com/9.x/glass/svg?seed=Aarav";
+    const ownerName = creatorName || creator_name || "Room Lead";
+    const ownerAvatar = creatorAvatar || creator_avatar || "https://api.dicebear.com/9.x/glass/svg?seed=Owner";
 
     const newRoom = new Room({
       id: roomId,
@@ -452,7 +390,7 @@ router.post("/:id/files", async (req, res) => {
     const room = await Room.findOne({ id: req.params.id });
     if (!room) return res.status(404).json({ message: "Room not found" });
 
-    const uploader = uploadedBy || "Aarav";
+    const uploader = uploadedBy || "Member";
     const fileType = type || (url.includes(".pdf") ? "pdf" : url.includes(".ppt") ? "ppt" : "link");
 
     const newFile = {
