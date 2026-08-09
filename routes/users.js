@@ -6,6 +6,11 @@ const { protect } = require("../middleware/auth");
 
 const router = express.Router();
 
+// Safe regex escaper helper
+function escapeRegex(text) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
 // ─── GET /api/users/search ──────────────────────────────────────────────────
 router.get("/search", async (req, res) => {
   try {
@@ -29,21 +34,31 @@ router.get("/search", async (req, res) => {
     let filter = { $and: baseConditions };
 
     if (query) {
-      const regex = new RegExp(query, "i");
-      baseConditions.push({
-        $or: [
-          { name: regex },
-          { username: regex },
-          { skills: regex },
-          { github: regex },
-          { linkedin: regex },
-          { portfolio: regex },
-          { college: regex },
-          { bio: regex },
-          { city: regex },
-          { country: regex },
-        ],
-      });
+      const cleanQuery = query.startsWith("@") ? query.slice(1) : query;
+      const safeRegex = new RegExp(escapeRegex(cleanQuery), "i");
+
+      const orConditions = [
+        { name: safeRegex },
+        { username: safeRegex },
+        { email: safeRegex },
+        { skills: safeRegex },
+        { github: safeRegex },
+        { linkedin: safeRegex },
+        { portfolio: safeRegex },
+        { college: safeRegex },
+        { city: safeRegex },
+        { country: safeRegex },
+        { bio: safeRegex },
+        { experience: safeRegex },
+        { "completedHackathons.name": safeRegex },
+        { "completedHackathons.result": safeRegex },
+      ];
+
+      if (mongoose.Types.ObjectId.isValid(cleanQuery)) {
+        orConditions.push({ _id: cleanQuery });
+      }
+
+      baseConditions.push({ $or: orConditions });
       filter = { $and: baseConditions };
     }
 

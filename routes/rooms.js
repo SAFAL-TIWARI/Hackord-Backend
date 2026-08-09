@@ -357,7 +357,7 @@ router.get("/:id/messages", async (req, res) => {
 
 router.post("/:id/messages", async (req, res) => {
   try {
-    const { text, authorName, authorAvatar } = req.body;
+    const { text, authorName, authorAvatar, recipientName, replyTo } = req.body;
     const room = await Room.findOne({ id: req.params.id });
     if (!room) return res.status(404).json({ message: "Room not found" });
 
@@ -368,6 +368,9 @@ router.post("/:id/messages", async (req, res) => {
       text,
       pinned: false,
       created_at: new Date(),
+      recipient_name: recipientName || null,
+      reply_to: replyTo || null,
+      edited: false,
     };
 
     room.messages.push(newMsg);
@@ -376,6 +379,48 @@ router.post("/:id/messages", async (req, res) => {
   } catch (err) {
     console.error("[sendMessage]", err);
     res.status(500).json({ message: "Server error sending message" });
+  }
+});
+
+router.put("/:id/messages/:msgId", async (req, res) => {
+  try {
+    const { text, pinned } = req.body;
+    const room = await Room.findOne({ id: req.params.id });
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    const msg = room.messages.find((m) => m.id === req.params.msgId);
+    if (!msg) return res.status(404).json({ message: "Message not found" });
+
+    if (text !== undefined) {
+      msg.text = text;
+      msg.edited = true;
+    }
+    if (pinned !== undefined) {
+      msg.pinned = pinned;
+    }
+
+    await room.save();
+    res.json(msg);
+  } catch (err) {
+    console.error("[updateMessage]", err);
+    res.status(500).json({ message: "Server error updating message" });
+  }
+});
+
+router.delete("/:id/messages/:msgId", async (req, res) => {
+  try {
+    const room = await Room.findOne({ id: req.params.id });
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    const idx = room.messages.findIndex((m) => m.id === req.params.msgId);
+    if (idx === -1) return res.status(404).json({ message: "Message not found" });
+
+    room.messages.splice(idx, 1);
+    await room.save();
+    res.json({ message: "Message deleted successfully", id: req.params.msgId });
+  } catch (err) {
+    console.error("[deleteMessage]", err);
+    res.status(500).json({ message: "Server error deleting message" });
   }
 });
 

@@ -60,6 +60,9 @@ const messageSchema = new mongoose.Schema(
     text: { type: String, required: true },
     pinned: { type: Boolean, default: false },
     created_at: { type: Date, default: Date.now },
+    recipient_name: { type: String, default: null },
+    reply_to: { type: String, default: null },
+    edited: { type: Boolean, default: false },
   },
   { _id: false }
 );

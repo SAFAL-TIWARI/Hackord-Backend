@@ -24,6 +24,7 @@ const userRoutes = require("./routes/users");
 const invitationRoutes = require("./routes/invitations");
 const noteRoutes = require("./routes/notes");
 const hackathonRoutes = require("./routes/hackathons");
+const contactRoutes = require("./routes/contact");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -180,6 +181,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/invitations", invitationRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/hackathons", hackathonRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Root & Health check endpoints
 app.get(["/", "/api"], (req, res) => {
@@ -213,6 +215,19 @@ async function start() {
       console.log(`   Health: http://localhost:${PORT}/api/health`);
       console.log(`   Auth:   http://localhost:${PORT}/api/auth`);
       console.log(`   Admin:  http://localhost:${PORT}/api/admin\n`);
+
+      // Initialize automated daily scraping background scheduler (every 24 hours)
+      const { scrapeHackathonsToFile } = require("./services/scraperService");
+      console.log("[Scheduler] ⏰ Initializing automated 24-hour daily hackathon scraper...");
+      scrapeHackathonsToFile().catch((err) =>
+        console.error("[Scheduler] Initial daily scrape error:", err.message)
+      );
+      setInterval(() => {
+        console.log("[Scheduler] ⏰ Running automated 24-hour daily hackathon scrape...");
+        scrapeHackathonsToFile().catch((err) =>
+          console.error("[Scheduler] Daily scrape error:", err.message)
+        );
+      }, 24 * 60 * 60 * 1000);
     });
   } catch (err) {
     console.error("❌ Failed to start server:", err.message);
