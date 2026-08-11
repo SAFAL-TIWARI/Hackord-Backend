@@ -37,9 +37,9 @@ const transporter = createEmailTransporter();
  * Dispatch notification using EmailJS REST API or SMTP fallback
  */
 async function sendEmailJSEmail({ recipientUser, title, body, actionUrl, metadata = {} }) {
-  const serviceId = process.env.EMAILJS_SERVICE_ID ;
-  const publicKey = process.env.EMAILJS_PUBLIC_KEY ;
-  const privateKey = process.env.EMAILJS_PRIVATE_KEY ;
+  const serviceId = process.env.EMAILJS_SERVICE_ID;
+  const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
   const templateId = process.env.EMAILJS_TEMPLATE_ID;
 
   if (!serviceId || !publicKey) {
@@ -60,6 +60,8 @@ async function sendEmailJSEmail({ recipientUser, title, body, actionUrl, metadat
       title: title,
       body: body,
       message: body,
+      otp_code: metadata.otpCode || "",
+      otp: metadata.otpCode || "",
       action_url: actionUrl,
       room_name: metadata.roomName || "",
       hackathon: metadata.hackathon || "",
@@ -98,8 +100,8 @@ async function sendNotification({ recipientUser, type, title, body, link, metada
     reminders: true,
   };
 
-  // Check Master Email Toggle
-  if (prefs.emailEnabled === false) {
+  // Check Master Email Toggle (account deletion bypasses preference check as it is a critical security email)
+  if (type !== "accountDeletion" && prefs.emailEnabled === false) {
     console.log(`[notificationService] 🛑 Email Alerts (Gmail) disabled for ${recipientUser.email}, skipping email dispatch.`);
     return { emailSent: false, reason: "disabled_master_switch" };
   }
@@ -139,36 +141,107 @@ async function sendNotification({ recipientUser, type, title, body, link, metada
 
   // 2. Fallback to Transporter / HTML Mailer
   try {
+    const formattedBodyHtml = body
+      .split("\n\n")
+      .map(
+        (p) =>
+          `<p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.65; color: #CBD5E1;">${p.replace(/\n/g, "<br/>")}</p>`
+      )
+      .join("");
+
+    const buttonLabel = metadata.buttonText || "Open in Hackord →";
+
     const htmlContent = `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #0f172a; color: #f8fafc; border-radius: 16px; border: 1px solid #1e293b;">
-        <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid #334155;">
-          <h1 style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; margin: 0; font-weight: 800;">
-            Hackord
-          </h1>
-          <p style="color: #94a3b8; font-size: 14px; margin-top: 4px;">Collaborative Hackathon Platform</p>
-        </div>
-        <div style="padding: 24px 0;">
-          <h2 style="font-size: 20px; color: #ffffff; margin-top: 0;">${title}</h2>
-          <p style="color: #cbd5e1; font-size: 15px; line-height: 1.6;">${body}</p>
-          ${
-            metadata.roomName
-              ? `<div style="background-color: #1e293b; padding: 16px; border-radius: 12px; margin: 16px 0; border-left: 4px solid #8b5cf6;">
-                  <p style="margin: 0; font-weight: 600; color: #e2e8f0;">Workspace: ${metadata.roomName}</p>
-                  ${metadata.hackathon ? `<p style="margin: 4px 0 0 0; font-size: 13px; color: #94a3b8;">Hackathon: ${metadata.hackathon}</p>` : ""}
-                </div>`
-              : ""
-          }
-          <div style="margin-top: 30px; text-align: center;">
-            <a href="${actionUrl}" style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 14px; display: inline-block; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
-              Open in Hackord
-            </a>
-          </div>
-        </div>
-        <div style="text-align: center; padding-top: 20px; border-top: 1px solid #334155; font-size: 12px; color: #64748b;">
-          <p style="margin: 0;">You received this notification based on your Hackord Notification Preferences.</p>
-          <p style="margin: 4px 0 0 0;">Manage your alert settings anytime in Settings → Notification Preferences.</p>
-        </div>
-      </div>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #060813; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #F8FAFC;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #060813; background-image: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.25) 0%, transparent 65%), radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.15) 0%, transparent 60%); padding: 40px 16px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background: rgba(13, 17, 39, 0.85); border-radius: 24px; border: 1px solid rgba(139, 92, 246, 0.3); overflow: hidden; box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.7);">
+                <tr>
+                  <td style="padding: 36px 32px 24px 32px; background: linear-gradient(180deg, rgba(30, 27, 75, 0.7) 0%, rgba(13, 17, 39, 0.9) 100%); text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                    <a href="https://hackord.vercel.app" target="_blank" style="text-decoration: none; display: inline-block;">
+                      <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto;">
+                        <tr>
+                          <td style="vertical-align: middle; padding-right: 12px;">
+                            <img src="https://hackord.vercel.app/logo.png" alt="Hackord Logo" width="42" height="42" style="display: block; border: 0; outline: none; border-radius: 10px;" />
+                          </td>
+                          <td style="vertical-align: middle;">
+                            <span style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, #8B5CF6 0%, #38BDF8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; color: #8B5CF6; display: inline-block;">
+                              Hackord
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                    </a>
+                    <p style="margin: 8px 0 0 0; font-size: 13px; color: #94A3B8; font-weight: 500;">
+                      Real-Time Collaborative Hackathon Workspaces
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 36px 32px;">
+                    <h2 style="margin: 0 0 16px 0; font-size: 22px; font-weight: 700; color: #FFFFFF;">
+                      ${title}
+                    </h2>
+                    <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.6; color: #E2E8F0;">
+                      Hi <strong style="color: #FFFFFF;">${recipientUser.name || "Hacker"}</strong>,
+                    </p>
+                    ${formattedBodyHtml}
+                    ${type === "accountDeletion"
+        ? `<table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin: 20px 0 24px 0; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #EF4444; border-radius: 12px;">
+                            <tr>
+                              <td style="padding: 14px 18px;">
+                                <p style="margin: 0; font-size: 13px; font-weight: 600; color: #FCA5A5;">
+                                  🔒 Account Status: Permanently Deleted
+                                </p>
+                                <p style="margin: 4px 0 0 0; font-size: 12px; color: #94A3B8;">
+                                  If you did not initiate this request, please contact security immediately at <a href="mailto:hackord.support@gmail.com" style="color: #38BDF8; text-decoration: underline;">hackord.support@gmail.com</a>.
+                                </p>
+                              </td>
+                            </tr>
+                          </table>`
+        : ""
+      }
+                    ${metadata.roomName
+        ? `<table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin: 24px 0; background: rgba(139, 92, 246, 0.08); border-left: 4px solid #8B5CF6; border-radius: 12px;">
+                            <tr>
+                              <td style="padding: 16px 20px;">
+                                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #F8FAFC;">Workspace: ${metadata.roomName}</p>
+                                ${metadata.hackathon ? `<p style="margin: 6px 0 0 0; font-size: 13px; color: #94A3B8;">Hackathon: ${metadata.hackathon}</p>` : ""}
+                              </td>
+                            </tr>
+                          </table>`
+        : ""
+      }
+                    <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin-top: 36px; width: 100%;">
+                      <tr>
+                        <td align="center">
+                          <a href="${actionUrl}" target="_blank" style="background: linear-gradient(135deg, #8B5CF6 0%, #38BDF8 100%); color: #FFFFFF; text-decoration: none; padding: 15px 36px; border-radius: 9999px; font-weight: 700; font-size: 15px; display: inline-block; box-shadow: 0 10px 25px -4px rgba(139, 92, 246, 0.45);">
+                            ${buttonLabel}
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 24px 32px; background-color: rgba(6, 8, 19, 0.95); text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 12px; color: #64748B;">
+                    <p style="margin: 0 0 6px 0;">This email confirms a key action on your <strong>Hackord Account</strong>.</p>
+                    <p style="margin: 0;">Hackord Platform • Real-Time Collaboration for Hackers</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `;
 
     await transporter.sendMail({

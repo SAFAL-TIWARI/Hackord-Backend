@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
+const Otp = require("../models/Otp");
 const { protect } = require("../middleware/auth");
 const { sendNotification } = require("../services/notificationService");
 
@@ -364,6 +365,335 @@ router.put("/profile", protect, async (req, res) => {
   } catch (err) {
     console.error("[profile update]", err);
     res.status(500).json({ message: "Server error updating profile" });
+  }
+});
+
+// ─── GitHub-style OTP Email Formatter ────────────────────────────────────────
+function formatGitHubStyleOtpEmail(name, otpCode, purpose = "authentication") {
+  const digits = otpCode.split("");
+  const formattedDigits = digits.join(" ");
+
+  const title = `Please verify your identity, ${name || "Developer"}`;
+  const body = `Here is your Hackord ${purpose} code:
+
+       ${formattedDigits}
+
+This code is valid for 10 minutes and can only be used once.
+
+Please don't share this code with anyone: we'll never ask for it on the phone or via email.
+
+Thanks,
+The Hackord Team`;
+
+  return { title, body, formattedDigits };
+}
+
+// ─── POST /api/auth/signup-request-otp ──────────────────────────────────────
+router.post("/signup-request-otp", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const emailClean = email.toLowerCase().trim();
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: emailClean });
+    if (existingUser) {
+      return res.status(409).json({ message: "An account with this email already exists" });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Upsert OTP record
+    await Otp.findOneAndUpdate(
+      { email: emailClean },
+      { otp: otpCode, expiresAt },
+      { upsert: true, new: true }
+    );
+
+    const { title, body, formattedDigits } = formatGitHubStyleOtpEmail(name, otpCode, "registration");
+
+    // Send email using EmailJS notification service
+    await sendNotification({
+      recipientUser: { email: emailClean, name },
+      type: "otp",
+      title,
+      body,
+      link: "/signup",
+      metadata: { otpCode: formattedDigits },
+    });
+
+    res.json({
+      success: true,
+      message: `Verification code sent to ${emailClean}. Please check your inbox.`,
+    });
+  } catch (err) {
+    console.error("[signup-request-otp]", err);
+    res.status(500).json({ message: "Failed to send verification code. Please try again." });
+  }
+});
+
+// ─── POST /api/auth/signup-verify-otp ───────────────────────────────────────
+router.post("/signup-verify-otp", async (req, res) => {
+  try {
+    const { name, email, password, otp } = req.body;
+
+    if (!name || !email || !password || !otp) {
+      return res.status(400).json({ message: "Name, email, password, and verification code are required" });
+    }
+
+    const emailClean = email.toLowerCase().trim();
+    const otpClean = otp.trim();
+
+    const record = await Otp.findOne({ email: emailClean });
+    if (!record) {
+      return res.status(400).json({ message: "No verification code requested or code expired. Please request a new one." });
+    }
+
+    if (new Date() > record.expiresAt || record.otp !== otpClean) {
+      return res.status(400).json({ message: "Invalid or expired verification code." });
+    }
+
+    // Delete verified OTP record
+    await Otp.deleteOne({ _id: record._id });
+
+    // Double check user existence
+    let existingUser = await User.findOne({ email: emailClean });
+    if (existingUser) {
+      return res.status(409).json({ message: "An account with this email already exists" });
+    }
+
+    // Create user
+    const user = await User.create({
+      name,
+      email: emailClean,
+      password,
+      username: emailClean.split("@")[0] + "_" + Math.floor(100 + Math.random() * 900),
+      avatar: `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(name)}`,
+      isEmailVerified: true,
+    });
+
+    const token = generateToken(user._id);
+
+    // Trigger Welcome Email Notification
+    sendNotification({
+      recipientUser: user,
+      type: "welcome",
+      title: "Welcome to Hackord! 🎉",
+      body: `Hi ${name.split(" ")[0]}, welcome to Hackord! Your email has been verified and account created. Explore hackathons, form teams, and build incredible projects.`,
+      link: "/dashboard",
+    }).catch((e) => console.error("[signupWelcomeNotifErr]", e.message));
+
+    res.status(201).json({
+      token,
+      user: user.toJSON(),
+      isNewUser: true,
+    });
+  } catch (err) {
+    console.error("[signup-verify-otp]", err);
+    if (err.code === 11000) {
+      return res.status(409).json({ message: "An account with this email already exists" });
+    }
+    res.status(500).json({ message: "Server error creating verified account" });
+  }
+});
+
+// ─── POST /api/auth/request-otp ────────────────────────────────────────────
+router.post("/request-otp", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.includes("@")) {
+      return res.status(400).json({ message: "Valid email address is required" });
+    }
+
+    const emailClean = email.toLowerCase().trim();
+
+    // Verify that user account already exists before sending login OTP
+    const existingUser = await User.findOne({ email: emailClean });
+    if (!existingUser) {
+      return res.status(404).json({
+        message: "No account found registered with this email address. Please sign up first.",
+        redirectToSignup: true,
+      });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Upsert OTP record
+    await Otp.findOneAndUpdate(
+      { email: emailClean },
+      { otp: otpCode, expiresAt },
+      { upsert: true, new: true }
+    );
+
+    const { title, body, formattedDigits } = formatGitHubStyleOtpEmail(existingUser.name || emailClean.split("@")[0], otpCode, "authentication");
+
+    // Send email using EmailJS notification service
+    await sendNotification({
+      recipientUser: { email: emailClean, name: existingUser.name || emailClean.split("@")[0] },
+      type: "otp",
+      title,
+      body,
+      link: "/login",
+      metadata: { otpCode: formattedDigits },
+    });
+
+    res.json({
+      success: true,
+      message: `Verification code sent to ${emailClean}. Please check your inbox or spam folder.`,
+    });
+  } catch (err) {
+    console.error("[request-otp]", err);
+    res.status(500).json({ message: "Failed to send verification code. Please try again." });
+  }
+});
+
+// ─── POST /api/auth/verify-otp ─────────────────────────────────────────────
+router.post("/verify-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ message: "Email and OTP code are required" });
+    }
+
+    const emailClean = email.toLowerCase().trim();
+    const otpClean = otp.trim();
+
+    // Verify user existence
+    const user = await User.findOne({ email: emailClean });
+    if (!user) {
+      return res.status(404).json({
+        message: "No account found with this email address. Please sign up first.",
+        redirectToSignup: true,
+      });
+    }
+
+    const record = await Otp.findOne({ email: emailClean });
+    if (!record) {
+      return res.status(400).json({ message: "No verification code requested or code expired. Please request a new one." });
+    }
+
+    if (new Date() > record.expiresAt || record.otp !== otpClean) {
+      return res.status(400).json({ message: "Invalid or expired verification code." });
+    }
+
+    // Delete verified OTP record
+    await Otp.deleteOne({ _id: record._id });
+
+    const token = generateToken(user._id);
+
+    res.json({
+      token,
+      user: user.toJSON(),
+      isNewUser: false,
+    });
+  } catch (err) {
+    console.error("[verify-otp]", err);
+    res.status(500).json({ message: "Server error during OTP verification." });
+  }
+});
+
+// ─── POST /api/auth/forgot-password-request ─────────────────────────────────
+router.post("/forgot-password-request", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !email.includes("@")) {
+      return res.status(400).json({ message: "Valid email address is required" });
+    }
+
+    const emailClean = email.toLowerCase().trim();
+
+    const user = await User.findOne({ email: emailClean });
+    if (!user) {
+      return res.status(404).json({ message: "No account found registered with this email address." });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Upsert OTP record
+    await Otp.findOneAndUpdate(
+      { email: emailClean },
+      { otp: otpCode, expiresAt },
+      { upsert: true, new: true }
+    );
+
+    const { title, body, formattedDigits } = formatGitHubStyleOtpEmail(user.name, otpCode, "password reset");
+
+    await sendNotification({
+      recipientUser: user,
+      type: "otp",
+      title,
+      body,
+      link: "/login",
+      metadata: { otpCode: formattedDigits },
+    });
+
+    res.json({
+      success: true,
+      message: `Password reset verification code sent to ${emailClean}. Please check your inbox.`,
+    });
+  } catch (err) {
+    console.error("[forgot-password-request]", err);
+    res.status(500).json({ message: "Failed to send password reset code. Please try again." });
+  }
+});
+
+// ─── POST /api/auth/reset-password-verify ────────────────────────────────────
+router.post("/reset-password-verify", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: "Email, verification code, and new password are required" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "New password must be at least 6 characters" });
+    }
+
+    const emailClean = email.toLowerCase().trim();
+    const otpClean = otp.trim();
+
+    const record = await Otp.findOne({ email: emailClean });
+    if (!record) {
+      return res.status(400).json({ message: "No verification code requested or code expired. Please request a new one." });
+    }
+
+    if (new Date() > record.expiresAt || record.otp !== otpClean) {
+      return res.status(400).json({ message: "Invalid or expired verification code." });
+    }
+
+    const user = await User.findOne({ email: emailClean });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Delete OTP record & Update password
+    await Otp.deleteOne({ _id: record._id });
+    user.password = newPassword;
+    await user.save();
+
+    const token = generateToken(user._id);
+
+    res.json({
+      success: true,
+      token,
+      user: user.toJSON(),
+      message: "Password reset successfully!",
+    });
+  } catch (err) {
+    console.error("[reset-password-verify]", err);
+    res.status(500).json({ message: "Server error resetting password." });
   }
 });
 

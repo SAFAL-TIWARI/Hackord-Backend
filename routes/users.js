@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const Invitation = require("../models/Invitation");
 const { protect } = require("../middleware/auth");
+const { sendNotification } = require("../services/notificationService");
 
 const router = express.Router();
 
@@ -225,6 +226,14 @@ router.delete("/me", async (req, res) => {
     const userIdStr = user._id.toString();
     const userEmail = user.email;
 
+    // Snapshot user data for email dispatch
+    const userSnapshot = {
+      _id: user._id,
+      name: user.name || "Hacker",
+      email: user.email,
+      notificationPreferences: user.notificationPreferences || { emailEnabled: true },
+    };
+
     // Delete invitations involving user
     await Invitation.deleteMany({
       $or: [
@@ -236,6 +245,20 @@ router.delete("/me", async (req, res) => {
 
     // Delete User record from DB
     await User.findByIdAndDelete(user._id);
+
+    // Dispatch professional account deletion email notification
+    sendNotification({
+      recipientUser: userSnapshot,
+      type: "accountDeletion",
+      title: "Account Deletion Confirmation",
+      body: `Your Hackord account (${userEmail}) has been permanently deleted as requested. All your profile information, active room invitations, and personal workspace data have been securely purged from our servers.\n\nWe're sad to see you go! Thank you for having been a part of the Hackord community. If you ever decide to return to build, collaborate, or compete in hackathons, you are always welcome to sign up again.`,
+      link: "/",
+      metadata: {
+        buttonText: "Visit Hackord →",
+      },
+    }).catch((err) => {
+      console.error("[deleteAccountNotifErr]", err.message);
+    });
 
     console.log(`[users/delete] 🗑️ Account ${userEmail} (${userIdStr}) permanently deleted from MongoDB`);
     res.json({ message: "Account deleted successfully from database" });

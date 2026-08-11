@@ -130,46 +130,55 @@ app.use(async (req, res, next) => {
   }
 });
 
-// ─── Seed Admin User ────────────────────────────────────────────────────────
+// ─── Seed Admin Users ───────────────────────────────────────────────────────
 async function seedAdmin() {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminEmail || !adminPassword) {
-      console.log("[seed] No admin credentials in .env — skipping admin seed");
-      return;
+    const adminAccounts = [];
+    if (process.env.ADMIN1_EMAIL && process.env.ADMIN1_PASSWORD) {
+      adminAccounts.push({
+        email: process.env.ADMIN1_EMAIL.toLowerCase().trim(),
+        password: process.env.ADMIN1_PASSWORD,
+        name: "Hackord Admin",
+        username: "admin",
+      });
+    }
+    if (process.env.ADMIN2_EMAIL && process.env.ADMIN2_PASSWORD) {
+      adminAccounts.push({
+        email: process.env.ADMIN2_EMAIL.toLowerCase().trim(),
+        password: process.env.ADMIN2_PASSWORD,
+        name: "Hackord Support Admin",
+        username: "hackord_support",
+      });
     }
 
-    const emailClean = adminEmail.toLowerCase().trim();
-    const existing = await User.findOne({ email: emailClean });
-    if (existing) {
-      const isMatch = await existing.comparePassword(adminPassword);
-      if (!isMatch || existing.role !== "admin") {
-        existing.password = adminPassword; // pre('save') will hash the new password
-        existing.role = "admin";
-        await existing.save();
-        console.log("[seed] ✅ Updated admin password & role for:", emailClean);
+    for (const adminData of adminAccounts) {
+      const existing = await User.findOne({ email: adminData.email });
+      if (existing) {
+        const isMatch = await existing.comparePassword(adminData.password);
+        if (!isMatch || existing.role !== "admin") {
+          existing.password = adminData.password;
+          existing.role = "admin";
+          await existing.save();
+          console.log("[seed] ✅ Updated admin credentials for:", adminData.email);
+        } else {
+          console.log("[seed] ✅ Admin user exists and operational:", adminData.email);
+        }
       } else {
-        console.log("[seed] ✅ Admin user already exists and credentials match:", emailClean);
+        await User.create({
+          name: adminData.name,
+          email: adminData.email,
+          password: adminData.password,
+          role: "admin",
+          username: adminData.username,
+          avatar: `https://api.dicebear.com/9.x/bottts/svg?seed=${adminData.username}`,
+          bio: "Hackord platform administrator",
+          experience: "Advanced",
+        });
+        console.log("[seed] ✅ Admin user created:", adminData.email);
       }
-      return;
     }
-
-    await User.create({
-      name: "Hackord Admin",
-      email: emailClean,
-      password: adminPassword,
-      role: "admin",
-      username: "admin",
-      avatar: "https://api.dicebear.com/9.x/bottts/svg?seed=admin",
-      bio: "Hackord platform administrator",
-      experience: "Advanced",
-    });
-
-    console.log("[seed] ✅ Admin user created:", emailClean);
   } catch (err) {
-    console.error("[seed] Error seeding admin:", err.message);
+    console.error("[seed] Error seeding admin users:", err.message);
   }
 }
 
