@@ -62,18 +62,22 @@ const userSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    lastActive: { type: Date, default: Date.now },
     // Settings fields
     notificationPreferences: {
       emailEnabled: { type: Boolean, default: true },
       roomInvites: { type: Boolean, default: true },
       deadlines: { type: Boolean, default: true },
       chatMessages: { type: Boolean, default: true },
+      desktopNotifications: { type: Boolean, default: true },
       reminders: { type: Boolean, default: false },
     },
     privacySettings: {
       discoverable: { type: Boolean, default: true },
       allowInvites: { type: Boolean, default: true },
+      allowDirectMessages: { type: Boolean, default: true },
       showEmail: { type: Boolean, default: true },
+      showOnlineStatus: { type: Boolean, default: true },
       activityStatus: { type: Boolean, default: true },
     },
   },

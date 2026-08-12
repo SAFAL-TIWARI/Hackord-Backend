@@ -68,10 +68,43 @@ router.get("/search", async (req, res) => {
       .limit(30)
       .sort({ createdAt: -1 });
 
-    res.json(users);
+    const now = Date.now();
+    const formattedUsers = users.map((u) => {
+      const obj = u.toObject();
+      const lastActiveMs = obj.lastActive ? new Date(obj.lastActive).getTime() : 0;
+      const isRecentlyActive = now - lastActiveMs < 40000;
+      const showOnline = obj.privacySettings?.showOnlineStatus !== false && obj.privacySettings?.activityStatus !== false;
+      obj.isOnline = isRecentlyActive && showOnline;
+      return obj;
+    });
+
+    res.json(formattedUsers);
   } catch (err) {
     console.error("[searchUsers]", err);
     res.status(500).json({ message: "Server error searching users" });
+  }
+});
+
+// ─── POST /api/users/heartbeat ──────────────────────────────────────────────
+router.post("/heartbeat", async (req, res) => {
+  try {
+    let userId = req.body?.userId;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      try {
+        const token = authHeader.split(" ")[1];
+        const jwt = require("jsonwebtoken");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.id;
+      } catch (e) {}
+    }
+
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+      await User.findByIdAndUpdate(userId, { lastActive: new Date() });
+    }
+    res.json({ success: true, timestamp: new Date() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -86,9 +119,7 @@ router.get("/settings", async (req, res) => {
         const jwt = require("jsonwebtoken");
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         user = await User.findById(decoded.id);
-      } catch (e) {
-        // Fallback to query
-      }
+      } catch (e) {}
     }
 
     if (!user && req.query.userId && mongoose.Types.ObjectId.isValid(req.query.userId)) {
@@ -100,38 +131,44 @@ router.get("/settings", async (req, res) => {
 
     if (!user) {
       return res.json({
-        whatsappNumber: "",
         notificationPreferences: {
           emailEnabled: true,
-          whatsappEnabled: true,
           roomInvites: true,
           deadlines: true,
           chatMessages: true,
+          desktopNotifications: true,
           reminders: false,
         },
         privacySettings: {
           discoverable: true,
           allowInvites: true,
+          allowDirectMessages: true,
           showEmail: true,
-          showPhone: true,
+          showOnlineStatus: true,
           activityStatus: true,
         },
       });
     }
 
+    const p = user.privacySettings ? (user.privacySettings.toObject ? user.privacySettings.toObject() : user.privacySettings) : {};
+    const n = user.notificationPreferences ? (user.notificationPreferences.toObject ? user.notificationPreferences.toObject() : user.notificationPreferences) : {};
+
     res.json({
-      notificationPreferences: user.notificationPreferences || {
-        emailEnabled: true,
-        roomInvites: true,
-        deadlines: true,
-        chatMessages: true,
-        reminders: false,
+      notificationPreferences: {
+        emailEnabled: n.emailEnabled !== false,
+        roomInvites: n.roomInvites !== false,
+        deadlines: n.deadlines !== false,
+        chatMessages: n.chatMessages !== false,
+        desktopNotifications: n.desktopNotifications !== false,
+        reminders: Boolean(n.reminders),
       },
-      privacySettings: user.privacySettings || {
-        discoverable: true,
-        allowInvites: true,
-        showEmail: true,
-        activityStatus: true,
+      privacySettings: {
+        discoverable: p.discoverable !== false,
+        allowInvites: p.allowInvites !== false,
+        allowDirectMessages: p.allowDirectMessages !== false,
+        showEmail: p.showEmail !== false,
+        showOnlineStatus: p.showOnlineStatus !== false && p.activityStatus !== false,
+        activityStatus: p.activityStatus !== false && p.showOnlineStatus !== false,
       },
     });
   } catch (err) {
@@ -169,15 +206,24 @@ router.put("/settings", async (req, res) => {
 
     if (notificationPreferences) {
       user.notificationPreferences = {
-        ...user.notificationPreferences,
+        ...(user.notificationPreferences ? (user.notificationPreferences.toObject ? user.notificationPreferences.toObject() : user.notificationPreferences) : {}),
         ...notificationPreferences,
       };
+      user.markModified("notificationPreferences");
     }
     if (privacySettings) {
-      user.privacySettings = {
-        ...user.privacySettings,
+      const currentPrivacy = user.privacySettings ? (user.privacySettings.toObject ? user.privacySettings.toObject() : user.privacySettings) : {};
+      const updatedPrivacy = {
+        ...currentPrivacy,
         ...privacySettings,
       };
+      if (typeof privacySettings.showOnlineStatus !== "undefined") {
+        updatedPrivacy.activityStatus = privacySettings.showOnlineStatus;
+      } else if (typeof privacySettings.activityStatus !== "undefined") {
+        updatedPrivacy.showOnlineStatus = privacySettings.activityStatus;
+      }
+      user.privacySettings = updatedPrivacy;
+      user.markModified("privacySettings");
     }
 
     await user.save();
