@@ -143,6 +143,40 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Room name and hackathon are required" });
     }
 
+    // 1. Unique Room Name Check (case-insensitive)
+    const escapedName = name.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existingNameRoom = await Room.findOne({
+      name: { $regex: new RegExp("^" + escapedName + "$", "i") },
+    });
+    if (existingNameRoom) {
+      return res
+        .status(400)
+        .json({ message: `A room with the name "${name.trim()}" already exists. Please choose a unique name.` });
+    }
+
+    const ownerId = creatorId || creator_id || "";
+    const ownerEmail = creatorEmail || creator_email || "";
+    const ownerName = creatorName || creator_name || "Room Lead";
+    const ownerAvatar = creatorAvatar || creator_avatar || "https://api.dicebear.com/9.x/glass/svg?seed=Owner";
+
+    // 2. Single Hackathon Participation Check for Creator
+    if (ownerId || ownerEmail) {
+      const escapedHackathon = hackathon.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const existingUserHackathonRoom = await Room.findOne({
+        hackathon: { $regex: new RegExp("^" + escapedHackathon + "$", "i") },
+        $or: [
+          { creator_id: String(ownerId) },
+          { creator_email: ownerEmail ? String(ownerEmail).toLowerCase() : "---" },
+          { "members.user_id": String(ownerId) },
+        ],
+      });
+      if (existingUserHackathonRoom) {
+        return res.status(400).json({
+          message: `You are already part of room "${existingUserHackathonRoom.name}" for hackathon "${hackathon.trim()}". You cannot create multiple rooms for the same hackathon.`,
+        });
+      }
+    }
+
     const roomId =
       id ||
       name
@@ -154,11 +188,6 @@ router.post("/", async (req, res) => {
         Date.now().toString(36);
 
     const links = Array.isArray(projectLinks) ? projectLinks.filter((l) => l.url) : [];
-
-    const ownerId = creatorId || creator_id || "";
-    const ownerEmail = creatorEmail || creator_email || "";
-    const ownerName = creatorName || creator_name || "Room Lead";
-    const ownerAvatar = creatorAvatar || creator_avatar || "https://api.dicebear.com/9.x/glass/svg?seed=Owner";
 
     const newRoom = new Room({
       id: roomId,
@@ -278,6 +307,24 @@ router.post("/:id/members", async (req, res) => {
       return res.status(400).json({ message: `Room capacity limit reached (${room.members.length}/${maxSize} members).` });
     }
 
+    // Check if user is already participating in another room for the SAME hackathon
+    if (user_id) {
+      const escapedHackathon = room.hackathon.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const existingUserHackathonRoom = await Room.findOne({
+        id: { $ne: room.id },
+        hackathon: { $regex: new RegExp("^" + escapedHackathon + "$", "i") },
+        $or: [
+          { creator_id: String(user_id) },
+          { "members.user_id": String(user_id) },
+        ],
+      });
+      if (existingUserHackathonRoom) {
+        return res.status(400).json({
+          message: `You are already participating in room "${existingUserHackathonRoom.name}" for hackathon "${room.hackathon}". You cannot join multiple rooms for the same hackathon.`,
+        });
+      }
+    }
+
     const exists = room.members.some((m) => m.user_id === user_id);
     if (!exists) {
       room.members.push({
@@ -301,6 +348,44 @@ router.post("/:id/members", async (req, res) => {
   } catch (err) {
     console.error("[addMember]", err);
     res.status(500).json({ message: "Server error adding member" });
+  }
+});
+
+// ─── POST /api/rooms/:id/leave ─────────────────────────────────────────────
+router.post("/:id/leave", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, userEmail, userName } = req.body;
+    const room = await Room.findOne({ id });
+
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    const targetId = userId || userEmail || userName;
+    const memberIndex = room.members.findIndex(
+      (m) =>
+        (userId && String(m.user_id) === String(userId)) ||
+        (userEmail && String(m.user_id).toLowerCase() === String(userEmail).toLowerCase()) ||
+        (userName && m.user_name === userName)
+    );
+
+    if (memberIndex === -1) {
+      return res.status(400).json({ message: "You are not a member of this room" });
+    }
+
+    const removedMember = room.members.splice(memberIndex, 1)[0];
+
+    room.activities.unshift({
+      id: `act_${Date.now()}`,
+      who: removedMember.user_name.split(" ")[0],
+      what: `left room "${room.name}"`,
+      when: new Date(),
+    });
+
+    await room.save();
+    res.json({ message: `Successfully left room "${room.name}"`, room });
+  } catch (err) {
+    console.error("[leaveRoom]", err);
+    res.status(500).json({ message: "Server error leaving room" });
   }
 });
 

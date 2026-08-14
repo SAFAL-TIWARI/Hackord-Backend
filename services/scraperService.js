@@ -453,13 +453,38 @@ async function scrapeHackathonsToFile() {
   const rawAll = [...devpost, ...unstop, ...mlh, ...devfolio, ...luma, ...gdg];
   console.log(`[ScraperService] Fetched ${rawAll.length} raw scraped hackathon items.`);
 
-  // Validation step: Filter out fake/dummy data and non-200 / 404 links
+  // Validation step: Filter out past events, closed registrations, and non-200 / 404 links
   const validHackathons = [];
+  const todayStr = new Date().toISOString().split("T")[0];
+  const todayTime = new Date(todayStr).getTime();
 
   for (const item of rawAll) {
     if (!item.name || item.name.trim().length < 3 || !item.organizer) continue;
 
-    // Check URL status to avoid storing 404 broken links
+    // 1. Skip past hosted events (where registration or submission deadline is before today)
+    if (item.registrationDeadline) {
+      const regTime = new Date(item.registrationDeadline).getTime();
+      if (!isNaN(regTime) && regTime < todayTime) {
+        console.warn(`[ScraperService] ⏳ Skipping past hackathon "${item.name}" (registration deadline ${item.registrationDeadline} passed)`);
+        continue;
+      }
+    }
+
+    if (item.submissionDeadline) {
+      const subTime = new Date(item.submissionDeadline).getTime();
+      if (!isNaN(subTime) && subTime < todayTime) {
+        console.warn(`[ScraperService] ⏳ Skipping ended hackathon "${item.name}" (submission deadline ${item.submissionDeadline} passed)`);
+        continue;
+      }
+    }
+
+    // 2. Skip hackathons whose registrations are explicitly closed
+    if (item.registrationClosed === true || item.isClosed === true) {
+      console.warn(`[ScraperService] 🚫 Skipping closed registration hackathon "${item.name}"`);
+      continue;
+    }
+
+    // 3. Check URL status to avoid storing 404 broken links
     const isUrlAlive = await checkUrlExists(item.platformUrl);
     if (!isUrlAlive) {
       console.warn(`[ScraperService] ❌ Skipping item "${item.name}" due to 404/invalid URL: ${item.platformUrl}`);
