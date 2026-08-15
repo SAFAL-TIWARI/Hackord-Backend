@@ -26,6 +26,7 @@ const noteRoutes = require("./routes/notes");
 const hackathonRoutes = require("./routes/hackathons");
 const contactRoutes = require("./routes/contact");
 const chatRoutes = require("./routes/chat");
+const aiRoutes = require("./routes/ai");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,7 +77,8 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "15mb" }));
+app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
 // ─── MongoDB Connection & Seed Handler ───────────────────────────────────────
 let isConnected = false;
@@ -193,6 +195,7 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/hackathons", hackathonRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Root & Health check endpoints
 app.get(["/", "/api"], (req, res) => {
