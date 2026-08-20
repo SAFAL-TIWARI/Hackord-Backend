@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 
 const AiFileSchema = new mongoose.Schema(
   {
@@ -10,15 +10,10 @@ const AiFileSchema = new mongoose.Schema(
     fileSize: { type: Number, required: true },
     extractedText: { type: String, default: '' },
     base64Data: { type: String, default: '' },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      expires: 86400, // Auto-delete after 24 hours (TTL index in seconds)
-    },
   },
   { timestamps: true }
 );
 
-// TTL index configured on field
+AiFileSchema.index({ roomId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('AiFile', AiFileSchema);

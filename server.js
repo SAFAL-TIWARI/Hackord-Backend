@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const dns = require("node:dns");
+try { dns.setDefaultResultOrder("ipv4first"); } catch (e) {}
 
 // Load environment variables
 dotenv.config();
