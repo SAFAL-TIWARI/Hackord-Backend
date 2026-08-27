@@ -29,6 +29,7 @@
 | | `bcryptjs` | `^2.4.3` | Password hashing with salt rounds (12) |
 | | `google-auth-library` | `^11.0.0` | Google OAuth token verification |
 | | `agora-token` | `^2.0.5` | Dynamic RTC token generation for WebRTC |
+| | `express-rate-limit` | `^7.5.0` | 24-hour sliding rate limiter for authentication & brute-force defense |
 | **AI & LLM Integration** | Google Gemini API (REST) | `gemini-3.7-flash`, etc. | Multimodal text, image, audio, video & PDF processing |
 | | `cheerio` & `axios` | `^1.2.0` / `^1.19.0` | Live web link scraping for AI context & hackathon aggregation |
 | | `pdf-parse` | `^2.4.5` | PDF text extraction for workspace documents |
@@ -180,7 +181,15 @@
 
 ## 📡 5. Complete REST API Specifications
 
-### 🔐 Authentication (`/api/auth`)
+### 🔐 Authentication & Rate Limiting (`/api/auth`)
+
+> **🛡️ 24-Hour Rate Limiting & Brute-Force Protection:**  
+> All authentication endpoints are enforced by 24-hour sliding window rate limiters (`middleware/rateLimiter.js`) using combined IPv4/IPv6 client IP normalization and user email identifiers. Exceeding limits returns HTTP 429 Too Many Requests with security lockout headers and informative JSON responses.
+>
+> - **Login & OTP Verification (`/login`, `/verify-otp`, `/signup-verify-otp`, `/reset-password-verify`):** Max 20 attempts per 24 hours per IP/account.
+> - **OTP & Password Reset Requests (`/request-otp`, `/signup-request-otp`, `/forgot-password-request`):** Max 10 requests per 24 hours to prevent email spamming & inbox flooding.
+> - **Signup Registration (`/signup`):** Max 10 account creations per 24 hours per IP.
+> - **OAuth Sign-in (`/google`, `/github`):** Max 40 exchanges per 24 hours per IP.
 | Method | Endpoint | Protection | Description |
 | :--- | :--- | :---: | :--- |
 | `POST` | `/api/auth/signup` | Public | Register with Name, Email, Password; sends welcome email |

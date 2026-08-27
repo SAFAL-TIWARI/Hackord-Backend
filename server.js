@@ -30,6 +30,9 @@ const chatRoutes = require("./routes/chat");
 const aiRoutes = require("./routes/ai");
 
 const app = express();
+
+// Trust reverse proxy (Vercel, Render, Nginx, Cloudflare) for accurate rate limiting and IP detection
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 // ─── Dynamic CORS Middleware ────────────────────────────────────────────────

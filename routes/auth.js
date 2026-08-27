@@ -1,10 +1,19 @@
-const express = require("express");
+﻿const express = require("express");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 const Otp = require("../models/Otp");
 const { protect } = require("../middleware/auth");
 const { sendNotification } = require("../services/notificationService");
+const {
+  checkAuthLockoutMiddleware,
+  recordFailedAttempt,
+  clearFailedAttempts,
+  normalizeClientInfo,
+  otpRequestRateLimiter,
+  signupRateLimiter,
+  oauthRateLimiter,
+} = require("../middleware/rateLimiter");
 
 const router = express.Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -16,8 +25,8 @@ function generateToken(userId) {
   });
 }
 
-// ─── POST /api/auth/signup ─────────────────────────────────────────────────
-router.post("/signup", async (req, res) => {
+// ─── POST /api/auth/signup ───────────────────────────────────────────
+router.post("/signup", signupRateLimiter, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -68,26 +77,57 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/login ──────────────────────────────────────────────────
-router.post("/login", async (req, res) => {
+// ─── POST /api/auth/login ────────────────────────────────────────────
+// Enforces 5 failed attempts limit before 24-hour lockout. Correct password resets failures.
+router.post("/login", checkAuthLockoutMiddleware, async (req, res) => {
   try {
     const { email, password } = req.body;
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
 
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
     // Find user (include password for comparison)
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: emailClean });
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      const failInfo = await recordFailedAttempt(emailClean, ip);
+      if (failInfo.isLocked) {
+        return res.status(429).json({
+          error: "Too Many Requests",
+          message: "Security Lockout: 5 failed login attempts reached. Please try again after 24 hours.",
+          statusCode: 429,
+          retryAfterHours: 24,
+          lockUntil: failInfo.lockUntil,
+        });
+      }
+      return res.status(401).json({
+        message: `Invalid email or password. ${failInfo.remainingAttempts} attempt${failInfo.remainingAttempts === 1 ? "" : "s"} remaining before 24-hour lockout.`,
+        attemptsRemaining: failInfo.remainingAttempts,
+      });
     }
 
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      const failInfo = await recordFailedAttempt(emailClean, ip);
+      if (failInfo.isLocked) {
+        return res.status(429).json({
+          error: "Too Many Requests",
+          message: "Security Lockout: 5 failed login attempts reached. Please try again after 24 hours or reset your password.",
+          statusCode: 429,
+          retryAfterHours: 24,
+          lockUntil: failInfo.lockUntil,
+        });
+      }
+      return res.status(401).json({
+        message: `Invalid email or password. ${failInfo.remainingAttempts} attempt${failInfo.remainingAttempts === 1 ? "" : "s"} remaining before 24-hour lockout.`,
+        attemptsRemaining: failInfo.remainingAttempts,
+      });
     }
+
+    // Success! Clear any past failed attempts
+    await clearFailedAttempts(emailClean, ip);
 
     const token = generateToken(user._id);
 
@@ -101,8 +141,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/google ──────────────────────────────────────────────────
-router.post("/google", async (req, res) => {
+// ─── POST /api/auth/google ───────────────────────────────────────────
+router.post("/google", oauthRateLimiter, async (req, res) => {
   try {
     const { credential } = req.body;
     if (!credential) {
@@ -141,9 +181,10 @@ router.post("/google", async (req, res) => {
     }
 
     const { sub: googleId, email, name, picture } = payload;
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
 
     let user = await User.findOne({
-      $or: [{ googleId }, { email: email.toLowerCase() }],
+      $or: [{ googleId }, { email: emailClean }],
     });
 
     let isNewUser = false;
@@ -161,7 +202,7 @@ router.post("/google", async (req, res) => {
       const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "");
       user = await User.create({
         name: name || "Developer",
-        email: email.toLowerCase(),
+        email: emailClean,
         googleId,
         username: baseUsername,
         avatar: picture || `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(name || email)}`,
@@ -176,6 +217,7 @@ router.post("/google", async (req, res) => {
       }).catch((e) => console.error("[googleSignupWelcomeNotifErr]", e.message));
     }
 
+    await clearFailedAttempts(emailClean, ip);
     const token = generateToken(user._id);
 
     res.json({
@@ -189,8 +231,8 @@ router.post("/google", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/github ──────────────────────────────────────────────────
-router.post("/github", async (req, res) => {
+// ─── POST /api/auth/github ───────────────────────────────────────────
+router.post("/github", oauthRateLimiter, async (req, res) => {
   try {
     const { code } = req.body;
     if (!code) {
@@ -271,9 +313,10 @@ router.post("/github", async (req, res) => {
     }
 
     const githubUrl = ghProfile.html_url || `https://github.com/${ghProfile.login}`;
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
 
     let user = await User.findOne({
-      $or: [{ githubId }, { email: email.toLowerCase() }],
+      $or: [{ githubId }, { email: emailClean }],
     });
 
     let isNewUser = false;
@@ -282,7 +325,6 @@ router.post("/github", async (req, res) => {
       if (!user.githubId) {
         user.githubId = githubId;
       }
-      // Automatically store/update github profile URL if not set
       if (!user.github || user.github === "") {
         user.github = githubUrl;
       }
@@ -295,11 +337,11 @@ router.post("/github", async (req, res) => {
       const baseUsername = ghProfile.login || email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "");
       user = await User.create({
         name: ghProfile.name || ghProfile.login || "GitHub Developer",
-        email: email.toLowerCase(),
+        email: emailClean,
         githubId,
         username: baseUsername,
         avatar: ghProfile.avatar_url || `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(ghProfile.login || email)}`,
-        github: githubUrl, // Automatically set profile GitHub URL!
+        github: githubUrl,
         bio: ghProfile.bio || "",
       });
 
@@ -312,6 +354,7 @@ router.post("/github", async (req, res) => {
       }).catch((e) => console.error("[githubSignupWelcomeNotifErr]", e.message));
     }
 
+    await clearFailedAttempts(emailClean, ip);
     const token = generateToken(user._id);
 
     res.json({
@@ -325,7 +368,7 @@ router.post("/github", async (req, res) => {
   }
 });
 
-// ─── GET /api/auth/me ──────────────────────────────────────────────────────
+// ─── GET /api/auth/me ────────────────────────────────────────────────
 router.get("/me", protect, async (req, res) => {
   try {
     res.json({ user: req.user });
@@ -335,7 +378,7 @@ router.get("/me", protect, async (req, res) => {
   }
 });
 
-// ─── PUT /api/auth/profile ─────────────────────────────────────────────────
+// ─── PUT /api/auth/profile ───────────────────────────────────────────
 router.put("/profile", protect, async (req, res) => {
   try {
     const allowedFields = [
@@ -368,7 +411,7 @@ router.put("/profile", protect, async (req, res) => {
   }
 });
 
-// ─── GitHub-style OTP Email Formatter ────────────────────────────────────────
+// ─── GitHub-style OTP Email Formatter ─────────────────────────────────
 function formatGitHubStyleOtpEmail(name, otpCode, purpose = "authentication") {
   const digits = otpCode.split("");
   const formattedDigits = digits.join(" ");
@@ -388,8 +431,8 @@ The Hackord Team`;
   return { title, body, formattedDigits };
 }
 
-// ─── POST /api/auth/signup-request-otp ──────────────────────────────────────
-router.post("/signup-request-otp", async (req, res) => {
+// ─── POST /api/auth/signup-request-otp ────────────────────────────────
+router.post("/signup-request-otp", otpRequestRateLimiter, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -433,7 +476,7 @@ router.post("/signup-request-otp", async (req, res) => {
 
     res.json({
       success: true,
-      message: `Verification code sent to ${emailClean}. Please check your inbox.`,
+      message: `Verification code sent to ${emailClean}. Please check your inbox or spam folder.`,
     });
   } catch (err) {
     console.error("[signup-request-otp]", err);
@@ -441,42 +484,61 @@ router.post("/signup-request-otp", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/signup-verify-otp ───────────────────────────────────────
-router.post("/signup-verify-otp", async (req, res) => {
+// ─── POST /api/auth/signup-verify-otp ─────────────────────────────────
+router.post("/signup-verify-otp", checkAuthLockoutMiddleware, async (req, res) => {
   try {
     const { name, email, password, otp } = req.body;
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
 
     if (!name || !email || !password || !otp) {
-      return res.status(400).json({ message: "Name, email, password, and verification code are required" });
+      return res.status(400).json({ message: "Name, email, password, and OTP code are required" });
     }
 
-    const emailClean = email.toLowerCase().trim();
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
     const otpClean = otp.trim();
 
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: emailClean });
+    if (existingUser) {
+      return res.status(409).json({ message: "An account with this email already exists" });
+    }
+
+    // Verify OTP
     const record = await Otp.findOne({ email: emailClean });
     if (!record) {
       return res.status(400).json({ message: "No verification code requested or code expired. Please request a new one." });
     }
 
     if (new Date() > record.expiresAt || record.otp !== otpClean) {
-      return res.status(400).json({ message: "Invalid or expired verification code." });
+      const failInfo = await recordFailedAttempt(emailClean, ip);
+      if (failInfo.isLocked) {
+        return res.status(429).json({
+          error: "Too Many Requests",
+          message: "Security Lockout: 5 failed verification attempts reached. Access is restricted for 24 hours.",
+          statusCode: 429,
+          retryAfterHours: 24,
+          lockUntil: failInfo.lockUntil,
+        });
+      }
+      return res.status(400).json({
+        message: `Invalid or expired verification code. ${failInfo.remainingAttempts} attempt${failInfo.remainingAttempts === 1 ? "" : "s"} remaining before 24-hour lockout.`,
+        attemptsRemaining: failInfo.remainingAttempts,
+      });
     }
 
-    // Delete verified OTP record
+    // Delete verified OTP record & clear failed attempts
     await Otp.deleteOne({ _id: record._id });
+    await clearFailedAttempts(emailClean, ip);
 
-    // Double check user existence
-    let existingUser = await User.findOne({ email: emailClean });
-    if (existingUser) {
-      return res.status(409).json({ message: "An account with this email already exists" });
-    }
-
-    // Create user
+    // Create verified user
     const user = await User.create({
       name,
       email: emailClean,
       password,
-      username: emailClean.split("@")[0] + "_" + Math.floor(100 + Math.random() * 900),
+      username: emailClean.split("@")[0],
       avatar: `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(name)}`,
       isEmailVerified: true,
     });
@@ -506,8 +568,8 @@ router.post("/signup-verify-otp", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/request-otp ────────────────────────────────────────────
-router.post("/request-otp", async (req, res) => {
+// ─── POST /api/auth/request-otp ───────────────────────────────────────
+router.post("/request-otp", otpRequestRateLimiter, async (req, res) => {
   try {
     const { email } = req.body;
     if (!email || !email.includes("@")) {
@@ -557,15 +619,16 @@ router.post("/request-otp", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/verify-otp ─────────────────────────────────────────────
-router.post("/verify-otp", async (req, res) => {
+// ─── POST /api/auth/verify-otp ────────────────────────────────────────
+router.post("/verify-otp", checkAuthLockoutMiddleware, async (req, res) => {
   try {
     const { email, otp } = req.body;
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
+
     if (!email || !otp) {
       return res.status(400).json({ message: "Email and OTP code are required" });
     }
 
-    const emailClean = email.toLowerCase().trim();
     const otpClean = otp.trim();
 
     // Verify user existence
@@ -583,11 +646,25 @@ router.post("/verify-otp", async (req, res) => {
     }
 
     if (new Date() > record.expiresAt || record.otp !== otpClean) {
-      return res.status(400).json({ message: "Invalid or expired verification code." });
+      const failInfo = await recordFailedAttempt(emailClean, ip);
+      if (failInfo.isLocked) {
+        return res.status(429).json({
+          error: "Too Many Requests",
+          message: "Security Lockout: 5 failed OTP verification attempts reached. Access is restricted for 24 hours or reset your password.",
+          statusCode: 429,
+          retryAfterHours: 24,
+          lockUntil: failInfo.lockUntil,
+        });
+      }
+      return res.status(400).json({
+        message: `Invalid or expired verification code. ${failInfo.remainingAttempts} attempt${failInfo.remainingAttempts === 1 ? "" : "s"} remaining before 24-hour lockout.`,
+        attemptsRemaining: failInfo.remainingAttempts,
+      });
     }
 
-    // Delete verified OTP record
+    // Delete verified OTP record & clear failed attempts
     await Otp.deleteOne({ _id: record._id });
+    await clearFailedAttempts(emailClean, ip);
 
     const token = generateToken(user._id);
 
@@ -602,8 +679,8 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/forgot-password-request ─────────────────────────────────
-router.post("/forgot-password-request", async (req, res) => {
+// ─── POST /api/auth/forgot-password-request ───────────────────────────
+router.post("/forgot-password-request", otpRequestRateLimiter, async (req, res) => {
   try {
     const { email } = req.body;
     if (!email || !email.includes("@")) {
@@ -648,10 +725,11 @@ router.post("/forgot-password-request", async (req, res) => {
   }
 });
 
-// ─── POST /api/auth/reset-password-verify ────────────────────────────────────
-router.post("/reset-password-verify", async (req, res) => {
+// ─── POST /api/auth/reset-password-verify ─────────────────────────────
+router.post("/reset-password-verify", checkAuthLockoutMiddleware, async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
 
     if (!email || !otp || !newPassword) {
       return res.status(400).json({ message: "Email, verification code, and new password are required" });
@@ -661,7 +739,6 @@ router.post("/reset-password-verify", async (req, res) => {
       return res.status(400).json({ message: "New password must be at least 6 characters" });
     }
 
-    const emailClean = email.toLowerCase().trim();
     const otpClean = otp.trim();
 
     const record = await Otp.findOne({ email: emailClean });
@@ -670,7 +747,20 @@ router.post("/reset-password-verify", async (req, res) => {
     }
 
     if (new Date() > record.expiresAt || record.otp !== otpClean) {
-      return res.status(400).json({ message: "Invalid or expired verification code." });
+      const failInfo = await recordFailedAttempt(emailClean, ip);
+      if (failInfo.isLocked) {
+        return res.status(429).json({
+          error: "Too Many Requests",
+          message: "Security Lockout: 5 failed reset attempts reached. Access is restricted for 24 hours.",
+          statusCode: 429,
+          retryAfterHours: 24,
+          lockUntil: failInfo.lockUntil,
+        });
+      }
+      return res.status(400).json({
+        message: `Invalid or expired verification code. ${failInfo.remainingAttempts} attempt${failInfo.remainingAttempts === 1 ? "" : "s"} remaining before 24-hour lockout.`,
+        attemptsRemaining: failInfo.remainingAttempts,
+      });
     }
 
     const user = await User.findOne({ email: emailClean });
@@ -678,8 +768,9 @@ router.post("/reset-password-verify", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Delete OTP record & Update password
+    // Delete OTP record, update password & clear failed attempts
     await Otp.deleteOne({ _id: record._id });
+    await clearFailedAttempts(emailClean, ip);
     user.password = newPassword;
     await user.save();
 
