@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+﻿const mongoose = require('mongoose');
 
 const AiFileAttachmentSchema = new mongoose.Schema(
   {
@@ -11,6 +11,18 @@ const AiFileAttachmentSchema = new mongoose.Schema(
     uploadedAt: { type: Date, default: Date.now },
     author_name: { type: String, default: '' },
     author_id: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
+const AiStudioImageSchema = new mongoose.Schema(
+  {
+    id: { type: String, default: () => 'img-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6) },
+    url: { type: String, required: true },
+    prompt: { type: String, default: '' },
+    style: { type: String, default: 'Photorealistic' },
+    aspectRatio: { type: String, default: '16:9' },
+    createdAt: { type: Date, default: Date.now },
   },
   { _id: false }
 );
@@ -50,6 +62,9 @@ const AiConversationSchema = new mongoose.Schema(
     pinned: { type: Boolean, default: false },
     activePlugin: { type: String, default: null },
     messages: [AiMessageSchema],
+    aiStudio: {
+      images: { type: [AiStudioImageSchema], default: [] },
+    },
   },
   { timestamps: true }
 );

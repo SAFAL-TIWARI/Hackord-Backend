@@ -317,7 +317,8 @@ router.delete("/me", async (req, res) => {
 // ─── GET /api/users/:id ──────────────────────────────────────────────────
 router.get("/:id", async (req, res) => {
   try {
-    const param = req.params.id;
+    const rawParam = req.params.id;
+    const param = rawParam.startsWith("@") ? rawParam.slice(1) : rawParam;
     let user = null;
 
     if (mongoose.Types.ObjectId.isValid(param)) {
@@ -325,8 +326,9 @@ router.get("/:id", async (req, res) => {
     }
 
     if (!user) {
+      const safeRegex = new RegExp("^" + escapeRegex(param) + "$", "i");
       user = await User.findOne({
-        $or: [{ username: param }, { email: param.toLowerCase() }],
+        $or: [{ username: safeRegex }, { email: param.toLowerCase() }],
       }).select("-password");
     }
 
@@ -334,7 +336,14 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(user);
+    const obj = user.toObject ? user.toObject() : user;
+    const now = Date.now();
+    const lastActiveMs = obj.lastActive ? new Date(obj.lastActive).getTime() : 0;
+    const isRecentlyActive = now - lastActiveMs < 40000;
+    const showOnline = obj.privacySettings?.showOnlineStatus !== false && obj.privacySettings?.activityStatus !== false;
+    obj.isOnline = isRecentlyActive && showOnline;
+
+    res.json(obj);
   } catch (err) {
     console.error("[getUser]", err);
     res.status(500).json({ message: "Server error fetching user profile" });

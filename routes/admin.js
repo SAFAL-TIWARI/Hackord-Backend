@@ -74,6 +74,64 @@ router.get("/users", async (req, res) => {
   }
 });
 
+// ─── DELETE /api/admin/users/:id (Admin delete user) ──────────────────────
+router.delete("/users/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (req.user && req.user._id && req.user._id.toString() === userId) {
+      return res.status(400).json({ message: "You cannot delete your own admin account." });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const Invitation = require("../models/Invitation");
+    let sendNotification = null;
+    try {
+      sendNotification = require("../services/notificationService").sendNotification;
+    } catch (e) {}
+
+    const userSnapshot = {
+      _id: user._id,
+      name: user.name || "Hacker",
+      email: user.email,
+      notificationPreferences: user.notificationPreferences || { emailEnabled: true },
+    };
+
+    // Delete invitations involving user
+    await Invitation.deleteMany({
+      $or: [
+        { "recipient.user_id": user._id.toString() },
+        { "recipient.email": user.email },
+        { "sender.user_id": user._id.toString() },
+      ],
+    });
+
+    // Delete user from DB
+    await User.findByIdAndDelete(userId);
+
+    if (sendNotification) {
+      sendNotification({
+        recipientUser: userSnapshot,
+        type: "accountDeletion",
+        title: "Account Deleted by Administrator",
+        body: `Your Hackord account (${user.email}) has been permanently deleted by an administrator.`,
+        link: "/",
+      }).catch((err) => {
+        console.error("[adminDeleteUserNotifErr]", err.message);
+      });
+    }
+
+    console.log(`[admin/users DELETE] User ${user.email} (${userId}) deleted by admin ${req.user ? req.user.email : 'admin'}`);
+    res.json({ success: true, message: `User "${user.name || user.email}" deleted successfully` });
+  } catch (err) {
+    console.error("[admin/users DELETE]", err);
+    res.status(500).json({ message: "Server error deleting user: " + err.message });
+  }
+});
+
 // ─── GET /api/admin/stats ──────────────────────────────────────────────────
 router.get("/stats", async (req, res) => {
   try {
