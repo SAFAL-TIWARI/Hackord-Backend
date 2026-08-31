@@ -76,7 +76,7 @@ const userSchema = new mongoose.Schema(
       discoverable: { type: Boolean, default: true },
       allowInvites: { type: Boolean, default: true },
       allowDirectMessages: { type: Boolean, default: true },
-      showEmail: { type: Boolean, default: true },
+      showEmail: { type: Boolean, default: false },
       showOnlineStatus: { type: Boolean, default: true },
       activityStatus: { type: Boolean, default: true },
     },
