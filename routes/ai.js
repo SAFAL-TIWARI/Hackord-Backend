@@ -1,14 +1,20 @@
 ﻿const express = require('express');
 const router = express.Router();
 const AiConversation = require('../models/AiConversation');
+const AiFile = require('../models/AiFile');
 const { processAiChat, processAiChatStream, scrapeWebPage, extractPdfText } = require('../services/geminiService');
 
 const EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 Hours
 
-// Helper: Clean up expired file attachments (older than 24 hours) from conversations in MongoDB
+// Helper: Clean up expired file attachments (older than 24 hours) from MongoDB
 async function cleanupExpiredAiFiles(filter = {}) {
   try {
     const cutoffDate = new Date(Date.now() - EXPIRATION_MS);
+
+    // 1. Delete expired files from dedicated TTL AiFile collection
+    await AiFile.deleteMany({ createdAt: { $lt: cutoffDate } });
+
+    // 2. Clean up expired embedded file attachments in AiConversation documents
     const convs = await AiConversation.find({
       ...filter,
       'messages.fileAttachment.uploadedAt': { $lt: cutoffDate },
@@ -26,6 +32,7 @@ async function cleanupExpiredAiFiles(filter = {}) {
         }
       }
       if (modified) {
+        conv.markModified('messages');
         await conv.save();
       }
     }
@@ -67,7 +74,7 @@ router.get('/conversations', async (req, res) => {
         if (!msg.fileAttachment) return msg;
         const att = msg.fileAttachment;
         const uploadedTime = att.uploadedAt ? new Date(att.uploadedAt).getTime() : nowTime;
-        
+
         if (nowTime - uploadedTime > EXPIRATION_MS) {
           return {
             ...msg,
@@ -100,12 +107,33 @@ router.get('/conversations', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// GET /api/ai/files/:id - Fetch full file details from conversation
+// GET /api/ai/files/:id - Fetch full file details from MongoDB (TTL managed)
 // -------------------------------------------------------------
 router.get('/files/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
+    // 1. Check dedicated TTL-indexed AiFile collection first
+    const fileDoc = await AiFile.findOne({ id }).lean();
+    if (fileDoc) {
+      const createdTime = new Date(fileDoc.createdAt || fileDoc.uploadedAt).getTime();
+      if (Date.now() - createdTime > EXPIRATION_MS) {
+        await AiFile.deleteOne({ _id: fileDoc._id }).catch(() => {});
+        return res.status(410).json({ error: 'File has expired after 24 hours' });
+      }
+
+      return res.json({
+        id: fileDoc.id,
+        name: fileDoc.filename,
+        type: fileDoc.mimeType,
+        size: fileDoc.fileSize,
+        dataUrl: fileDoc.base64Data,
+        extractedText: fileDoc.extractedText || '',
+        uploadedAt: fileDoc.createdAt || fileDoc.uploadedAt,
+      });
+    }
+
+    // 2. Fallback check inside AiConversation (for legacy documents)
     const conv = await AiConversation.findOne({ 'messages.fileAttachment.id': id }).lean();
     if (conv) {
       for (const msg of conv.messages) {
@@ -115,21 +143,23 @@ router.get('/files/:id', async (req, res) => {
             return res.status(410).json({ error: 'File has expired after 24 hours' });
           }
 
-          return res.json({
-            id: msg.fileAttachment.id,
-            name: msg.fileAttachment.name,
-            type: msg.fileAttachment.type,
-            size: msg.fileAttachment.size,
-            dataUrl: msg.fileAttachment.dataUrl || '',
-            extractedText: msg.fileAttachment.extractedText || '',
-            uploadedAt: msg.fileAttachment.uploadedAt,
-            author_name: msg.fileAttachment.author_name,
-          });
+          if (msg.fileAttachment.dataUrl) {
+            return res.json({
+              id: msg.fileAttachment.id,
+              name: msg.fileAttachment.name,
+              type: msg.fileAttachment.type,
+              size: msg.fileAttachment.size,
+              dataUrl: msg.fileAttachment.dataUrl || '',
+              extractedText: msg.fileAttachment.extractedText || '',
+              uploadedAt: msg.fileAttachment.uploadedAt,
+              author_name: msg.fileAttachment.author_name,
+            });
+          }
         }
       }
     }
 
-    return res.status(404).json({ error: 'File not found or has expired' });
+    return res.status(404).json({ error: 'File not found or has expired after 24 hours' });
   } catch (err) {
     console.error('[ai api] GET /files/:id error:', err);
     res.status(500).json({ error: 'Failed to fetch file' });
@@ -273,7 +303,7 @@ router.delete('/conversations/:id', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// POST /api/ai/upload - Handle file upload, extraction & analysis
+// POST /api/ai/upload - Handle file upload, extraction & TTL storage
 // -------------------------------------------------------------
 router.post('/upload', async (req, res) => {
   try {
@@ -318,6 +348,23 @@ router.post('/upload', async (req, res) => {
 
     const fileId = 'file-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
 
+    // Save to dedicated TTL-indexed AiFile collection (automatically purged after 24h by MongoDB)
+    await AiFile.findOneAndUpdate(
+      { id: fileId },
+      {
+        id: fileId,
+        roomId: roomId || 'default-room',
+        userId: userId || 'default-user',
+        filename,
+        mimeType: resolvedMimeType || mimeType || 'application/octet-stream',
+        fileSize: calculatedSize,
+        extractedText: extractedText.slice(0, 50000),
+        base64Data: base64Data,
+        uploadedAt: new Date(),
+      },
+      { upsert: true, new: true }
+    );
+
     res.status(201).json({
       success: true,
       file: {
@@ -325,7 +372,7 @@ router.post('/upload', async (req, res) => {
         name: filename,
         type: resolvedMimeType || mimeType || 'application/octet-stream',
         size: calculatedSize,
-        dataUrl: base64Data, // Complete Data URL stored in payload
+        dataUrl: base64Data, // returned to immediate uploader for optimistic UI
         extractedText: extractedText.slice(0, 50000),
         extractedTextPreview: extractedText ? extractedText.slice(0, 300) : '',
         uploadedAt: new Date(),
@@ -399,10 +446,17 @@ router.post('/chat', async (req, res) => {
       });
     }
 
-    // Build file context for Gemini & keep full file details in attachment
+    // Build file context for Gemini & ensure TTL file storage
     let fileContext = null;
     const fileId = fileAttachment?.id || (fileAttachment ? 'file-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) : null);
-    const base64 = fileAttachment?.dataUrl || fileAttachment?.base64Data || '';
+    let base64 = fileAttachment?.dataUrl || fileAttachment?.base64Data || '';
+
+    if (fileAttachment && !base64 && fileAttachment.id) {
+      const existingAiFile = await AiFile.findOne({ id: fileAttachment.id }).lean();
+      if (existingAiFile) {
+        base64 = existingAiFile.base64Data;
+      }
+    }
 
     if (fileAttachment && (fileAttachment.name || fileAttachment.filename)) {
       fileContext = {
@@ -411,6 +465,25 @@ router.post('/chat', async (req, res) => {
         extractedText: fileAttachment.extractedText || '',
         base64Data: base64,
       };
+
+      // Store/ensure file exists in TTL collection
+      if (base64 && fileId) {
+        await AiFile.findOneAndUpdate(
+          { id: fileId },
+          {
+            id: fileId,
+            roomId: roomId || 'default-room',
+            userId: userId || 'default-user',
+            filename: fileAttachment.name || fileAttachment.filename,
+            mimeType: fileAttachment.type || fileAttachment.mimeType || 'application/octet-stream',
+            fileSize: fileAttachment.size || fileAttachment.fileSize || 0,
+            extractedText: fileAttachment.extractedText || '',
+            base64Data: base64,
+            uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
+          },
+          { upsert: true, new: true }
+        ).catch(() => {});
+      }
     }
 
     const now = new Date();
@@ -430,7 +503,7 @@ router.post('/chat', async (req, res) => {
             name: fileAttachment.name || fileAttachment.filename,
             size: fileAttachment.size || fileAttachment.fileSize || 0,
             type: fileAttachment.type || fileAttachment.mimeType || 'application/octet-stream',
-            dataUrl: base64, // Preserves dataUrl directly in message
+            dataUrl: '', // Keeps conversation documents lightweight; full data fetched on demand via /api/ai/files/:id
             extractedText: fileAttachment.extractedText || '',
             uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
             author_name: userName || 'You',
@@ -483,12 +556,12 @@ router.post('/chat', async (req, res) => {
     });
   } catch (err) {
     console.error('[ai api] POST /chat error:', err);
-    res.status(500).json({ error: err.message || 'Failed to process AI chat message' });
+    res.status(500).json({ error: err.message || 'Failed to process AI chat' });
   }
 });
 
 // -------------------------------------------------------------
-// POST /api/ai/chat/stream - Real-Time Server-Sent Events (SSE) streaming chat
+// POST /api/ai/chat/stream - Real-time SSE Streaming Chat
 // -------------------------------------------------------------
 router.post('/chat/stream', async (req, res) => {
   const {
@@ -532,7 +605,14 @@ router.post('/chat/stream', async (req, res) => {
 
   let fileContext = null;
   const fileId = fileAttachment?.id || (fileAttachment ? 'file-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7) : null);
-  const base64 = fileAttachment?.dataUrl || fileAttachment?.base64Data || '';
+  let base64 = fileAttachment?.dataUrl || fileAttachment?.base64Data || '';
+
+  if (fileAttachment && !base64 && fileAttachment.id) {
+    const existingAiFile = await AiFile.findOne({ id: fileAttachment.id }).lean();
+    if (existingAiFile) {
+      base64 = existingAiFile.base64Data;
+    }
+  }
 
   if (fileAttachment && (fileAttachment.name || fileAttachment.filename)) {
     fileContext = {
@@ -541,6 +621,25 @@ router.post('/chat/stream', async (req, res) => {
       extractedText: fileAttachment.extractedText || '',
       base64Data: base64,
     };
+
+    // Store/ensure file exists in TTL collection
+    if (base64 && fileId) {
+      await AiFile.findOneAndUpdate(
+        { id: fileId },
+        {
+          id: fileId,
+          roomId: roomId || 'default-room',
+          userId: userId || 'default-user',
+          filename: fileAttachment.name || fileAttachment.filename,
+          mimeType: fileAttachment.type || fileAttachment.mimeType || 'application/octet-stream',
+          fileSize: fileAttachment.size || fileAttachment.fileSize || 0,
+          extractedText: fileAttachment.extractedText || '',
+          base64Data: base64,
+          uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
+        },
+        { upsert: true, new: true }
+      ).catch(() => {});
+    }
   }
 
   const now = new Date();
@@ -586,7 +685,7 @@ router.post('/chat/stream', async (req, res) => {
             name: fileAttachment.name || fileAttachment.filename,
             size: fileAttachment.size || fileAttachment.fileSize || 0,
             type: fileAttachment.type || fileAttachment.mimeType || 'application/octet-stream',
-            dataUrl: base64,
+            dataUrl: '', // Keeps conversation documents lightweight; full data fetched on demand via /api/ai/files/:id
             extractedText: fileAttachment.extractedText || '',
             uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
             author_name: userName || 'You',

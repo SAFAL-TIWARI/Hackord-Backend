@@ -28,6 +28,7 @@ const hackathonRoutes = require("./routes/hackathons");
 const contactRoutes = require("./routes/contact");
 const chatRoutes = require("./routes/chat");
 const aiRoutes = require("./routes/ai");
+const exploreAiRoutes = require("./routes/exploreAi");
 
 const app = express();
 
@@ -200,6 +201,7 @@ app.use("/api/hackathons", hackathonRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/explore-ai", exploreAiRoutes);
 
 // Root & Health check endpoints
 app.get(["/", "/api"], (req, res) => {

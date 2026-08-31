@@ -52,14 +52,13 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Candidate models with fallback
 const CANDIDATE_MODELS = [
+  'gemini-flash-lite-latest',
   'gemini-3.7-flash',
-  'gemini-3.5-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.1-flash-lite-preview',
   'gemini-3-flash-preview',
-  'gemini-flash-latest',
   'gemini-3.1-flash-lite',
-  'gemini-2.5-flash',
-  'gemma-4-26b',
-  'gemini-3-flash-live',
+  'gemini-3.5-flash',
 ];
 
 // HTTPS agent allowing scrapers to fetch external sites without SSL cert blocks
@@ -78,7 +77,7 @@ async function scrapeWebPage(targetUrl) {
     }
 
     const response = await axios.get(cleanUrl, {
-      timeout: 10000,
+      timeout: 3500,
       maxRedirects: 5,
       httpsAgent,
       headers: {
@@ -372,7 +371,7 @@ async function callGeminiGenerate({ contents, systemInstruction }) {
 
       const res = await axios.post(url, body, {
         headers: { 'Content-Type': 'application/json' },
-        timeout: 45000,
+        timeout: 8000,
       });
 
       if (res.data && res.data.candidates && res.data.candidates.length > 0) {
@@ -431,7 +430,7 @@ async function callGeminiGenerateStream({ contents, systemInstruction, onChunk, 
       const res = await axios.post(url, body, {
         headers: { 'Content-Type': 'application/json' },
         responseType: 'stream',
-        timeout: 60000,
+        timeout: 10000,
       });
 
       let fullAccumulatedText = '';
@@ -556,7 +555,7 @@ async function buildPromptContextAndContents({
   const systemInstruction = getSystemPrompt(pluginTitle);
 
   // Extract URLs from prompt & explicit webUrls list
-  const urlRegex = /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`]+|[a-zA-Z0-9-]+\.(?:com|org|net|io|dev|app|ai|co|in|edu|gov)(?:\/[^\s<>"'{}|\\^`]*)?/gi;
+  const urlRegex = /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`]+/gi;
   const foundUrls = prompt.match(urlRegex) || [];
   const allUrlsToScrape = Array.from(new Set([...(webUrls || []), ...foundUrls])).filter((u) => {
     return (
@@ -565,16 +564,20 @@ async function buildPromptContextAndContents({
       !u.endsWith('.jpeg') &&
       !u.endsWith('.gif') &&
       !u.endsWith('.pdf') &&
-      u.length > 3
+      u.length > 5
     );
   });
 
-  // Scrape any extracted URLs
+  // Parallel fast scraping (max 3 URLs with 3.5s timeout)
   let scrapedContextText = '';
-  for (const u of allUrlsToScrape.slice(0, 4)) {
-    const scraped = await scrapeWebPage(u);
-    if (scraped.content) {
-      scrapedContextText += `\n\n=== SCRAPED WEB LINK CONTENT: ${scraped.title} (${scraped.url}) ===\n${scraped.content}\n=== END OF SCRAPED WEB LINK CONTENT ===\n`;
+  if (allUrlsToScrape.length > 0) {
+    const scrapeResults = await Promise.allSettled(
+      allUrlsToScrape.slice(0, 3).map((u) => scrapeWebPage(u))
+    );
+    for (const res of scrapeResults) {
+      if (res.status === 'fulfilled' && res.value && res.value.content) {
+        scrapedContextText += `\n\n=== SCRAPED WEB LINK CONTENT: ${res.value.title} (${res.value.url}) ===\n${res.value.content}\n=== END OF SCRAPED WEB LINK CONTENT ===\n`;
+      }
     }
   }
 
@@ -716,6 +719,8 @@ async function processAiChatStream({
 }
 
 module.exports = {
+  callGeminiGenerate,
+  callGeminiGenerateStream,
   scrapeWebPage,
   extractPdfText,
   processAiChat,
