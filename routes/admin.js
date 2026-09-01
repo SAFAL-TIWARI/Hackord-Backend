@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const User = require("../models/User");
 const Hackathon = require("../models/Hackathon");
 const HackathonSubmission = require("../models/HackathonSubmission");
@@ -87,30 +87,15 @@ router.delete("/users/:id", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const Invitation = require("../models/Invitation");
+    const userSnapshot = { _id: user._id, name: user.name || 'Hacker', email: user.email, notificationPreferences: user.notificationPreferences || { emailEnabled: true } };
+    const { purgeUserCompleteData } = require('../services/userCleanupService');
     let sendNotification = null;
     try {
-      sendNotification = require("../services/notificationService").sendNotification;
+      sendNotification = require('../services/notificationService').sendNotification;
     } catch (e) {}
 
-    const userSnapshot = {
-      _id: user._id,
-      name: user.name || "Hacker",
-      email: user.email,
-      notificationPreferences: user.notificationPreferences || { emailEnabled: true },
-    };
-
-    // Delete invitations involving user
-    await Invitation.deleteMany({
-      $or: [
-        { "recipient.user_id": user._id.toString() },
-        { "recipient.email": user.email },
-        { "sender.user_id": user._id.toString() },
-      ],
-    });
-
-    // Delete user from DB
-    await User.findByIdAndDelete(userId);
+    // Purge all user data, rooms, resources, settings, notes, chats, AI data, invitations from DB
+    await purgeUserCompleteData(user);
 
     if (sendNotification) {
       sendNotification({

@@ -4,7 +4,7 @@ const AiConversation = require('../models/AiConversation');
 const AiFile = require('../models/AiFile');
 const { processAiChat, processAiChatStream, scrapeWebPage, extractPdfText } = require('../services/geminiService');
 
-const EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 Hours
+const EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24 Hours (86,400,000 ms)
 
 // Helper: Clean up expired file attachments (older than 24 hours) from MongoDB
 async function cleanupExpiredAiFiles(filter = {}) {
@@ -12,21 +12,52 @@ async function cleanupExpiredAiFiles(filter = {}) {
     const cutoffDate = new Date(Date.now() - EXPIRATION_MS);
 
     // 1. Delete expired files from dedicated TTL AiFile collection
-    await AiFile.deleteMany({ createdAt: { $lt: cutoffDate } });
+    await AiFile.deleteMany({
+      $or: [
+        { createdAt: { $lt: cutoffDate } },
+        { uploadedAt: { $lt: cutoffDate } },
+      ],
+    });
 
-    // 2. Clean up expired embedded file attachments in AiConversation documents
+    // 2. Clean up expired embedded file attachments in AiConversation documents via atomic update
+    await AiConversation.updateMany(
+      {
+        ...filter,
+        'messages.fileAttachment': { $ne: null },
+        $or: [
+          { 'messages.fileAttachment.uploadedAt': { $lt: cutoffDate } },
+          { 'messages.createdAt': { $lt: cutoffDate } },
+        ],
+      },
+      {
+        $unset: { 'messages.$[elem].fileAttachment': 1 },
+      },
+      {
+        arrayFilters: [
+          {
+            $or: [
+              { 'elem.fileAttachment.uploadedAt': { $lt: cutoffDate } },
+              { 'elem.createdAt': { $lt: cutoffDate } },
+            ],
+          },
+        ],
+      }
+    ).catch(() => {});
+
+    // 3. Fallback in-memory cleanup for any un-caught documents
     const convs = await AiConversation.find({
       ...filter,
-      'messages.fileAttachment.uploadedAt': { $lt: cutoffDate },
+      'messages.fileAttachment': { $ne: null },
     });
 
     for (const conv of convs) {
       let modified = false;
       for (const msg of conv.messages) {
-        if (msg.fileAttachment && msg.fileAttachment.uploadedAt) {
-          const uploadedTime = new Date(msg.fileAttachment.uploadedAt).getTime();
-          if (Date.now() - uploadedTime > EXPIRATION_MS) {
-            msg.fileAttachment = null;
+        if (msg.fileAttachment) {
+          const rawDate = msg.fileAttachment.uploadedAt || msg.createdAt;
+          const uploadedTime = rawDate ? new Date(rawDate).getTime() : 0;
+          if (uploadedTime === 0 || Date.now() - uploadedTime > EXPIRATION_MS) {
+            msg.fileAttachment = undefined;
             modified = true;
           }
         }
@@ -41,10 +72,10 @@ async function cleanupExpiredAiFiles(filter = {}) {
   }
 }
 
-// Background scheduler: Run 24h file cleanup every 30 minutes
+// Background scheduler: Run 24h file cleanup every 10 minutes
 setInterval(() => {
   cleanupExpiredAiFiles();
-}, 30 * 60 * 1000);
+}, 10 * 60 * 1000);
 
 // -------------------------------------------------------------
 // GET /api/ai/conversations - List conversations for a room (Visible to all room members)
@@ -73,7 +104,8 @@ router.get('/conversations', async (req, res) => {
       messages: (conv.messages || []).map((msg) => {
         if (!msg.fileAttachment) return msg;
         const att = msg.fileAttachment;
-        const uploadedTime = att.uploadedAt ? new Date(att.uploadedAt).getTime() : nowTime;
+        const rawDate = att.uploadedAt || msg.createdAt;
+        const uploadedTime = rawDate ? new Date(rawDate).getTime() : nowTime;
 
         if (nowTime - uploadedTime > EXPIRATION_MS) {
           return {
@@ -91,7 +123,7 @@ router.get('/conversations', async (req, res) => {
             type: att.type,
             dataUrl: att.dataUrl || '',
             extractedText: att.extractedText || '',
-            uploadedAt: att.uploadedAt,
+            uploadedAt: att.uploadedAt || new Date(),
             author_name: att.author_name,
             author_id: att.author_id,
           },
@@ -138,7 +170,8 @@ router.get('/files/:id', async (req, res) => {
     if (conv) {
       for (const msg of conv.messages) {
         if (msg.fileAttachment && msg.fileAttachment.id === id) {
-          const uploadedTime = msg.fileAttachment.uploadedAt ? new Date(msg.fileAttachment.uploadedAt).getTime() : Date.now();
+          const rawDate = msg.fileAttachment.uploadedAt || msg.createdAt;
+          const uploadedTime = rawDate ? new Date(rawDate).getTime() : Date.now();
           if (Date.now() - uploadedTime > EXPIRATION_MS) {
             return res.status(410).json({ error: 'File has expired after 24 hours' });
           }
@@ -347,6 +380,7 @@ router.post('/upload', async (req, res) => {
     }
 
     const fileId = 'file-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+    const uploadTimestamp = new Date();
 
     // Save to dedicated TTL-indexed AiFile collection (automatically purged after 24h by MongoDB)
     await AiFile.findOneAndUpdate(
@@ -360,7 +394,8 @@ router.post('/upload', async (req, res) => {
         fileSize: calculatedSize,
         extractedText: extractedText.slice(0, 50000),
         base64Data: base64Data,
-        uploadedAt: new Date(),
+        createdAt: uploadTimestamp,
+        uploadedAt: uploadTimestamp,
       },
       { upsert: true, new: true }
     );
@@ -375,7 +410,8 @@ router.post('/upload', async (req, res) => {
         dataUrl: base64Data, // returned to immediate uploader for optimistic UI
         extractedText: extractedText.slice(0, 50000),
         extractedTextPreview: extractedText ? extractedText.slice(0, 300) : '',
-        uploadedAt: new Date(),
+        createdAt: uploadTimestamp,
+        uploadedAt: uploadTimestamp,
         author_name: userName || 'User',
         author_id: userId || '',
       },
@@ -479,6 +515,7 @@ router.post('/chat', async (req, res) => {
             fileSize: fileAttachment.size || fileAttachment.fileSize || 0,
             extractedText: fileAttachment.extractedText || '',
             base64Data: base64,
+            createdAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
             uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
           },
           { upsert: true, new: true }
@@ -505,6 +542,7 @@ router.post('/chat', async (req, res) => {
             type: fileAttachment.type || fileAttachment.mimeType || 'application/octet-stream',
             dataUrl: '', // Keeps conversation documents lightweight; full data fetched on demand via /api/ai/files/:id
             extractedText: fileAttachment.extractedText || '',
+            createdAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
             uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
             author_name: userName || 'You',
             author_id: userId || '',
@@ -635,7 +673,8 @@ router.post('/chat/stream', async (req, res) => {
           fileSize: fileAttachment.size || fileAttachment.fileSize || 0,
           extractedText: fileAttachment.extractedText || '',
           base64Data: base64,
-          uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
+          createdAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
+            uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
         },
         { upsert: true, new: true }
       ).catch(() => {});
@@ -687,6 +726,7 @@ router.post('/chat/stream', async (req, res) => {
             type: fileAttachment.type || fileAttachment.mimeType || 'application/octet-stream',
             dataUrl: '', // Keeps conversation documents lightweight; full data fetched on demand via /api/ai/files/:id
             extractedText: fileAttachment.extractedText || '',
+            createdAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
             uploadedAt: fileAttachment.uploadedAt ? new Date(fileAttachment.uploadedAt) : new Date(),
             author_name: userName || 'You',
             author_id: userId || '',
@@ -866,3 +906,4 @@ router.put('/conversations/:id/messages/:msgId', async (req, res) => {
 });
 
 module.exports = router;
+

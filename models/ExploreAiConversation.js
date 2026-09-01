@@ -14,6 +14,7 @@ const ExploreAiMessageSchema = new mongoose.Schema(
       type: String,
       default: () => new Date().toISOString().split("T")[0],
     },
+    isEdited: { type: Boolean, default: false },
     hackathons: {
       type: [mongoose.Schema.Types.Mixed],
       default: [],

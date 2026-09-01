@@ -9,12 +9,13 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Fast Gemini models — first healthy one wins
 const FAST_MODELS = [
-  "gemini-flash-lite-latest",
-  "gemini-3.7-flash",
+  "gemini-3.1-flash-lite",
   "gemini-3.5-flash-lite",
-  "gemini-2.0-flash-lite",
-  "gemini-1.5-flash-8b",
-  "gemini-1.5-flash",
+  "gemini-3.1-flash-lite-preview",
+  "gemini-flash-latest",
+  "gemini-3.5-flash",
+  "gemini-3.6-flash",
+  "gemini-3.7-flash",
 ];
 
 /**
@@ -54,20 +55,16 @@ async function callGeminiFast({ systemInstruction, conversationHistory, userProm
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
       const res = await axios.post(url, body, {
         headers: { "Content-Type": "application/json" },
-        timeout: 10000,
+        timeout: 18000,
       });
       if (res.data?.candidates?.[0]?.content?.parts?.length > 0) {
         const text = res.data.candidates[0].content.parts.map((p) => p.text).filter(Boolean).join("\n").trim();
         if (text) return { text, model };
       }
     } catch (err) {
+      console.warn(`[explore-ai] Model ${model} failed (${err.response?.status || err.code || err.message}), trying fallback...`);
       lastError = err;
-      if (err?.response?.status !== 429 && err?.response?.status !== 503 && err?.response?.status !== 404) {
-        // Non-retriable error — don't try other models
-        break;
-      }
-      // Small back-off only between models
-      await new Promise((r) => setTimeout(r, 200));
+      await new Promise((r) => setTimeout(r, 150));
     }
   }
   throw lastError || new Error("All Gemini models failed");
@@ -161,7 +158,7 @@ router.get("/conversation", protect, async (req, res) => {
 // ──────────────────────────────────────────────────────────────────────────────
 router.post("/chat", protect, async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, editMessageId } = req.body;
     if (!prompt?.trim()) return res.status(400).json({ error: "Prompt is required" });
 
     const trimmedPrompt = prompt.trim();
@@ -231,7 +228,14 @@ JSON BLOCK FORMAT (append after your text response — do NOT mix inside the tex
 ]
 <<<END_HACKATHONS_JSON>>>`;
 
-    const conversationHistory = (conversation.messages || []).slice(-6);
+    // Handle Edit Prompt history truncation
+    let editIndex = -1;
+    if (editMessageId && Array.isArray(conversation.messages)) {
+      editIndex = conversation.messages.findIndex((m) => m.id === editMessageId);
+    }
+
+    const priorHistory = editIndex !== -1 ? conversation.messages.slice(0, editIndex) : conversation.messages;
+    const conversationHistory = (priorHistory || []).slice(-6);
 
     // Call Gemini directly — fast path, no URL scraping overhead
     const aiResult = await callGeminiFast({
@@ -247,11 +251,12 @@ JSON BLOCK FORMAT (append after your text response — do NOT mix inside the tex
     const dateString = nowIso;
 
     const userMsg = {
-      id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: editMessageId || `user-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       sender: "user",
       text: trimmedPrompt,
       timestamp: timeString,
       date: dateString,
+      isEdited: Boolean(editMessageId),
       hackathons: [],
     };
     const aiMsg = {
@@ -263,7 +268,13 @@ JSON BLOCK FORMAT (append after your text response — do NOT mix inside the tex
       hackathons,
     };
 
-    conversation.messages.push(userMsg, aiMsg);
+    if (editIndex !== -1) {
+      conversation.messages = conversation.messages.slice(0, editIndex);
+      conversation.messages.push(userMsg, aiMsg);
+    } else {
+      conversation.messages.push(userMsg, aiMsg);
+    }
+
     if (conversation.messages.length > 50) {
       conversation.messages = conversation.messages.slice(-50);
     }

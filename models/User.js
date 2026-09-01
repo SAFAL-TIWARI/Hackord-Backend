@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema(
       deadlines: { type: Boolean, default: true },
       chatMessages: { type: Boolean, default: true },
       desktopNotifications: { type: Boolean, default: true },
-      reminders: { type: Boolean, default: false },
+      reminders: { type: Boolean, default: true },
     },
     privacySettings: {
       discoverable: { type: Boolean, default: true },

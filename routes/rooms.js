@@ -45,7 +45,7 @@ router.get("/", async (req, res) => {
       }
     }
 
-    const rooms = await Room.find(filter).sort({ createdAt: -1 });
+    const rooms = await Room.find(filter).sort({ createdAt: -1 }).lean();
     res.json(rooms);
   } catch (err) {
     console.error("[getRooms]", err);
@@ -56,7 +56,7 @@ router.get("/", async (req, res) => {
 // ─── GET /api/rooms/:id ───────────────────────────────────────────────────
 router.get("/:id", async (req, res) => {
   try {
-    const room = await Room.findOne({ id: req.params.id });
+    const room = await Room.findOne({ id: req.params.id }).lean();
     if (!room) {
       return res.status(404).json({ message: "Room not found" });
     }

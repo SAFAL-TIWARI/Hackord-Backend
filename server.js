@@ -1,4 +1,5 @@
-const express = require("express");
+﻿const express = require("express");
+const compression = require("compression");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -32,11 +33,14 @@ const exploreAiRoutes = require("./routes/exploreAi");
 
 const app = express();
 
+// Gzip / Brotli response compression
+app.use(compression({ level: 6, threshold: 1024 }));
+
 // Trust reverse proxy (Vercel, Render, Nginx, Cloudflare) for accurate rate limiting and IP detection
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
-// ─── Dynamic CORS Middleware ────────────────────────────────────────────────
+// â”€â”€â”€ Dynamic CORS Middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(",").map((s) => s.trim().replace(/\/+$/, ""))
   : [];
@@ -85,7 +89,7 @@ app.use(
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
-// ─── MongoDB Connection & Seed Handler ───────────────────────────────────────
+// â”€â”€â”€ MongoDB Connection & Seed Handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let isConnected = false;
 let dbPromise = null;
 
@@ -99,7 +103,7 @@ async function connectDB() {
 
   const mongoUri = process.env.MONGODB_URI;
   if (!mongoUri) {
-    console.error("❌ MONGODB_URI is not set in environment variables");
+    console.error("âŒ MONGODB_URI is not set in environment variables");
     throw new Error("MONGODB_URI environment variable is missing");
   }
 
@@ -111,13 +115,22 @@ async function connectDB() {
     })
     .then(async (db) => {
       isConnected = true;
-      console.log("[db] ✅ Connected to MongoDB Atlas");
+      console.log("[db] âœ… Connected to MongoDB Atlas");
+      try {
+        const AiFile = require("./models/AiFile");
+        const Otp = require("./models/Otp");
+        await AiFile.syncIndexes();
+        await Otp.syncIndexes();
+        console.log("[db] o. TTL Indexes synchronized (24-hour auto-expiry active)");
+      } catch (idxErr) {
+        console.warn("[db] Index synchronization warning:", idxErr.message);
+      }
       await seedAdmin();
       return db;
     })
     .catch((err) => {
       dbPromise = null;
-      console.error("❌ Failed to connect to MongoDB:", err.message);
+      console.error("âŒ Failed to connect to MongoDB:", err.message);
       throw err;
     });
 
@@ -138,7 +151,7 @@ app.use(async (req, res, next) => {
   }
 });
 
-// ─── Seed Admin Users ───────────────────────────────────────────────────────
+// â”€â”€â”€ Seed Admin Users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function seedAdmin() {
   try {
     const adminAccounts = [];
@@ -167,9 +180,9 @@ async function seedAdmin() {
           existing.password = adminData.password;
           existing.role = "admin";
           await existing.save();
-          console.log("[seed] ✅ Updated admin credentials for:", adminData.email);
+          console.log("[seed] âœ… Updated admin credentials for:", adminData.email);
         } else {
-          console.log("[seed] ✅ Admin user exists and operational:", adminData.email);
+          console.log("[seed] âœ… Admin user exists and operational:", adminData.email);
         }
       } else {
         await User.create({
@@ -182,7 +195,7 @@ async function seedAdmin() {
           bio: "Hackord platform administrator",
           experience: "Advanced",
         });
-        console.log("[seed] ✅ Admin user created:", adminData.email);
+        console.log("[seed] âœ… Admin user created:", adminData.email);
       }
     }
   } catch (err) {
@@ -190,7 +203,7 @@ async function seedAdmin() {
   }
 }
 
-// ─── Routes ─────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/rooms", roomRoutes);
@@ -207,7 +220,7 @@ app.use("/api/explore-ai", exploreAiRoutes);
 app.get(["/", "/api"], (req, res) => {
   res.json({
     status: "ok",
-    message: "🚀 Hackord Backend API is live and operational",
+    message: "ðŸš€ Hackord Backend API is live and operational",
     health: "/api/health",
     timestamp: new Date().toISOString(),
   });
@@ -226,31 +239,31 @@ app.use((req, res) => {
   res.status(404).json({ message: `Route ${req.method} ${req.url} not found` });
 });
 
-// ─── Server Start (for Render / Local Node processes) ────────────────────────
+// â”€â”€â”€ Server Start (for Render / Local Node processes) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function start() {
   try {
     await connectDB();
     app.listen(PORT, () => {
-      console.log(`\n🚀 Hackord Backend running on http://localhost:${PORT}`);
+      console.log(`\nðŸš€ Hackord Backend running on http://localhost:${PORT}`);
       console.log(`   Health: http://localhost:${PORT}/api/health`);
       console.log(`   Auth:   http://localhost:${PORT}/api/auth`);
       console.log(`   Admin:  http://localhost:${PORT}/api/admin\n`);
 
       // Initialize automated daily scraping background scheduler (every 24 hours)
       const { scrapeHackathonsToFile } = require("./services/scraperService");
-      console.log("[Scheduler] ⏰ Initializing automated 24-hour daily hackathon scraper...");
+      console.log("[Scheduler] â° Initializing automated 24-hour daily hackathon scraper...");
       scrapeHackathonsToFile().catch((err) =>
         console.error("[Scheduler] Initial daily scrape error:", err.message)
       );
       setInterval(() => {
-        console.log("[Scheduler] ⏰ Running automated 24-hour daily hackathon scrape...");
+        console.log("[Scheduler] â° Running automated 24-hour daily hackathon scrape...");
         scrapeHackathonsToFile().catch((err) =>
           console.error("[Scheduler] Daily scrape error:", err.message)
         );
       }, 24 * 60 * 60 * 1000);
     });
   } catch (err) {
-    console.error("❌ Failed to start server:", err.message);
+    console.error("âŒ Failed to start server:", err.message);
     process.exit(1);
   }
 }
@@ -261,3 +274,5 @@ if (require.main === module) {
 
 // Export express app for Vercel Serverless
 module.exports = app;
+
+

@@ -1,9 +1,10 @@
-const express = require("express");
+﻿const express = require("express");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const Invitation = require("../models/Invitation");
 const { protect } = require("../middleware/auth");
-const { sendNotification } = require("../services/notificationService");
+const { sendNotification } = require('../services/notificationService');
+const { purgeUserCompleteData } = require('../services/userCleanupService');
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ function escapeRegex(text) {
   return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
-// ─── GET /api/users/search ──────────────────────────────────────────────────
+// â”€â”€â”€ GET /api/users/search â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.get("/search", async (req, res) => {
   try {
     const query = req.query.q ? String(req.query.q).trim() : "";
@@ -85,7 +86,7 @@ router.get("/search", async (req, res) => {
   }
 });
 
-// ─── POST /api/users/heartbeat ──────────────────────────────────────────────
+// â”€â”€â”€ POST /api/users/heartbeat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.post("/heartbeat", async (req, res) => {
   try {
     let userId = req.body?.userId;
@@ -108,7 +109,7 @@ router.post("/heartbeat", async (req, res) => {
   }
 });
 
-// ─── GET /api/users/settings ───────────────────────────────────────────────
+// â”€â”€â”€ GET /api/users/settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.get("/settings", async (req, res) => {
   try {
     let user = null;
@@ -137,7 +138,7 @@ router.get("/settings", async (req, res) => {
           deadlines: true,
           chatMessages: true,
           desktopNotifications: true,
-          reminders: false,
+          reminders: true,
         },
         privacySettings: {
           discoverable: true,
@@ -160,7 +161,7 @@ router.get("/settings", async (req, res) => {
         deadlines: n.deadlines !== false,
         chatMessages: n.chatMessages !== false,
         desktopNotifications: n.desktopNotifications !== false,
-        reminders: Boolean(n.reminders),
+        reminders: n.reminders !== false,
       },
       privacySettings: {
         discoverable: p.discoverable !== false,
@@ -177,7 +178,7 @@ router.get("/settings", async (req, res) => {
   }
 });
 
-// ─── PUT /api/users/settings ───────────────────────────────────────────────
+// â”€â”€â”€ PUT /api/users/settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.put("/settings", async (req, res) => {
   try {
     let user = null;
@@ -227,7 +228,7 @@ router.put("/settings", async (req, res) => {
     }
 
     await user.save();
-    console.log(`[users/settings] ✅ Updated settings for ${user.email}`);
+    console.log(`[users/settings] âœ… Updated settings for ${user.email}`);
 
     res.json({
       message: "Settings updated successfully",
@@ -240,7 +241,7 @@ router.put("/settings", async (req, res) => {
   }
 });
 
-// ─── DELETE /api/users/me (Delete account from DB) ─────────────────────────
+// â”€â”€â”€ DELETE /api/users/me (Delete account from DB) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.delete("/me", async (req, res) => {
   try {
     let user = null;
@@ -280,33 +281,24 @@ router.delete("/me", async (req, res) => {
       notificationPreferences: user.notificationPreferences || { emailEnabled: true },
     };
 
-    // Delete invitations involving user
-    await Invitation.deleteMany({
-      $or: [
-        { "recipient.user_id": userIdStr },
-        { "recipient.email": userEmail },
-        { "sender.user_id": userIdStr },
-      ],
-    });
-
-    // Delete User record from DB
-    await User.findByIdAndDelete(user._id);
+    // Purge all user data, rooms, resources, settings, notes, chats, AI data, invitations from DB
+    await purgeUserCompleteData(user);
 
     // Dispatch professional account deletion email notification
     sendNotification({
       recipientUser: userSnapshot,
       type: "accountDeletion",
       title: "Account Deletion Confirmation",
-      body: `Your Hackord account (${userEmail}) has been permanently deleted as requested. All your profile information, active room invitations, and personal workspace data have been securely purged from our servers.\n\nWe're sad to see you go! Thank you for having been a part of the Hackord community. If you ever decide to return to build, collaborate, or compete in hackathons, you are always welcome to sign up again.`,
+      body: `Your Hackord account (${userEmail}) has been permanently deleted as requested. All your profile information, created rooms, messages, AI conversations, personal notes, and workspace data have been securely purged from our servers.\n\nWe're sad to see you go! Thank you for having been a part of the Hackord community. If you ever decide to return to build, collaborate, or compete in hackathons, you are always welcome to sign up again.`,
       link: "/",
       metadata: {
-        buttonText: "Visit Hackord →",
+        buttonText: "Visit Hackord â†’",
       },
     }).catch((err) => {
       console.error("[deleteAccountNotifErr]", err.message);
     });
 
-    console.log(`[users/delete] 🗑️ Account ${userEmail} (${userIdStr}) permanently deleted from MongoDB`);
+    console.log(`[users/delete] ðŸ—‘ï¸ Account ${userEmail} (${userIdStr}) permanently deleted from MongoDB`);
     res.json({ message: "Account deleted successfully from database" });
   } catch (err) {
     console.error("[deleteAccount]", err);
@@ -314,7 +306,7 @@ router.delete("/me", async (req, res) => {
   }
 });
 
-// ─── GET /api/users/:id ──────────────────────────────────────────────────
+// â”€â”€â”€ GET /api/users/:id â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.get("/:id", async (req, res) => {
   try {
     const rawParam = req.params.id;
