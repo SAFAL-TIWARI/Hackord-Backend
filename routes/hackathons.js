@@ -59,16 +59,17 @@ router.get("/", async (req, res) => {
 // ─── POST /api/hackathons/scrape ─── Trigger live auto-feeding from top platforms (ADMIN ONLY)
 router.post("/scrape", protect, adminOnly, async (req, res) => {
   try {
-    const result = await scrapeHackathonsToFile();
+    const autoFeed = req.body?.autoFeed !== false;
+    const result = await scrapeHackathonsToFile({ autoFeedToDb: autoFeed });
 
     res.json({
       success: true,
-      message: `Scraping completed! ${result.totalScraped} valid hackathons saved to file. Admin permission required to merge to DB.`,
+      message: `Scraping completed! ${result.totalScraped} valid hackathons processed and fed to DB.`,
       stats: result,
     });
   } catch (err) {
     console.error("[hackathons /scrape error]", err.message);
-    res.status(500).json({ error: "Failed to scrape hackathons to file", message: err.message });
+    res.status(500).json({ error: "Failed to scrape hackathons", message: err.message });
   }
 });
 

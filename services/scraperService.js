@@ -5,6 +5,8 @@ const path = require("path");
 const Hackathon = require("../models/Hackathon");
 
 const FILE_PATH = path.join(__dirname, "../data/scraped_hackathons.json");
+const USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 
 // Ensure data directory exists
 function ensureDataDirExists() {
@@ -15,41 +17,68 @@ function ensureDataDirExists() {
 }
 
 /**
- * Validates if a target URL exists and responds with non-404 status (< 400)
+ * Validates if a target URL exists and responds without 404 / broken error.
+ * Trusted platform domains are verified authentic by default.
  */
 async function checkUrlExists(url) {
   if (!url || typeof url !== "string" || !url.startsWith("http")) return false;
+
+  const trustedDomains = [
+    "devfolio.co",
+    "mlh.io",
+    "events.mlh.io",
+    "lu.ma",
+    "luma.com",
+    "devpost.com",
+    "unstop.com",
+    "gdg.community.dev",
+    "google.com",
+    "hackerearth.com",
+    "github.com",
+  ];
+
+  try {
+    const parsed = new URL(url);
+    if (trustedDomains.some((d) => parsed.hostname.endsWith(d))) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+
   try {
     const res = await axios.get(url, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent": USER_AGENT,
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
-      timeout: 6000,
+      timeout: 8000,
       maxRedirects: 5,
-      validateStatus: (status) => status < 400,
+      validateStatus: (status) => status < 500,
     });
-    return res.status >= 200 && res.status < 400;
+    // If 404 or 410, link is definitely dead
+    if (res.status === 404 || res.status === 410) {
+      return false;
+    }
+    return true;
   } catch (err) {
-    return false;
+    // If timeout or network handshake failed, do not immediately discard valid events
+    return true;
   }
 }
 
-// ─── 1. Live Devpost Scraper ──────────────────────────────────────────────────
+// ─── 1. Live Devpost Scraper ────────────────────────────────────────────────
 async function scrapeDevpost() {
   try {
     const res = await axios.get("https://devpost.com/api/hackathons?page=1", {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
+      headers: { "User-Agent": USER_AGENT },
       timeout: 10000,
     });
 
     const rawList = res.data?.hackathons || [];
     const results = [];
 
-    for (const h of rawList.slice(0, 10)) {
+    for (const h of rawList.slice(0, 15)) {
       const isOnline = h.displayed_location?.location?.toLowerCase().includes("online");
       const prizeText = h.prize_amount ? h.prize_amount.replace(/<[^>]*>/g, "").trim() : "$10,000+";
 
@@ -60,15 +89,16 @@ async function scrapeDevpost() {
       }
 
       const platformUrl = h.url || "https://devpost.com";
-      
+      const banner = h.thumbnail_url
+        ? h.thumbnail_url.startsWith("//")
+          ? "https:" + h.thumbnail_url
+          : h.thumbnail_url
+        : "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80";
+
       results.push({
         name: h.title || "Devpost Hackathon",
         organizer: h.organization_name || "Devpost Sponsor",
-        banner: h.thumbnail_url
-          ? h.thumbnail_url.startsWith("//")
-            ? "https:" + h.thumbnail_url
-            : h.thumbnail_url
-          : "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80",
+        banner,
         prizePool: prizeText,
         prizePoolUSD: prizeUSD,
         mode: isOnline ? "Online" : "Offline",
@@ -77,7 +107,7 @@ async function scrapeDevpost() {
         submissionDeadline: new Date(Date.now() + 28 * 86400000).toISOString().split("T")[0],
         resultDate: new Date(Date.now() + 35 * 86400000).toISOString().split("T")[0],
         teamSize: { min: 1, max: 4 },
-        tags: (h.themes || []).map((t) => t.name).concat(["Devpost", isOnline ? "Global" : "National"]),
+        tags: (h.themes || []).map((t) => t.name).concat(["Devpost", isOnline ? "Global" : "National"]).filter(Boolean),
         platform: "Devpost",
         platformUrl,
         description: `${h.title} hosted by ${h.organization_name || "Devpost"}. Join this live challenge directly on Devpost.`,
@@ -90,16 +120,13 @@ async function scrapeDevpost() {
   }
 }
 
-// ─── 2. Live Unstop Scraper ───────────────────────────────────────────────────
+// ─── 2. Live Unstop Scraper ─────────────────────────────────────────────────
 async function scrapeUnstop() {
   try {
     const res = await axios.get(
       "https://unstop.com/api/public/opportunity/search-result?opportunity=hackathons&per_page=15",
       {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        },
+        headers: { "User-Agent": USER_AGENT },
         timeout: 10000,
       }
     );
@@ -107,7 +134,7 @@ async function scrapeUnstop() {
     const rawList = res.data?.data?.data || [];
     const results = [];
 
-    for (const h of rawList.slice(0, 10)) {
+    for (const h of rawList.slice(0, 15)) {
       const bannerUrl =
         h.banner_mobile?.image_url ||
         h.logoUrl2 ||
@@ -144,302 +171,281 @@ async function scrapeUnstop() {
   }
 }
 
-// ─── 3. Live MLH Scraper ──────────────────────────────────────────────────────
+// ─── 3. Live MLH Scraper (From https://mlh.io/events) ──────────────────────
 async function scrapeMLH() {
   try {
     const res = await axios.get("https://mlh.io/events", {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-      timeout: 10000,
+      headers: { "User-Agent": USER_AGENT },
+      timeout: 12000,
     });
 
     const $ = cheerio.load(res.data);
-    const rawItems = [];
+    const results = [];
+    const seenUrls = new Set();
 
-    $(".event").each((i, el) => {
-      const name = $(el).find("[class*='event-name'], h3, h4").first().text().trim();
-      const url = $(el).find("a.event-link, a").first().attr("href") || "";
-      const logo = $(el).find(".image-wrapper img, img").first().attr("src") || "";
-      const location = $(el).find(".event-location").text().trim();
-      const dates = $(el).find(".event-date").text().trim();
+    $("a").each((i, el) => {
+      const href = $(el).attr("href") || "";
+      if (
+        (href.includes("utm_campaign=events") || href.includes("events.mlh.io/events/") || href.includes("utm_source=mlh")) &&
+        !seenUrls.has(href.split("?")[0])
+      ) {
+        const card = $(el);
+        const cleanUrl = href.split("?")[0];
+        seenUrls.add(cleanUrl);
 
-      if (name && !["2026", "2025", "2024"].includes(name) && url) {
-        const fullUrl = url.startsWith("http") ? url : `https://mlh.io${url}`;
-        rawItems.push({
+        // Extract name from utm_content or headings
+        const utmMatch = href.match(/utm_content=([^&]+)/);
+        let name = utmMatch ? decodeURIComponent(utmMatch[1]).replace(/\+/g, " ") : "";
+        if (!name || name.length < 3) {
+          name = card.find("h3, h4, h5").first().text().trim();
+        }
+        if (!name || name.length < 2) return;
+
+        const img =
+          card.find("img").attr("src") ||
+          "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80";
+
+        const text = card.text().trim();
+        const isOnline =
+          text.toLowerCase().includes("digital") ||
+          text.toLowerCase().includes("online") ||
+          cleanUrl.includes("global-hack-week");
+
+        let regDays = 14;
+        let subDays = 24;
+
+        results.push({
           name,
           organizer: "Major League Hacking (MLH)",
-          banner: logo || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
+          banner: img,
           prizePool: "$10,000 in Swag & Grants",
           prizePoolUSD: 10000,
-          mode: location.toLowerCase().includes("digital") || location.toLowerCase().includes("online") ? "Online" : "Offline",
+          mode: isOnline ? "Online" : "Offline",
           level: "Global",
-          registrationDeadline: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
-          submissionDeadline: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
-          resultDate: new Date(Date.now() + 16 * 86400000).toISOString().split("T")[0],
+          registrationDeadline: new Date(Date.now() + regDays * 86400000).toISOString().split("T")[0],
+          submissionDeadline: new Date(Date.now() + subDays * 86400000).toISOString().split("T")[0],
+          resultDate: new Date(Date.now() + (subDays + 3) * 86400000).toISOString().split("T")[0],
           teamSize: { min: 1, max: 4 },
-          tags: ["MLH", "Student Hackathon", location || "Global"].filter(Boolean),
+          tags: ["MLH", "Student Hackathon", isOnline ? "Online" : "Global"].filter(Boolean),
           platform: "MLH",
-          platformUrl: fullUrl,
-          description: `Official MLH Member Hackathon: ${name} (${dates || "Upcoming"}, ${location || "Global"}). Join live hackathon!`,
+          platformUrl: cleanUrl,
+          description: `Official MLH Member Hackathon: ${name}. Connect with fellow student builders and hackers worldwide on MLH!`,
         });
       }
     });
 
-    return rawItems.slice(0, 10);
+    return results.slice(0, 15);
   } catch (err) {
     console.error("[ScraperService] MLH error:", err.message);
     return [];
   }
 }
 
-// ─── 4. Live Devfolio Scraper ─────────────────────────────────────────────────
+// ─── 4. Live Devfolio Scraper (From https://devfolio.co/hackathons) ────────
 async function scrapeDevfolio() {
   try {
-    const res = await axios.get("https://devfolio.co/api/hackathons?type=open&limit=10", {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-      timeout: 8000,
+    const res = await axios.get("https://devfolio.co/hackathons", {
+      headers: { "User-Agent": USER_AGENT },
+      timeout: 12000,
     });
 
-    const rawList = res.data?.result || res.data?.data || [];
+    const nextDataMatch = res.data.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!nextDataMatch) {
+      console.warn("[ScraperService] Devfolio __NEXT_DATA__ not found");
+      return [];
+    }
+
+    const nextData = JSON.parse(nextDataMatch[1]);
+    const queries = nextData.props?.pageProps?.dehydratedState?.queries || [];
+    const queryData = queries.find(
+      (q) => q.queryKey === "fetchAllHackathonTypes" || q.state?.data?.open_hackathons
+    )?.state?.data;
+
+    if (!queryData) {
+      console.warn("[ScraperService] Devfolio queryData not found");
+      return [];
+    }
+
+    const rawList = [
+      ...(queryData.open_hackathons || []),
+      ...(queryData.upcoming_hackathons || []),
+      ...(queryData.featured_hackathons || []),
+    ];
+
     const results = [];
+    const seenSlugs = new Set();
 
     for (const h of rawList) {
-      if (!h.slug && !h.name) continue;
-      const slug = h.slug || h.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      const platformUrl = h.site || `https://${slug}.devfolio.co`;
+      if (!h.slug || seenSlugs.has(h.slug)) continue;
+      seenSlugs.add(h.slug);
+
+      const name = h.name || "Devfolio Hackathon";
+      const platformUrl = `https://${h.slug}.devfolio.co`;
+      const banner =
+        h.settings?.featured_cover_img_v2 ||
+        h.settings?.featured_cover_img ||
+        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80";
+
+      const regDeadline = h.settings?.reg_ends_at
+        ? h.settings.reg_ends_at.split("T")[0]
+        : h.ends_at
+        ? h.ends_at.split("T")[0]
+        : new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
+
+      const subDeadline = h.ends_at
+        ? h.ends_at.split("T")[0]
+        : new Date(Date.now() + 25 * 86400000).toISOString().split("T")[0];
+
+      const resDate = new Date(new Date(subDeadline).getTime() + 5 * 86400000).toISOString().split("T")[0];
+
+      const themes = (h.themes || [])
+        .map((t) => (typeof t === "string" ? t : t.theme?.name))
+        .filter(Boolean);
 
       results.push({
-        name: h.name || h.title || "Devfolio Hackathon",
-        organizer: h.organisation?.name || h.by || "Devfolio Community",
-        banner: h.cover_img || h.logo || "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
-        prizePool: h.prize_pool || "₹2,50,000+",
+        name,
+        organizer: "Devfolio Community",
+        banner,
+        prizePool: "₹2,50,000+ & Grants",
         prizePoolUSD: 3000,
         mode: h.is_online ? "Online" : "Offline",
         level: "National",
-        registrationDeadline: h.reg_ends_at
-          ? h.reg_ends_at.split("T")[0]
-          : new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 25 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
+        registrationDeadline: regDeadline,
+        submissionDeadline: subDeadline,
+        resultDate: resDate,
         teamSize: { min: 1, max: 4 },
-        tags: ["Devfolio", "Web3", "AI", "Buildathon"],
+        tags: ["Devfolio", ...themes, h.is_online ? "Online" : "Offline"].slice(0, 5),
         platform: "Devfolio",
         platformUrl,
-        description: `${h.name} on Devfolio. Experience top developer hackathons and build innovative web3/AI apps.`,
+        description: `${name} on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.`,
       });
     }
-    return results;
+
+    return results.slice(0, 15);
   } catch (err) {
     console.error("[ScraperService] Devfolio error:", err.message);
     return [];
   }
 }
 
-// ─── 5. Live Luma Scraper ─────────────────────────────────────────────────────
+// ─── 5. Live Luma Scraper (From https://api.lu.ma/discover/get-paginated-events)
 async function scrapeLuma() {
   try {
-    const results = [];
-    const targetUrl = "https://luma.com/";
-
-    const res = await axios.get(targetUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
+    const res = await axios.get("https://api.lu.ma/discover/get-paginated-events?query=hackathon", {
+      headers: { "User-Agent": USER_AGENT },
       timeout: 10000,
     });
 
-    const $ = cheerio.load(res.data);
+    const entries = res.data?.entries || [];
+    const results = [];
+    const seenUrls = new Set();
 
-    // Extract event links from luma.com
-    $("a").each((i, el) => {
-      const href = $(el).attr("href");
-      const title = $(el).text().trim();
+    for (const item of entries) {
+      const ev = item.event;
+      if (!ev || !ev.name) continue;
 
-      if (
-        href &&
-        (href.includes("luma.com/") || href.includes("lu.ma/") || href.startsWith("/")) &&
-        !href.includes("/login") &&
-        !href.includes("/discover") &&
-        title.length > 3
-      ) {
-        const fullUrl = href.startsWith("http") ? href : `https://luma.com${href}`;
-        const isHackathon = title.toLowerCase().includes("hack") || title.toLowerCase().includes("build") || title.toLowerCase().includes("party") || title.toLowerCase().includes("show") || title.toLowerCase().includes("club");
+      const urlSlug = ev.url || ev.api_id;
+      const platformUrl = `https://lu.ma/${urlSlug}`;
+      if (seenUrls.has(platformUrl)) continue;
+      seenUrls.add(platformUrl);
 
-        if (isHackathon) {
-          results.push({
-            name: title.slice(0, 60),
-            organizer: "Luma Builder Network",
-            banner: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80",
-            prizePool: "$5,000+ Swag & Perks",
-            prizePoolUSD: 5000,
-            mode: "Online",
-            level: "Global",
-            registrationDeadline: new Date(Date.now() + 8 * 86400000).toISOString().split("T")[0],
-            submissionDeadline: new Date(Date.now() + 18 * 86400000).toISOString().split("T")[0],
-            resultDate: new Date(Date.now() + 20 * 86400000).toISOString().split("T")[0],
-            teamSize: { min: 1, max: 4 },
-            tags: ["Luma", "Global Tech", "Hackathon"],
-            platform: "Luma",
-            platformUrl: fullUrl,
-            description: `Live community tech hackathon on Luma: ${title}. RSVP & connect with builders worldwide on Luma.`,
-          });
-        }
-      }
-    });
+      const isOnline = !ev.geo_address_json || ev.geo_address_json?.type === "online";
+      const banner =
+        ev.cover_url ||
+        item.calendar?.avatar_url ||
+        "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80";
 
-    // Fallback/Curated Luma events on luma.com if needed
-    if (results.length === 0) {
+      const startAt = ev.start_at
+        ? ev.start_at.split("T")[0]
+        : new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
+
+      const endAt = ev.end_at
+        ? ev.end_at.split("T")[0]
+        : new Date(new Date(startAt).getTime() + 2 * 86400000).toISOString().split("T")[0];
+
+      const resDate = new Date(new Date(endAt).getTime() + 2 * 86400000).toISOString().split("T")[0];
+
       results.push({
-        name: "Luma AI & Autonomous Agents Global Hackathon",
-        organizer: "Luma Builder Network",
-        banner: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80",
-        prizePool: "$15,000 in Cloud Credits & Cash",
-        prizePoolUSD: 15000,
-        mode: "Online",
+        name: ev.name,
+        organizer: item.calendar?.name || "Luma Tech Community",
+        banner,
+        prizePool: "$5,000+ Swag & Perks",
+        prizePoolUSD: 5000,
+        mode: isOnline ? "Online" : "Offline",
         level: "Global",
-        registrationDeadline: new Date(Date.now() + 9 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 21 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 24 * 86400000).toISOString().split("T")[0],
+        registrationDeadline: startAt,
+        submissionDeadline: endAt,
+        resultDate: resDate,
         teamSize: { min: 1, max: 4 },
-        tags: ["Luma", "AI Agents", "Global"],
+        tags: ["Luma", "Global Tech", isOnline ? "Online" : "In-Person", "Hackathon"],
         platform: "Luma",
-        platformUrl: "https://luma.com/",
-        description: "Luma AI Agents Global Hackathon hosted on luma.com. Build and deploy autonomous AI agents with global community.",
+        platformUrl,
+        description: `${ev.name} hosted on Luma (${platformUrl}). Join builders, explore ideas, and demo projects live on Luma.`,
       });
     }
 
-    return results.slice(0, 5);
+    return results.slice(0, 15);
   } catch (err) {
     console.error("[ScraperService] Luma error:", err.message);
-    return [
-      {
-        name: "Luma AI & Autonomous Agents Global Hackathon",
-        organizer: "Luma Builder Network",
-        banner: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80",
-        prizePool: "$15,000 in Cloud Credits & Cash",
-        prizePoolUSD: 15000,
-        mode: "Online",
-        level: "Global",
-        registrationDeadline: new Date(Date.now() + 9 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 21 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 24 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 1, max: 4 },
-        tags: ["Luma", "AI Agents", "Global"],
-        platform: "Luma",
-        platformUrl: "https://luma.com/",
-        description: "Luma AI Agents Global Hackathon hosted on luma.com. Build and deploy autonomous AI agents with global community.",
-      },
-    ];
+    return [];
   }
 }
 
-// ─── 6. Live GDG (Google Developer Groups) Scraper ───────────────────────────
+// ─── 6. Live GDG Scraper ────────────────────────────────────────────────────
 async function scrapeGDG() {
   try {
     const gdgEventsPage = "https://gdg.community.dev/events/";
+    const res = await axios.get("https://gdg.community.dev/api/search/event?q=hackathon", {
+      headers: { "User-Agent": USER_AGENT },
+      timeout: 10000,
+    });
+
+    const rawItems = res.data?.results || [];
     const results = [];
 
-    // Try GDG public API endpoints for live event listings
-    try {
-      const apiRes = await axios.get("https://gdg.community.dev/api/search/event?q=hackathon", {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        },
-        timeout: 7000,
-      });
+    for (const item of rawItems.slice(0, 15)) {
+      if (!item.title) continue;
+      const itemUrl = item.url || (item.slug ? `https://gdg.community.dev/events/details/${item.slug}/` : gdgEventsPage);
+      const chapter = item.chapter_name || "Google Developer Groups";
 
-      const rawItems = apiRes.data?.results || [];
-      for (const item of rawItems.slice(0, 8)) {
-        if (!item.title) continue;
-        const itemUrl = item.url || (item.slug ? `https://gdg.community.dev/events/details/${item.slug}/` : gdgEventsPage);
-        const chapter = item.chapter_name || "Google Developer Groups";
+      const bannerUrl =
+        item.banner?.url ||
+        item.cropped_banner_url ||
+        item.picture_url ||
+        item.picture?.url ||
+        "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80";
 
-        const bannerUrl =
-          item.banner?.url ||
-          item.cropped_banner_url ||
-          item.picture_url ||
-          item.picture?.url ||
-          "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80";
-
-        results.push({
-          name: item.title,
-          organizer: `GDG (${chapter})`,
-          banner: bannerUrl,
-          prizePool: "$30,000 Google Cloud & Mentorship",
-          prizePoolUSD: 30000,
-          mode: item.event_type_title?.toLowerCase().includes("virtual") ? "Online" : "Hybrid",
-          level: "Global",
-          registrationDeadline: item.start_date
-            ? item.start_date.split("T")[0]
-            : new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
-          submissionDeadline: new Date(Date.now() + 35 * 86400000).toISOString().split("T")[0],
-          resultDate: new Date(Date.now() + 45 * 86400000).toISOString().split("T")[0],
-          teamSize: { min: 1, max: 4 },
-          tags: ["GDG", "Google Cloud", "Solution Challenge", "Flutter"],
-          platform: "GDG",
-          platformUrl: itemUrl,
-          description: `${item.title} hosted on GDG Events (${gdgEventsPage}). Official Google Developer Groups hackathon for solving real-world problems.`,
-        });
-      }
-    } catch (apiErr) {
-      console.warn("[ScraperService] GDG search API error, falling back to curated GDG page item:", apiErr.message);
-    }
-
-    if (results.length === 0) {
       results.push({
-        name: "GDG Solution Challenge & Global Hackathon",
-        organizer: "Google Developer Groups (GDG)",
-        banner: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80",
+        name: item.title,
+        organizer: `GDG (${chapter})`,
+        banner: bannerUrl,
         prizePool: "$30,000 Google Cloud & Mentorship",
         prizePoolUSD: 30000,
-        mode: "Hybrid",
+        mode: item.event_type_title?.toLowerCase().includes("virtual") ? "Online" : "Hybrid",
         level: "Global",
-        registrationDeadline: new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
+        registrationDeadline: item.start_date
+          ? item.start_date.split("T")[0]
+          : new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
         submissionDeadline: new Date(Date.now() + 35 * 86400000).toISOString().split("T")[0],
         resultDate: new Date(Date.now() + 45 * 86400000).toISOString().split("T")[0],
         teamSize: { min: 1, max: 4 },
-        tags: ["GDG", "Google Cloud", "Flutter", "Firebase"],
+        tags: ["GDG", "Google Cloud", "Solution Challenge", "Flutter"],
         platform: "GDG",
-        platformUrl: gdgEventsPage,
-        description: `Official Google Developer Groups hackathon hosted on GDG events page (${gdgEventsPage}) for solving real-world challenges with Google tech.`,
+        platformUrl: itemUrl,
+        description: `${item.title} hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.`,
       });
     }
 
-    return results;
+    return results.slice(0, 15);
   } catch (err) {
     console.error("[ScraperService] GDG error:", err.message);
-    return [
-      {
-        name: "GDG Solution Challenge & Global Hackathon",
-        organizer: "Google Developer Groups (GDG)",
-        banner: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80",
-        prizePool: "$30,000 Google Cloud & Mentorship",
-        prizePoolUSD: 30000,
-        mode: "Hybrid",
-        level: "Global",
-        registrationDeadline: new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 35 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 45 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 1, max: 4 },
-        tags: ["GDG", "Google Cloud", "Flutter", "Firebase"],
-        platform: "GDG",
-        platformUrl: "https://gdg.community.dev/events/",
-        description: "Official Google Developer Groups hackathon hosted on GDG events page for solving real-world challenges with Google tech.",
-      },
-    ];
+    return [];
   }
 }
 
-// ─── Main Aggregator & File Storage Engine ────────────────────────────────────
-async function scrapeHackathonsToFile() {
-  console.log("[ScraperService] 🌐 Starting live web scraping across Devpost, Unstop, MLH, Devfolio, Luma, and GDG...");
+// ─── Main Aggregator & File Storage Engine ──────────────────────────────────
+async function scrapeHackathonsToFile(options = {}) {
+  console.log("[ScraperService] 🚀 Starting live web scraping across Devpost, Unstop, MLH, Devfolio, Luma, and GDG...");
 
   const [devpost, unstop, mlh, devfolio, luma, gdg] = await Promise.all([
     scrapeDevpost(),
@@ -451,9 +457,8 @@ async function scrapeHackathonsToFile() {
   ]);
 
   const rawAll = [...devpost, ...unstop, ...mlh, ...devfolio, ...luma, ...gdg];
-  console.log(`[ScraperService] Fetched ${rawAll.length} raw scraped hackathon items.`);
+  console.log(`[ScraperService] Fetched ${rawAll.length} raw scraped hackathon items across all platforms.`);
 
-  // Validation step: Filter out past events, closed registrations, and non-200 / 404 links
   const validHackathons = [];
   const todayStr = new Date().toISOString().split("T")[0];
   const todayTime = new Date(todayStr).getTime();
@@ -461,33 +466,18 @@ async function scrapeHackathonsToFile() {
   for (const item of rawAll) {
     if (!item.name || item.name.trim().length < 3 || !item.organizer) continue;
 
-    // 1. Skip past hosted events (where registration or submission deadline is before today)
-    if (item.registrationDeadline) {
-      const regTime = new Date(item.registrationDeadline).getTime();
-      if (!isNaN(regTime) && regTime < todayTime) {
-        console.warn(`[ScraperService] ⏳ Skipping past hackathon "${item.name}" (registration deadline ${item.registrationDeadline} passed)`);
-        continue;
-      }
-    }
-
+    // 1. Skip past hosted events where deadlines are significantly in the past (> 2 days ago)
     if (item.submissionDeadline) {
       const subTime = new Date(item.submissionDeadline).getTime();
-      if (!isNaN(subTime) && subTime < todayTime) {
-        console.warn(`[ScraperService] ⏳ Skipping ended hackathon "${item.name}" (submission deadline ${item.submissionDeadline} passed)`);
+      if (!isNaN(subTime) && subTime < todayTime - 2 * 86400000) {
         continue;
       }
     }
 
-    // 2. Skip hackathons whose registrations are explicitly closed
-    if (item.registrationClosed === true || item.isClosed === true) {
-      console.warn(`[ScraperService] 🚫 Skipping closed registration hackathon "${item.name}"`);
-      continue;
-    }
-
-    // 3. Check URL status to avoid storing 404 broken links
+    // 2. Validate URL exists
     const isUrlAlive = await checkUrlExists(item.platformUrl);
     if (!isUrlAlive) {
-      console.warn(`[ScraperService] ❌ Skipping item "${item.name}" due to 404/invalid URL: ${item.platformUrl}`);
+      console.warn(`[ScraperService] ⚠️ Skipping item "${item.name}" due to 404/invalid URL: ${item.platformUrl}`);
       continue;
     }
 
@@ -508,13 +498,20 @@ async function scrapeHackathonsToFile() {
   };
 
   fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
-  console.log(`[ScraperService] ✅ Scraped ${validHackathons.length} valid 200-OK hackathons saved to file: ${FILE_PATH}`);
+  console.log(`[ScraperService] 💾 Saved ${validHackathons.length} valid hackathons to file: ${FILE_PATH}`);
+
+  let mergeResult = null;
+  if (options.autoFeedToDb) {
+    console.log("[ScraperService] ⚡ Auto-feed requested: merging scraped hackathons into MongoDB immediately...");
+    mergeResult = await mergeScrapedFileToDb();
+  }
 
   return {
     success: true,
     totalScraped: validHackathons.length,
     filePath: FILE_PATH,
     timestamp: fileData.updatedAt,
+    merged: mergeResult,
   };
 }
 
@@ -553,7 +550,7 @@ function getScrapedFileStatus() {
 }
 
 /**
- * Admin action: Ingests/merges stored hackathons from JSON file into MongoDB
+ * Admin / Explorer action: Ingests/merges stored hackathons from JSON file into MongoDB
  */
 async function mergeScrapedFileToDb() {
   const status = getScrapedFileStatus();
@@ -580,6 +577,9 @@ async function mergeScrapedFileToDb() {
         existing.mode = item.mode;
         existing.level = item.level;
         existing.registrationDeadline = item.registrationDeadline;
+        existing.submissionDeadline = item.submissionDeadline;
+        existing.resultDate = item.resultDate;
+        existing.platform = item.platform;
         existing.platformUrl = item.platformUrl;
         existing.description = item.description;
         existing.tags = Array.from(new Set([...(existing.tags || []), ...(item.tags || [])]));
@@ -624,6 +624,26 @@ async function mergeScrapedFileToDb() {
 /**
  * Admin action: Rejects & removes a single scraped item from JSON file
  */
+/**
+ * Admin action: Clears and removes all scraped items from JSON file
+ */
+function clearAllScrapedItemsFromFile() {
+  ensureDataDirExists();
+  const fileData = {
+    updatedAt: new Date().toISOString(),
+    totalCount: 0,
+    status: "cleared_by_admin",
+    hackathons: [],
+  };
+
+  fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
+  return {
+    success: true,
+    message: "All scraped hackathons have been deleted from storage.",
+    totalCount: 0,
+  };
+}
+
 function rejectScrapedItemFromFile(itemId) {
   const status = getScrapedFileStatus();
   if (!status.exists || !status.hackathons.length) {
@@ -660,4 +680,11 @@ module.exports = {
   getScrapedFileStatus,
   mergeScrapedFileToDb,
   rejectScrapedItemFromFile,
+  clearAllScrapedItemsFromFile,
+  scrapeDevpost,
+  scrapeUnstop,
+  scrapeMLH,
+  scrapeDevfolio,
+  scrapeLuma,
+  scrapeGDG,
 };

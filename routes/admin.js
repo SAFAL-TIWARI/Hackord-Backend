@@ -9,6 +9,7 @@ const {
   getScrapedFileStatus,
   mergeScrapedFileToDb,
   rejectScrapedItemFromFile,
+  clearAllScrapedItemsFromFile,
 } = require("../services/scraperService");
 
 const router = express.Router();
@@ -181,12 +182,19 @@ router.get("/scraped-file-status", async (req, res) => {
 // ─── POST /api/admin/trigger-scrape ─── Manually run scrapers & write to JSON file
 router.post("/trigger-scrape", async (req, res) => {
   try {
-    const result = await scrapeHackathonsToFile();
+    const autoFeed = req.body?.autoFeed === true || req.query?.autoFeed === "true";
+    const result = await scrapeHackathonsToFile({ autoFeedToDb: autoFeed });
     const status = getScrapedFileStatus();
+    const message =
+      autoFeed && result.merged?.success
+        ? ("Scraped " + result.totalScraped + " hackathons across all platforms and auto-fed to DB! Added " + result.merged.insertedCount + " new, updated " + result.merged.updatedCount + ".")
+        : ("Scraped " + result.totalScraped + " valid hackathons and saved to file!");
+
     res.json({
       success: true,
-      message: `Scraped ${result.totalScraped} valid hackathons and saved to file! Admin approval required to feed DB.`,
+      message,
       fileStatus: status,
+      merged: result.merged,
     });
   } catch (err) {
     console.error("[admin/trigger-scrape]", err);
@@ -194,7 +202,7 @@ router.post("/trigger-scrape", async (req, res) => {
   }
 });
 
-// ─── POST /api/admin/feed-scraped-hackathons ─── Admin approval: Merge stored JSON file to DB
+// POST /api/admin/feed-scraped-hackathons -- Admin approval: Merge stored JSON file to DB
 router.post("/feed-scraped-hackathons", async (req, res) => {
   try {
     const result = await mergeScrapedFileToDb();
@@ -213,6 +221,22 @@ router.post("/feed-scraped-hackathons", async (req, res) => {
 });
 
 // ─── DELETE /api/admin/scraped-hackathons/:id ─── Admin action: Remove scraped hackathon from JSON file
+// DELETE /api/admin/scraped-hackathons -- Admin action: Remove all scraped hackathons from JSON file
+router.delete("/scraped-hackathons", async (req, res) => {
+  try {
+    const result = clearAllScrapedItemsFromFile();
+    const updatedStatus = getScrapedFileStatus();
+    res.json({
+      success: true,
+      message: result.message || "All scraped hackathons deleted from storage",
+      fileStatus: updatedStatus,
+    });
+  } catch (err) {
+    console.error("[admin/scraped-hackathons DELETE ALL]", err);
+    res.status(500).json({ message: "Failed to delete all scraped hackathons: " + err.message });
+  }
+});
+
 router.delete("/scraped-hackathons/:id", async (req, res) => {
   try {
     const itemId = decodeURIComponent(req.params.id);
