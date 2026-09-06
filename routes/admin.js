@@ -171,7 +171,7 @@ router.get("/stats", async (req, res) => {
 // ─── GET /api/admin/scraped-file-status ─── View status of scraped JSON file
 router.get("/scraped-file-status", async (req, res) => {
   try {
-    const status = getScrapedFileStatus();
+    const status = await getScrapedFileStatus();
     res.json(status);
   } catch (err) {
     console.error("[admin/scraped-file-status]", err);
@@ -184,7 +184,7 @@ router.post("/trigger-scrape", async (req, res) => {
   try {
     const autoFeed = req.body?.autoFeed === true || req.query?.autoFeed === "true";
     const result = await scrapeHackathonsToFile({ autoFeedToDb: autoFeed });
-    const status = getScrapedFileStatus();
+    const status = await getScrapedFileStatus();
     const message =
       autoFeed && result.merged?.success
         ? ("Scraped " + result.totalScraped + " hackathons across all platforms and auto-fed to DB! Added " + result.merged.insertedCount + " new, updated " + result.merged.updatedCount + ".")
@@ -224,8 +224,8 @@ router.post("/feed-scraped-hackathons", async (req, res) => {
 // DELETE /api/admin/scraped-hackathons -- Admin action: Remove all scraped hackathons from JSON file
 router.delete("/scraped-hackathons", async (req, res) => {
   try {
-    const result = clearAllScrapedItemsFromFile();
-    const updatedStatus = getScrapedFileStatus();
+    const result = await clearAllScrapedItemsFromFile();
+    const updatedStatus = await getScrapedFileStatus();
     res.json({
       success: true,
       message: result.message || "All scraped hackathons deleted from storage",
@@ -240,15 +240,15 @@ router.delete("/scraped-hackathons", async (req, res) => {
 router.delete("/scraped-hackathons/:id", async (req, res) => {
   try {
     const itemId = decodeURIComponent(req.params.id);
-    const result = rejectScrapedItemFromFile(itemId);
+    const result = await rejectScrapedItemFromFile(itemId);
     if (!result.success) {
       return res.status(404).json({ message: result.message });
     }
 
-    const updatedStatus = getScrapedFileStatus();
+    const updatedStatus = await getScrapedFileStatus();
     res.json({
       success: true,
-      message: "Scraped hackathon rejected and removed from file",
+      message: "Scraped hackathon rejected and removed from staging",
       fileStatus: updatedStatus,
     });
   } catch (err) {

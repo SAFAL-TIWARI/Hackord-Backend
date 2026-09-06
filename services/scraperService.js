@@ -3,6 +3,7 @@ const cheerio = require("cheerio");
 const fs = require("fs");
 const path = require("path");
 const Hackathon = require("../models/Hackathon");
+const ScrapedHackathon = require("../models/ScrapedHackathon");
 
 const FILE_PATH = path.join(__dirname, "../data/scraped_hackathons.json");
 const USER_AGENT =
@@ -23,7 +24,7 @@ function ensureDataDirExists() {
 async function checkUrlExists(url) {
   if (!url || typeof url !== "string" || !url.startsWith("http")) return false;
 
-  const trustedDomains = [
+    const trustedDomains = [
     "devfolio.co",
     "mlh.io",
     "events.mlh.io",
@@ -35,6 +36,11 @@ async function checkUrlExists(url) {
     "google.com",
     "hackerearth.com",
     "github.com",
+    "dev.to",
+    "taikai.network",
+    "dorahacks.io",
+    "bemyapp.com",
+    "agorize.com",
   ];
 
   try {
@@ -52,7 +58,7 @@ async function checkUrlExists(url) {
         "User-Agent": USER_AGENT,
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
-      timeout: 8000,
+      timeout: 3000,
       maxRedirects: 5,
       validateStatus: (status) => status < 500,
     });
@@ -443,7 +449,7 @@ async function scrapeGDG() {
   }
 }
 
-// ─── Main Aggregator & File Storage Engine ──────────────────────────────────
+// ─── Main Aggregator & File Storage Engine ────────────────────────────────
 async function scrapeHackathonsToFile(options = {}) {
   console.log("[ScraperService] 🚀 Starting live web scraping across Devpost, Unstop, MLH, Devfolio, Luma, and GDG...");
 
@@ -459,37 +465,51 @@ async function scrapeHackathonsToFile(options = {}) {
   const rawAll = [...devpost, ...unstop, ...mlh, ...devfolio, ...luma, ...gdg];
   console.log(`[ScraperService] Fetched ${rawAll.length} raw scraped hackathon items across all platforms.`);
 
-  const validHackathons = [];
   const todayStr = new Date().toISOString().split("T")[0];
   const todayTime = new Date(todayStr).getTime();
 
-  for (const item of rawAll) {
-    if (!item.name || item.name.trim().length < 3 || !item.organizer) continue;
+  // Validate items in parallel for maximum speed (concurrency)
+  const validationResults = await Promise.all(
+    rawAll.map(async (item) => {
+      if (!item.name || item.name.trim().length < 3 || !item.organizer) return null;
 
-    // 1. Skip past hosted events where deadlines are significantly in the past (> 2 days ago)
-    if (item.submissionDeadline) {
-      const subTime = new Date(item.submissionDeadline).getTime();
-      if (!isNaN(subTime) && subTime < todayTime - 2 * 86400000) {
-        continue;
+      // 1. Skip past hosted events where deadlines are significantly in the past (> 2 days ago)
+      if (item.submissionDeadline) {
+        const subTime = new Date(item.submissionDeadline).getTime();
+        if (!isNaN(subTime) && subTime < todayTime - 2 * 86400000) {
+          return null;
+        }
       }
-    }
 
-    // 2. Validate URL exists
-    const isUrlAlive = await checkUrlExists(item.platformUrl);
-    if (!isUrlAlive) {
-      console.warn(`[ScraperService] ⚠️ Skipping item "${item.name}" due to 404/invalid URL: ${item.platformUrl}`);
-      continue;
-    }
+      // 2. Validate URL exists
+      const isUrlAlive = await checkUrlExists(item.platformUrl);
+      if (!isUrlAlive) {
+        console.warn(`[ScraperService] ⚠️ Skipping item "${item.name}" due to 404/invalid URL: ${item.platformUrl}`);
+        return null;
+      }
 
-    validHackathons.push({
-      ...item,
-      id: item.platformUrl || `${item.name}-${Date.now()}`,
-      scrapedAt: new Date().toISOString(),
-    });
+      return {
+        ...item,
+        id: item.platformUrl || `${item.name}-${Date.now()}`,
+        scrapedAt: new Date().toISOString(),
+      };
+    })
+  );
+
+  const validHackathons = validationResults.filter(Boolean);
+
+  // 1. Save to MongoDB staging collection (universal cloud persistence across Vercel / serverless instances)
+  try {
+    await ScrapedHackathon.deleteMany({});
+    if (validHackathons.length > 0) {
+      await ScrapedHackathon.insertMany(validHackathons, { ordered: false });
+    }
+    console.log(`[ScraperService] 💾 Staged ${validHackathons.length} hackathons to MongoDB staging collection.`);
+  } catch (dbErr) {
+    console.warn(`[ScraperService] MongoDB staging write warning: ${dbErr.message}`);
   }
 
-  ensureDataDirExists();
-
+  // 2. Safely mirror to local file if environment allows (gracefully ignore EROFS on read-only serverless filesystems)
   const fileData = {
     updatedAt: new Date().toISOString(),
     totalCount: validHackathons.length,
@@ -497,12 +517,17 @@ async function scrapeHackathonsToFile(options = {}) {
     hackathons: validHackathons,
   };
 
-  fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
-  console.log(`[ScraperService] 💾 Saved ${validHackathons.length} valid hackathons to file: ${FILE_PATH}`);
+  try {
+    ensureDataDirExists();
+    fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
+    console.log(`[ScraperService] 💾 Mirrored ${validHackathons.length} valid hackathons to file: ${FILE_PATH}`);
+  } catch (fsErr) {
+    console.warn(`[ScraperService] File write skipped (read-only filesystem on Vercel/serverless): ${fsErr.message}`);
+  }
 
   let mergeResult = null;
   if (options.autoFeedToDb) {
-    console.log("[ScraperService] ⚡ Auto-feed requested: merging scraped hackathons into MongoDB immediately...");
+    console.log("[ScraperService] 🚀 Auto-feed requested: merging scraped hackathons into MongoDB immediately...");
     mergeResult = await mergeScrapedFileToDb();
   }
 
@@ -516,46 +541,79 @@ async function scrapeHackathonsToFile(options = {}) {
 }
 
 /**
- * Gets status and pending items from the scraped file
+ * Gets status and pending items from MongoDB staging or fallback JSON file
  */
-function getScrapedFileStatus() {
-  ensureDataDirExists();
-  if (!fs.existsSync(FILE_PATH)) {
-    return {
-      exists: false,
-      totalCount: 0,
-      updatedAt: null,
-      hackathons: [],
-    };
+async function getScrapedFileStatus() {
+  // 1. Check MongoDB staging collection first
+  try {
+    const count = await ScrapedHackathon.countDocuments();
+    if (count > 0) {
+      const docs = await ScrapedHackathon.find().sort({ createdAt: -1 }).lean();
+      const latest = docs[0]?.scrapedAt || docs[0]?.updatedAt || new Date().toISOString();
+      return {
+        exists: true,
+        totalCount: docs.length,
+        updatedAt: latest,
+        hackathons: docs.map((h) => ({
+          ...h,
+          id: h.id || h.platformUrl || h._id.toString(),
+        })),
+      };
+    }
+  } catch (dbErr) {
+    console.warn("[ScraperService] MongoDB staging read warning:", dbErr.message);
   }
 
-  try {
-    const content = fs.readFileSync(FILE_PATH, "utf-8");
-    const data = JSON.parse(content);
-    return {
-      exists: true,
-      totalCount: data.totalCount || 0,
-      updatedAt: data.updatedAt,
-      hackathons: data.hackathons || [],
-    };
-  } catch (err) {
-    return {
-      exists: false,
-      totalCount: 0,
-      updatedAt: null,
-      hackathons: [],
-      error: err.message,
-    };
+  // 2. Fallback to bundled local JSON file if present
+  if (fs.existsSync(FILE_PATH)) {
+    try {
+      const content = fs.readFileSync(FILE_PATH, "utf-8");
+      const data = JSON.parse(content);
+      const hackathons = data.hackathons || [];
+
+      // If MongoDB is connected and empty, seed it in background
+      if (hackathons.length > 0) {
+        ScrapedHackathon.countDocuments()
+          .then(async (c) => {
+            if (c === 0) {
+              await ScrapedHackathon.insertMany(hackathons, { ordered: false }).catch(() => {});
+            }
+          })
+          .catch(() => {});
+      }
+
+      return {
+        exists: true,
+        totalCount: data.totalCount || hackathons.length,
+        updatedAt: data.updatedAt,
+        hackathons,
+      };
+    } catch (err) {
+      return {
+        exists: false,
+        totalCount: 0,
+        updatedAt: null,
+        hackathons: [],
+        error: err.message,
+      };
+    }
   }
+
+  return {
+    exists: false,
+    totalCount: 0,
+    updatedAt: null,
+    hackathons: [],
+  };
 }
 
 /**
- * Admin / Explorer action: Ingests/merges stored hackathons from JSON file into MongoDB
+ * Admin / Explorer action: Ingests/merges stored hackathons from staging into MongoDB
  */
 async function mergeScrapedFileToDb() {
-  const status = getScrapedFileStatus();
+  const status = await getScrapedFileStatus();
   if (!status.exists || status.hackathons.length === 0) {
-    return { success: false, message: "No scraped data available in file to merge." };
+    return { success: false, message: "No scraped data available in staging to merge." };
   }
 
   let insertedCount = 0;
@@ -571,17 +629,17 @@ async function mergeScrapedFileToDb() {
       });
 
       if (existing) {
-        existing.banner = item.banner;
-        existing.prizePool = item.prizePool;
-        existing.prizePoolUSD = item.prizePoolUSD;
-        existing.mode = item.mode;
-        existing.level = item.level;
-        existing.registrationDeadline = item.registrationDeadline;
-        existing.submissionDeadline = item.submissionDeadline;
-        existing.resultDate = item.resultDate;
-        existing.platform = item.platform;
-        existing.platformUrl = item.platformUrl;
-        existing.description = item.description;
+        existing.banner = item.banner || existing.banner;
+        existing.prizePool = item.prizePool || existing.prizePool;
+        existing.prizePoolUSD = item.prizePoolUSD || existing.prizePoolUSD;
+        existing.mode = item.mode || existing.mode;
+        existing.level = item.level || existing.level || "Global";
+        existing.registrationDeadline = item.registrationDeadline || existing.registrationDeadline;
+        existing.submissionDeadline = item.submissionDeadline || existing.submissionDeadline;
+        existing.resultDate = item.resultDate || existing.resultDate;
+        existing.platform = item.platform || existing.platform;
+        existing.platformUrl = item.platformUrl || existing.platformUrl;
+        existing.description = item.description || existing.description;
         existing.tags = Array.from(new Set([...(existing.tags || []), ...(item.tags || [])]));
         await existing.save();
         updatedCount++;
@@ -593,7 +651,7 @@ async function mergeScrapedFileToDb() {
           prizePool: item.prizePool,
           prizePoolUSD: item.prizePoolUSD,
           mode: item.mode,
-          level: item.level,
+          level: item.level || "Global",
           registrationDeadline: item.registrationDeadline,
           submissionDeadline: item.submissionDeadline,
           resultDate: item.resultDate,
@@ -622,21 +680,28 @@ async function mergeScrapedFileToDb() {
 }
 
 /**
- * Admin action: Rejects & removes a single scraped item from JSON file
+ * Admin action: Clears and removes all scraped items from MongoDB staging & JSON file
  */
-/**
- * Admin action: Clears and removes all scraped items from JSON file
- */
-function clearAllScrapedItemsFromFile() {
-  ensureDataDirExists();
-  const fileData = {
-    updatedAt: new Date().toISOString(),
-    totalCount: 0,
-    status: "cleared_by_admin",
-    hackathons: [],
-  };
+async function clearAllScrapedItemsFromFile() {
+  try {
+    await ScrapedHackathon.deleteMany({});
+  } catch (dbErr) {
+    console.warn("[ScraperService] MongoDB clear warning:", dbErr.message);
+  }
 
-  fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
+  try {
+    ensureDataDirExists();
+    const fileData = {
+      updatedAt: new Date().toISOString(),
+      totalCount: 0,
+      status: "cleared_by_admin",
+      hackathons: [],
+    };
+    fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
+  } catch (fsErr) {
+    // Ignore EROFS
+  }
+
   return {
     success: true,
     message: "All scraped hackathons have been deleted from storage.",
@@ -644,34 +709,43 @@ function clearAllScrapedItemsFromFile() {
   };
 }
 
-function rejectScrapedItemFromFile(itemId) {
-  const status = getScrapedFileStatus();
-  if (!status.exists || !status.hackathons.length) {
-    return { success: false, message: "No scraped file data found." };
+/**
+ * Admin action: Rejects & removes a single scraped item from MongoDB staging & JSON file
+ */
+async function rejectScrapedItemFromFile(itemId) {
+  try {
+    await ScrapedHackathon.deleteMany({
+      $or: [{ id: itemId }, { platformUrl: itemId }],
+    });
+  } catch (dbErr) {
+    console.warn("[ScraperService] MongoDB reject warning:", dbErr.message);
   }
 
-  const initialCount = status.hackathons.length;
-  const updatedList = status.hackathons.filter(
-    (h) => h.id !== itemId && h.platformUrl !== itemId
-  );
-
-  if (updatedList.length === initialCount) {
-    return { success: false, message: "Item not found in scraped file." };
+  try {
+    if (fs.existsSync(FILE_PATH)) {
+      const content = fs.readFileSync(FILE_PATH, "utf-8");
+      const data = JSON.parse(content);
+      const updatedList = (data.hackathons || []).filter(
+        (h) => h.id !== itemId && h.platformUrl !== itemId
+      );
+      const fileData = {
+        updatedAt: new Date().toISOString(),
+        totalCount: updatedList.length,
+        status: "pending_admin_approval",
+        hackathons: updatedList,
+      };
+      ensureDataDirExists();
+      fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
+    }
+  } catch (fsErr) {
+    // Ignore EROFS
   }
 
-  const fileData = {
-    updatedAt: new Date().toISOString(),
-    totalCount: updatedList.length,
-    status: "pending_admin_approval",
-    hackathons: updatedList,
-  };
-
-  ensureDataDirExists();
-  fs.writeFileSync(FILE_PATH, JSON.stringify(fileData, null, 2), "utf-8");
+  const updatedStatus = await getScrapedFileStatus();
   return {
     success: true,
-    message: "Scraped hackathon rejected and removed from file.",
-    totalCount: updatedList.length,
+    message: "Scraped hackathon rejected and removed from staging.",
+    totalCount: updatedStatus.totalCount,
   };
 }
 

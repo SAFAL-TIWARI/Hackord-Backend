@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+﻿const mongoose = require("mongoose");
 
 const hackathonSchema = new mongoose.Schema(
   {
@@ -14,6 +14,11 @@ const hackathonSchema = new mongoose.Schema(
       type: String,
       enum: ["Online", "Offline", "Hybrid"],
       default: "Online",
+    },
+    level: {
+      type: String,
+      enum: ["Global", "National", "State"],
+      default: "Global",
     },
     registrationDeadline: { type: String, required: true },
     submissionDeadline: { type: String, required: true },
