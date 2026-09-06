@@ -202,16 +202,32 @@ router.post("/trigger-scrape", async (req, res) => {
   }
 });
 
-// POST /api/admin/feed-scraped-hackathons -- Admin approval: Merge stored JSON file to DB
+// POST /api/admin/feed-scraped-hackathons -- Admin approval: Merge stored JSON file to DB & Push to GitHub
 router.post("/feed-scraped-hackathons", async (req, res) => {
   try {
     const result = await mergeScrapedFileToDb();
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.message || "Failed to merge hackathons" });
+    }
+
     const allHackathons = await Hackathon.find().sort({ createdAt: -1 });
+
+    let message = `Successfully merged scraped hackathons into DB! Added ${result.insertedCount} new, updated ${result.updatedCount}.`;
+    if (result.gitStatus && result.gitStatus.success) {
+      if (result.gitStatus.method === "github-api") {
+        message += ` Also committed & pushed JSON data to GitHub via API!`;
+      } else if (result.gitStatus.method === "git-cli") {
+        message += ` Also committed & pushed JSON data to GitHub!`;
+      }
+    } else if (result.gitStatus && result.gitStatus.note) {
+      message += ` (${result.gitStatus.note})`;
+    }
 
     res.json({
       success: true,
-      message: `Successfully merged scraped hackathons into DB! Added ${result.insertedCount} new, updated ${result.updatedCount}.`,
+      message,
       result,
+      gitStatus: result.gitStatus,
       hackathonsCount: allHackathons.length,
     });
   } catch (err) {
@@ -220,10 +236,40 @@ router.post("/feed-scraped-hackathons", async (req, res) => {
   }
 });
 
-// ─── DELETE /api/admin/scraped-hackathons/:id ─── Admin action: Remove scraped hackathon from JSON file
-// DELETE /api/admin/scraped-hackathons -- Admin action: Remove all scraped hackathons from JSON file
+// ─── POST /api/admin/scraped-hackathons/reject ─── Safe JSON body reject endpoint
+router.post("/scraped-hackathons/reject", async (req, res) => {
+  try {
+    const itemId = req.body.id || req.body.itemId || req.body.platformUrl;
+    if (!itemId) {
+      return res.status(400).json({ message: "Item id is required" });
+    }
+    const result = await rejectScrapedItemFromFile(itemId);
+    const updatedStatus = await getScrapedFileStatus();
+    res.json({
+      success: true,
+      message: result.message || "Scraped hackathon rejected and removed from staging",
+      fileStatus: updatedStatus,
+    });
+  } catch (err) {
+    console.error("[admin/scraped-hackathons REJECT POST]", err);
+    res.status(500).json({ message: "Failed to reject scraped hackathon: " + err.message });
+  }
+});
+
+// ─── DELETE /api/admin/scraped-hackathons -- Admin action: Remove all (or query id) scraped hackathons
 router.delete("/scraped-hackathons", async (req, res) => {
   try {
+    const itemId = req.query.id;
+    if (itemId) {
+      const result = await rejectScrapedItemFromFile(decodeURIComponent(itemId));
+      const updatedStatus = await getScrapedFileStatus();
+      return res.json({
+        success: true,
+        message: result.message || "Scraped hackathon rejected and removed from staging",
+        fileStatus: updatedStatus,
+      });
+    }
+
     const result = await clearAllScrapedItemsFromFile();
     const updatedStatus = await getScrapedFileStatus();
     res.json({
@@ -233,22 +279,19 @@ router.delete("/scraped-hackathons", async (req, res) => {
     });
   } catch (err) {
     console.error("[admin/scraped-hackathons DELETE ALL]", err);
-    res.status(500).json({ message: "Failed to delete all scraped hackathons: " + err.message });
+    res.status(500).json({ message: "Failed to delete scraped hackathons: " + err.message });
   }
 });
 
+// ─── DELETE /api/admin/scraped-hackathons/:id ─── Admin action: Remove scraped hackathon
 router.delete("/scraped-hackathons/:id", async (req, res) => {
   try {
     const itemId = decodeURIComponent(req.params.id);
     const result = await rejectScrapedItemFromFile(itemId);
-    if (!result.success) {
-      return res.status(404).json({ message: result.message });
-    }
-
     const updatedStatus = await getScrapedFileStatus();
     res.json({
       success: true,
-      message: "Scraped hackathon rejected and removed from staging",
+      message: result.message || "Scraped hackathon rejected and removed from staging",
       fileStatus: updatedStatus,
     });
   } catch (err) {

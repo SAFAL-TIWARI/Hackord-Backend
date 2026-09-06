@@ -4,6 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const Hackathon = require("../models/Hackathon");
 const ScrapedHackathon = require("../models/ScrapedHackathon");
+const ScrapedMeta = require("../models/ScrapedMeta");
+const mongoose = require("mongoose");
+const { syncJsonFileToGithub } = require("./githubSyncService");
 
 const FILE_PATH = path.join(__dirname, "../data/scraped_hackathons.json");
 const USER_AGENT =
@@ -504,6 +507,11 @@ async function scrapeHackathonsToFile(options = {}) {
     if (validHackathons.length > 0) {
       await ScrapedHackathon.insertMany(validHackathons, { ordered: false });
     }
+    await ScrapedMeta.findOneAndUpdate(
+      { key: "global_staging" },
+      { isCleared: false, totalCount: validHackathons.length, lastScrapedAt: new Date() },
+      { upsert: true }
+    );
     console.log(`[ScraperService] 💾 Staged ${validHackathons.length} hackathons to MongoDB staging collection.`);
   } catch (dbErr) {
     console.warn(`[ScraperService] MongoDB staging write warning: ${dbErr.message}`);
@@ -556,30 +564,51 @@ async function getScrapedFileStatus() {
         updatedAt: latest,
         hackathons: docs.map((h) => ({
           ...h,
-          id: h.id || h.platformUrl || h._id.toString(),
+          _id: h._id ? h._id.toString() : undefined,
+          id: (h._id ? h._id.toString() : null) || h.id || h.platformUrl,
         })),
+      };
+    }
+
+    // Check if staging was explicitly cleared or merged
+    const meta = await ScrapedMeta.findOne({ key: "global_staging" }).lean();
+    if (meta && (meta.isCleared || meta.lastMergedAt)) {
+      return {
+        exists: true,
+        totalCount: 0,
+        updatedAt: meta.lastClearedAt || meta.lastMergedAt || meta.updatedAt,
+        hackathons: [],
       };
     }
   } catch (dbErr) {
     console.warn("[ScraperService] MongoDB staging read warning:", dbErr.message);
   }
 
-  // 2. Fallback to bundled local JSON file if present
+  // 2. Fallback to bundled local JSON file if present and not previously cleared
   if (fs.existsSync(FILE_PATH)) {
     try {
       const content = fs.readFileSync(FILE_PATH, "utf-8");
       const data = JSON.parse(content);
       const hackathons = data.hackathons || [];
 
-      // If MongoDB is connected and empty, seed it in background
-      if (hackathons.length > 0) {
-        ScrapedHackathon.countDocuments()
-          .then(async (c) => {
-            if (c === 0) {
-              await ScrapedHackathon.insertMany(hackathons, { ordered: false }).catch(() => {});
-            }
-          })
-          .catch(() => {});
+      if (data.status === "cleared_by_admin" || hackathons.length === 0) {
+        return {
+          exists: true,
+          totalCount: 0,
+          updatedAt: data.updatedAt,
+          hackathons: [],
+        };
+      }
+
+      // If MongoDB is connected and staging has never been initialized, seed it once
+      try {
+        const meta = await ScrapedMeta.findOne({ key: "global_staging" });
+        if (!meta && hackathons.length > 0) {
+          await ScrapedHackathon.insertMany(hackathons, { ordered: false }).catch(() => {});
+          await ScrapedMeta.create({ key: "global_staging", isCleared: false, totalCount: hackathons.length, lastScrapedAt: new Date() }).catch(() => {});
+        }
+      } catch (seedErr) {
+        // Ignore background seed err
       }
 
       return {
@@ -608,7 +637,8 @@ async function getScrapedFileStatus() {
 }
 
 /**
- * Admin / Explorer action: Ingests/merges stored hackathons from staging into MongoDB
+ * Admin / Explorer action: Ingests/merges stored hackathons from staging into MongoDB,
+ * and automatically commits and pushes updated data/scraped_hackathons.json to GitHub!
  */
 async function mergeScrapedFileToDb() {
   const status = await getScrapedFileStatus();
@@ -670,12 +700,46 @@ async function mergeScrapedFileToDb() {
   }
 
   console.log(`[ScraperService] ✅ Merged ${insertedCount} new and ${updatedCount} updated hackathons into MongoDB!`);
+
+  // Step 2: Auto Commit & Push updated data/scraped_hackathons.json to GitHub
+  const fileData = {
+    updatedAt: new Date().toISOString(),
+    totalCount: status.hackathons.length,
+    status: "published_to_db",
+    hackathons: status.hackathons,
+  };
+
+  let gitStatus = null;
+  try {
+    gitStatus = await syncJsonFileToGithub({
+      relativeFilePath: "data/scraped_hackathons.json",
+      data: fileData,
+      commitMessage: `feat(scraper): sync ${status.hackathons.length} scraped hackathons to DB [skip ci]`,
+    });
+  } catch (gitErr) {
+    console.error("[ScraperService] Git sync error:", gitErr.message);
+    gitStatus = { success: false, error: gitErr.message };
+  }
+
+  // Step 3: Clear staging collection and mark staging as merged
+  try {
+    await ScrapedHackathon.deleteMany({});
+    await ScrapedMeta.findOneAndUpdate(
+      { key: "global_staging" },
+      { isCleared: true, totalCount: 0, lastMergedAt: new Date() },
+      { upsert: true }
+    );
+  } catch (clearErr) {
+    console.warn("[ScraperService] Staging clear after merge warning:", clearErr.message);
+  }
+
   return {
     success: true,
     insertedCount,
     updatedCount,
     totalProcessed: status.hackathons.length,
     timestamp: new Date().toISOString(),
+    gitStatus,
   };
 }
 
@@ -685,6 +749,11 @@ async function mergeScrapedFileToDb() {
 async function clearAllScrapedItemsFromFile() {
   try {
     await ScrapedHackathon.deleteMany({});
+    await ScrapedMeta.findOneAndUpdate(
+      { key: "global_staging" },
+      { isCleared: true, totalCount: 0, lastClearedAt: new Date() },
+      { upsert: true }
+    );
   } catch (dbErr) {
     console.warn("[ScraperService] MongoDB clear warning:", dbErr.message);
   }
@@ -713,10 +782,25 @@ async function clearAllScrapedItemsFromFile() {
  * Admin action: Rejects & removes a single scraped item from MongoDB staging & JSON file
  */
 async function rejectScrapedItemFromFile(itemId) {
+  if (!itemId) {
+    return { success: false, message: "Item ID is required for rejection." };
+  }
+
   try {
-    await ScrapedHackathon.deleteMany({
-      $or: [{ id: itemId }, { platformUrl: itemId }],
-    });
+    const filters = [];
+    if (mongoose.isValidObjectId(itemId)) {
+      filters.push({ _id: itemId });
+    }
+    filters.push({ id: itemId }, { platformUrl: itemId });
+
+    await ScrapedHackathon.deleteMany({ $or: filters });
+
+    const remainingCount = await ScrapedHackathon.countDocuments();
+    await ScrapedMeta.findOneAndUpdate(
+      { key: "global_staging" },
+      { totalCount: remainingCount, isCleared: remainingCount === 0 },
+      { upsert: true }
+    );
   } catch (dbErr) {
     console.warn("[ScraperService] MongoDB reject warning:", dbErr.message);
   }
@@ -726,12 +810,12 @@ async function rejectScrapedItemFromFile(itemId) {
       const content = fs.readFileSync(FILE_PATH, "utf-8");
       const data = JSON.parse(content);
       const updatedList = (data.hackathons || []).filter(
-        (h) => h.id !== itemId && h.platformUrl !== itemId
+        (h) => h.id !== itemId && h.platformUrl !== itemId && h._id !== itemId
       );
       const fileData = {
         updatedAt: new Date().toISOString(),
         totalCount: updatedList.length,
-        status: "pending_admin_approval",
+        status: updatedList.length === 0 ? "cleared_by_admin" : "pending_admin_approval",
         hackathons: updatedList,
       };
       ensureDataDirExists();
