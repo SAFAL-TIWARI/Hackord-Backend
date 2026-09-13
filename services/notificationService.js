@@ -34,11 +34,18 @@ function createEmailTransporter() {
 
 const transporter = createEmailTransporter();
 
+// Configuration Defaults (ensures live deployments on Render / Vercel have credentials even if not manually set in dashboard)
+const VIASOCKET_WEBHOOK_URL_DEFAULT = "https://flow.sokt.io/func/scrUmA4daF0";
+const EMAILJS_SERVICE_ID_DEFAULT = "service_ng0nn47";
+const EMAILJS_PUBLIC_KEY_DEFAULT = "WIFMej8qYc8LGfyhl";
+const EMAILJS_PRIVATE_KEY_DEFAULT = "JLeZgN4Tpl9lPojxAdQlJ";
+const EMAILJS_TEMPLATE_ID_DEFAULT = "template_hackord";
+
 /**
  * Dispatch notification using viaSocket Flow Webhook
  */
 async function sendViaSocketEmail({ recipientUser, type, title, body, actionUrl, metadata = {}, htmlContent = "" }) {
-  const webhookUrl = process.env.VIASOCKET_WEBHOOK_URL;
+  const webhookUrl = process.env.VIASOCKET_WEBHOOK_URL || VIASOCKET_WEBHOOK_URL_DEFAULT;
 
   if (!webhookUrl) {
     return false;
@@ -111,10 +118,10 @@ async function sendViaSocketEmail({ recipientUser, type, title, body, actionUrl,
  * Dispatch notification using EmailJS REST API (Preserved)
  */
 async function sendEmailJSEmail({ recipientUser, title, body, actionUrl, metadata = {} }) {
-  const serviceId = process.env.EMAILJS_SERVICE_ID;
-  const publicKey = process.env.EMAILJS_PUBLIC_KEY;
-  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
-  const templateId = process.env.EMAILJS_TEMPLATE_ID;
+  const serviceId = process.env.EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID_DEFAULT;
+  const publicKey = process.env.EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY_DEFAULT;
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY || EMAILJS_PRIVATE_KEY_DEFAULT;
+  const templateId = process.env.EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID_DEFAULT;
 
   if (!serviceId || !publicKey) {
     return false;
@@ -326,13 +333,13 @@ async function sendNotification({ recipientUser, type, title, body, link, metada
     if (viaSocketSuccess) {
       results.emailSent = true;
 
-      // Optional safety mirror: Dispatches via EmailJS concurrently while testing viaSocket
-      if (process.env.VIASOCKET_MIRROR_EMAILJS === "true") {
+      // Guaranteed Dual-Delivery: Dispatches via EmailJS concurrently so the user receives the notification instantly
+      if (process.env.VIASOCKET_MIRROR_EMAILJS !== "false") {
         try {
           await sendEmailJSEmail({ recipientUser, title, body, actionUrl, metadata });
-          console.log(`[notificationService] 🪞 Safety mirror delivered via EmailJS to ${recipientUser.email}`);
+          console.log(`[notificationService] 🪞 Dual-delivery dispatched via EmailJS to ${recipientUser.email}`);
         } catch (mErr) {
-          console.warn("[notificationService] Safety mirror EmailJS warning:", mErr.message);
+          console.warn("[notificationService] Dual-delivery EmailJS warning:", mErr.message);
         }
       }
 
