@@ -55,7 +55,9 @@
 | `VITE_AGORA_APP_ID` | Optional | `agora_app_id` | Agora RTC Project App ID |
 | `AGORA_APP_CERTIFICATE`| Optional | `agora_app_cert` | Agora RTC Project App Certificate (token generation) |
 | `GEMINI_API_KEY` | **Yes** | `AIzaSy...` | Google Gemini API Key for AI Workspace |
-| `EMAILJS_SERVICE_ID` | Optional | `service_hackord` | EmailJS service ID for transactional emails |
+| `VIASOCKET_WEBHOOK_URL`| Optional | `https://flow.sokt.io/...` | viaSocket incoming webhook URL for priority email/SMS flow |
+| `VIASOCKET_MIRROR_EMAILJS`| Optional | `true` / `false` | When true, concurrently mirror-delivers via EmailJS during viaSocket testing |
+| `EMAILJS_SERVICE_ID` | Optional | `service_hackord` | EmailJS service ID for transactional emails (preserved) |
 | `EMAILJS_PUBLIC_KEY` | Optional | `user_public_key` | EmailJS public key |
 | `EMAILJS_PRIVATE_KEY`| Optional | `accessToken` | EmailJS private access token |
 | `EMAILJS_TEMPLATE_ID`| Optional | `template_otp` | EmailJS email template ID |
@@ -330,7 +332,7 @@
 - **Automated Scheduler:** Runs in background every 24 hours.
 
 ### 3. `notificationService.js` (Multi-Channel Dispatcher)
-- **Delivery Strategy:** Priority 1: EmailJS REST API $\to$ Priority 2: Nodemailer SMTP $\to$ Priority 3: Console Logger.
+- **Delivery Strategy:** Priority 1: viaSocket Flow Webhook $\to$ Priority 2: EmailJS REST API (preserved fallback) $\to$ Priority 3: Nodemailer SMTP $\to$ Priority 4: Console Logger.
 - **Preference Aware:** Respects user's notification preferences before sending (except critical security notifications like account deletion).
 - **Branded Templates:** High-conversion HTML emails featuring gradients, dark-mode styling, and call-to-action buttons.
 
