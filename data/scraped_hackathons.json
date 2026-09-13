@@ -1,14 +1,90 @@
 {
+<<<<<<< HEAD
   "updatedAt": "2026-09-13T21:20:56.027Z",
+=======
+  "updatedAt": "2026-09-06T05:39:24.831Z",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
   "totalCount": 84,
   "status": "pending_admin_approval",
   "hackathons": [
     {
+<<<<<<< HEAD
       "name": "RevenueCat Shipaton 2026",
       "organizer": "RevenueCat",
       "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/663/632/datas/medium_square.jpg",
       "prizePool": "$740,000",
       "prizePoolUSD": 740000,
+=======
+      "_id": "6a9cfc30756797e5b17ff22c",
+      "id": "6a9cfc30756797e5b17ff22c",
+      "name": "Hackathon 101",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/IMG_F6A366B750D8-1_k0Z2OBd.jpeg",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-texas-tech-university-lubbock-united-states-presents-hackathon-101/",
+      "description": "Hackathon 101 hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff21e",
+      "id": "6a9cfc30756797e5b17ff21e",
+      "name": "Hackathon",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/cambrian_college.jpeg",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-sudbury-presents-hackathon/",
+      "description": "Hackathon hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff21f",
+      "id": "6a9cfc30756797e5b17ff21f",
+      "name": "Hackathon",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/gdev-eccosystems-bevy-chapters-background-blue_8YN69r8.png",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "mode": "Online",
       "level": "Global",
       "registrationDeadline": "2026-09-27",
@@ -25,6 +101,7 @@
         "Devpost",
         "Global"
       ],
+<<<<<<< HEAD
       "platform": "Devpost",
       "platformUrl": "https://revenuecat-shipaton-2026.devpost.com/",
       "description": "RevenueCat Shipaton 2026 hosted by RevenueCat. Join this live challenge directly on Devpost.",
@@ -42,6 +119,401 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-11",
       "resultDate": "2026-10-18",
+=======
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-goa-presents-hackathon/",
+      "description": "Hackathon hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff220",
+      "id": "6a9cfc30756797e5b17ff220",
+      "name": "Hackathon",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/GDG_Bevy_DefaultEventBanner_vDOiPGA.png",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-benha-university-benha-egypt-presents-hackathon/",
+      "description": "Hackathon hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff221",
+      "id": "6a9cfc30756797e5b17ff221",
+      "name": "Hackathon",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/blob_KoD0HZr",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-nanasaheb-mahadik-college-of-engineering-sangli-india-presents-hackathon/",
+      "description": "Hackathon hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff222",
+      "id": "6a9cfc30756797e5b17ff222",
+      "name": "Hackathon Training #4 :  Pitching &amp; Presentation Skills",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/Certified%20Trainer%20in%20Entrepreneurship%20and%20Skills%20Development-01_ROvcGji.jpg",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-al-zaytoonah-university-of-jordan-amman-jordan-presents-hackathon-training-4-pitching-amp-presentation-skills/",
+      "description": "Hackathon Training #4 :  Pitching &amp; Presentation Skills hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff223",
+      "id": "6a9cfc30756797e5b17ff223",
+      "name": "Hackathon Training #3  - Applying Google Vision, Speech, and Media APIs",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/bevy%20head3jpg-01_Sy6xvhh.jpg",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-al-zaytoonah-university-of-jordan-amman-jordan-presents-hackathon-training-3-applying-google-vision-speech-and-media-apis/",
+      "description": "Hackathon Training #3  - Applying Google Vision, Speech, and Media APIs hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff224",
+      "id": "6a9cfc30756797e5b17ff224",
+      "name": "Hackathon Aydın",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/Connect%20Learn%20Grow%20Beyaz%20logo_yFsPzVX.png",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-aydin-adnan-menderes-university-aydin-turkiye-presents-hackathon-aydin/",
+      "description": "Hackathon Aydın hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff225",
+      "id": "6a9cfc30756797e5b17ff225",
+      "name": "Hackathon Hustle: Inside the Winner’s Mind",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/GDG_Bevy_DefaultEventBanner_ofeKgys.png",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-r-c-patel-institute-of-technology-shirpur-india-presents-hackathon-hustle-inside-the-winners-mind/",
+      "description": "Hackathon Hustle: Inside the Winner’s Mind hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff226",
+      "id": "6a9cfc30756797e5b17ff226",
+      "name": "Hackathon 7H - Build with IA",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/blob_4VFmRHj",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-huancayo-presents-hackathon-7h-build-with-ia/",
+      "description": "Hackathon 7H - Build with IA hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff227",
+      "id": "6a9cfc30756797e5b17ff227",
+      "name": "Hackathon - Digital Earth",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/GDG_Bevy_DefaultEventBanner_x7tGQf5.png",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-patna-presents-hackathon-digital-earth/",
+      "description": "Hackathon - Digital Earth hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff228",
+      "id": "6a9cfc30756797e5b17ff228",
+      "name": "Hackathon Hack&amp;Blast #2 - Ahi Ahi, AI! with Bhblasted",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/HackBlast2_qUQrMGz.png",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-napoli-presents-hackathon-hackampblast-2-ahi-ahi-ai-with-bhblasted/",
+      "description": "Hackathon Hack&amp;Blast #2 - Ahi Ahi, AI! with Bhblasted hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff229",
+      "id": "6a9cfc30756797e5b17ff229",
+      "name": "Hackathon School Edition",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/Tavola%20disegno%2015%404x_vwpRREk.png",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-napoli-presents-hackathon-school-edition/",
+      "description": "Hackathon School Edition hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff22a",
+      "id": "6a9cfc30756797e5b17ff22a",
+      "name": "Hackathons – Experiences &amp; Challenges (رحلة في الهاكاثونات: تجارب وتحديات)",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/blob_Hj8ueMf",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-university-of-business-and-technology-jeddah-saudi-arabia-presents-hackathons-experiences-amp-challenges-rhl-fy-lhkthwnt-tjrb-wthdyt/",
+      "description": "Hackathons – Experiences &amp; Challenges (رحلة في الهاكاثونات: تجارب وتحديات) hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff22b",
+      "id": "6a9cfc30756797e5b17ff22b",
+      "name": "Hackathon Prep 101 - How to prepare for a hackathon ?",
+      "organizer": "GDG (Google Developer Groups)",
+      "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/images%20%281%29_GECedfi.jpeg",
+      "prizePool": "$30,000 Google Cloud & Mentorship",
+      "prizePoolUSD": 30000,
+      "mode": "Hybrid",
+      "level": "Global",
+      "registrationDeadline": "2026-09-21",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "GDG",
+        "Google Cloud",
+        "Solution Challenge",
+        "Flutter"
+      ],
+      "platform": "GDG",
+      "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-techno-main-salt-lake-kolkata-india-presents-hackathon-prep-101-how-to-prepare-for-a-hackathon/",
+      "description": "Hackathon Prep 101 - How to prepare for a hackathon ? hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.340Z",
+      "updatedAt": "2026-09-06T05:37:52.340Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff218",
+      "id": "6a9cfc30756797e5b17ff218",
+      "name": "The Spread Hackathon x NYC",
+      "organizer": "We Are For Good",
+      "banner": "https://images.lumacdn.com/uploads/y3/8fc7c833-8bb2-4b00-916d-257dca007545.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-10-02",
+      "submissionDeadline": "2026-10-02",
+      "resultDate": "2026-10-04",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
@@ -53,6 +525,7 @@
         "Devpost",
         "Global"
       ],
+<<<<<<< HEAD
       "platform": "Devpost",
       "platformUrl": "https://agentsforhumans.devpost.com/",
       "description": "Agents for Humans Hackathon hosted by Amazon. Join this live challenge directly on Devpost.",
@@ -93,6 +566,24 @@
       "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/173/025/datas/medium_square.png",
       "prizePool": "$50,000",
       "prizePoolUSD": 50000,
+=======
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/spread-nyc",
+      "description": "The Spread Hackathon x NYC hosted on Luma (https://lu.ma/spread-nyc). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff20e",
+      "id": "6a9cfc30756797e5b17ff20e",
+      "name": "Hefty-Hacks",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "mode": "Online",
       "level": "Global",
       "registrationDeadline": "2026-09-27",
@@ -717,6 +1208,7 @@
         "Student Hackathon",
         "Online"
       ],
+<<<<<<< HEAD
       "platform": "MLH",
       "platformUrl": "https://events.mlh.io/events/14416-global-hack-week-data",
       "description": "Official MLH Member Hackathon: Global Hack Week: Data. Connect with fellow student builders and hackers worldwide on MLH!",
@@ -734,11 +1226,35 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+      "platform": "Devfolio",
+      "platformUrl": "https://hefty-hacks.devfolio.co",
+      "description": "Hefty-Hacks on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff20f",
+      "id": "6a9cfc30756797e5b17ff20f",
+      "name": "HOJATHON",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/uploads/jl/2ebdfbf8-7b6f-4eaf-8bb1-a9c0cb0f4fb4.jpg",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-12",
+      "submissionDeadline": "2026-09-12",
+      "resultDate": "2026-09-14",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -760,11 +1276,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/d8iod5i6",
+      "description": "HOJATHON hosted on Luma (https://lu.ma/d8iod5i6). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff210",
+      "id": "6a9cfc30756797e5b17ff210",
+      "name": "Data & AI Hackathon: Real job. Real AI. Real scale.",
+      "organizer": "Devnovate",
+      "banner": "https://images.lumacdn.com/uploads/t4/783668df-35d7-4707-aa3a-4fedcb6d8a83.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-11",
+      "submissionDeadline": "2026-09-12",
+      "resultDate": "2026-09-14",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -786,11 +1331,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/qisv9xmg",
+      "description": "Data & AI Hackathon: Real job. Real AI. Real scale. hosted on Luma (https://lu.ma/qisv9xmg). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff211",
+      "id": "6a9cfc30756797e5b17ff211",
+      "name": "54 Hackathon FA26",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/uploads/tr/408ed12a-6099-4e02-88a1-f03a8fb78cc2.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-12",
+      "submissionDeadline": "2026-09-13",
+      "resultDate": "2026-09-15",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -812,11 +1386,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/4r1hhugb",
+      "description": "54 Hackathon FA26 hosted on Luma (https://lu.ma/4r1hhugb). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff212",
+      "id": "6a9cfc30756797e5b17ff212",
+      "name": "WORLDS | LONDON Hackathon",
+      "organizer": "MULTIC",
+      "banner": "https://images.lumacdn.com/uploads/q8/8140c1d4-692e-453c-a1dc-8dc4b856391d.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-12",
+      "submissionDeadline": "2026-09-12",
+      "resultDate": "2026-09-14",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -838,11 +1441,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/rsbvv2nk",
+      "description": "WORLDS | LONDON Hackathon hosted on Luma (https://lu.ma/rsbvv2nk). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff213",
+      "id": "6a9cfc30756797e5b17ff213",
+      "name": "Hack Nation 7th Global AI Hackathon",
+      "organizer": "Hack-Nation's Global AI Hackathons",
+      "banner": "https://images.lumacdn.com/uploads/co/981a78f8-6c07-4857-86f1-b39b505a71f0.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-10-03",
+      "submissionDeadline": "2026-10-04",
+      "resultDate": "2026-10-06",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -864,11 +1496,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/z3za7zow",
+      "description": "Hack Nation 7th Global AI Hackathon hosted on Luma (https://lu.ma/z3za7zow). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff214",
+      "id": "6a9cfc30756797e5b17ff214",
+      "name": "AI Hackathon",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/gallery-images/yw/47d6eeb6-66e2-49d8-96d3-b53cc5f74d28.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-13",
+      "submissionDeadline": "2026-09-13",
+      "resultDate": "2026-09-15",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -890,11 +1551,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/fisruwvh",
+      "description": "AI Hackathon hosted on Luma (https://lu.ma/fisruwvh). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff215",
+      "id": "6a9cfc30756797e5b17ff215",
+      "name": "The Harness Engineering & Model Wrangling Hackathon",
+      "organizer": "MongoDB",
+      "banner": "https://images.lumacdn.com/uploads/aj/8073b942-bdc9-442c-8f4e-335dfb05eae5.gif",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-26",
+      "submissionDeadline": "2026-09-27",
+      "resultDate": "2026-09-29",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -916,11 +1606,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/j4jecx72",
+      "description": "The Harness Engineering & Model Wrangling Hackathon hosted on Luma (https://lu.ma/j4jecx72). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff217",
+      "id": "6a9cfc30756797e5b17ff217",
+      "name": "AI Hackathon | START Stuttgart",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/uploads/4e/1db480c8-7f72-466a-bf1c-5fd409335766.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-12",
+      "submissionDeadline": "2026-09-12",
+      "resultDate": "2026-09-14",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -942,11 +1661,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/ncmuch92",
+      "description": "AI Hackathon | START Stuttgart hosted on Luma (https://lu.ma/ncmuch92). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff216",
+      "id": "6a9cfc30756797e5b17ff216",
+      "name": "Miro × n8n hackathon: From diagram to automation",
+      "organizer": "n8n Community Events",
+      "banner": "https://images.lumacdn.com/uploads/5p/9769f875-1785-4308-a305-13b3ce1c960d.jpg",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-28",
+      "submissionDeadline": "2026-09-28",
+      "resultDate": "2026-09-30",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -968,11 +1716,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/n8n-znks",
+      "description": "Miro × n8n hackathon: From diagram to automation hosted on Luma (https://lu.ma/n8n-znks). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff219",
+      "id": "6a9cfc30756797e5b17ff219",
+      "name": "Test Flight: Glasswing Ventures AI Hackathon ($300K In Compute!) - Sponsored by Microsoft Azure & AWS",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/uploads/t1/f9f5b94d-51df-4f95-80d1-f2d19f1bc91f.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-26",
+      "submissionDeadline": "2026-09-27",
+      "resultDate": "2026-09-29",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -994,11 +1771,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/gzpv85yq",
+      "description": "Test Flight: Glasswing Ventures AI Hackathon ($300K In Compute!) - Sponsored by Microsoft Azure & AWS hosted on Luma (https://lu.ma/gzpv85yq). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff21a",
+      "id": "6a9cfc30756797e5b17ff21a",
+      "name": "Post-ROSCon Hackathon",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/uploads/bl/9d55da2f-4923-4384-8829-d02224363f57.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-25",
+      "submissionDeadline": "2026-09-25",
+      "resultDate": "2026-09-27",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -1020,11 +1826,40 @@
       "registrationDeadline": "2026-09-27",
       "submissionDeadline": "2026-10-07",
       "resultDate": "2026-10-10",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/vo6zoq5b",
+      "description": "Post-ROSCon Hackathon hosted on Luma (https://lu.ma/vo6zoq5b). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff21b",
+      "id": "6a9cfc30756797e5b17ff21b",
+      "name": "Autopilot AB Hackathon",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/uploads/jx/83250a2a-9f11-4942-b850-c367c51aed30.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-12",
+      "submissionDeadline": "2026-09-12",
+      "resultDate": "2026-09-14",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "MLH",
         "Student Hackathon",
         "Global"
@@ -1037,13 +1872,128 @@
     },
     {
       "name": "HackSpire'26",
+=======
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/uquy1psx",
+      "description": "Autopilot AB Hackathon hosted on Luma (https://lu.ma/uquy1psx). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff21c",
+      "id": "6a9cfc30756797e5b17ff21c",
+      "name": "Velory × 46elks × IkonAI Hackathon",
+      "organizer": "Personal",
+      "banner": "https://images.lumacdn.com/uploads/yz/0d79059b-456d-4cbb-87eb-8ecd33b1b777.png",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-24",
+      "submissionDeadline": "2026-09-24",
+      "resultDate": "2026-09-26",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/o2z4bjfy",
+      "description": "Velory × 46elks × IkonAI Hackathon hosted on Luma (https://lu.ma/o2z4bjfy). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff21d",
+      "id": "6a9cfc30756797e5b17ff21d",
+      "name": "Flushing Tech Meetup - Hackathon at TIQC",
+      "organizer": "Tech Incubator at Queens College Events",
+      "banner": "https://images.lumacdn.com/event-covers/ch/c50ea129-2a08-4541-a32c-69ba49d91c06.jpg",
+      "prizePool": "$5,000+ Swag & Perks",
+      "prizePoolUSD": 5000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-19",
+      "submissionDeadline": "2026-09-19",
+      "resultDate": "2026-09-21",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Luma",
+        "Global Tech",
+        "Online",
+        "Hackathon"
+      ],
+      "platform": "Luma",
+      "platformUrl": "https://lu.ma/f8x5s6ik",
+      "description": "Flushing Tech Meetup - Hackathon at TIQC hosted on Luma (https://lu.ma/f8x5s6ik). Join builders, explore ideas, and demo projects live on Luma.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.339Z",
+      "updatedAt": "2026-09-06T05:37:52.339Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff204",
+      "id": "6a9cfc30756797e5b17ff204",
+      "name": "Binary Hacks 4.0",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "organizer": "Devfolio Community",
       "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
       "prizePool": "₹2,50,000+ & Grants",
       "prizePoolUSD": 3000,
       "mode": "Offline",
       "level": "National",
+<<<<<<< HEAD
       "registrationDeadline": "2026-09-15",
+=======
+      "registrationDeadline": "2026-09-11",
+      "submissionDeadline": "2026-09-22",
+      "resultDate": "2026-09-27",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Devfolio",
+        "No Restrictions",
+        "Offline"
+      ],
+      "platform": "Devfolio",
+      "platformUrl": "https://binary-hacks-4.devfolio.co",
+      "description": "Binary Hacks 4.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff205",
+      "id": "6a9cfc30756797e5b17ff205",
+      "name": "HackSpire'26",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-09-14",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "submissionDeadline": "2026-10-03",
       "resultDate": "2026-10-08",
       "teamSize": {
@@ -1058,10 +2008,21 @@
       "platform": "Devfolio",
       "platformUrl": "https://hackspire26.devfolio.co",
       "description": "HackSpire'26 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+<<<<<<< HEAD
       "id": "https://hackspire26.devfolio.co",
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
     {
+=======
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff206",
+      "id": "6a9cfc30756797e5b17ff206",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "name": "Realm Hack '26",
       "organizer": "Devfolio Community",
       "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
@@ -1084,6 +2045,7 @@
       "platform": "Devfolio",
       "platformUrl": "https://realm-hack-1.devfolio.co",
       "description": "Realm Hack '26 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+<<<<<<< HEAD
       "id": "https://realm-hack-1.devfolio.co",
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
@@ -1114,6 +2076,16 @@
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
     {
+=======
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff207",
+      "id": "6a9cfc30756797e5b17ff207",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "name": "Builders Day by HackUnion",
       "organizer": "Devfolio Community",
       "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
@@ -1136,17 +2108,30 @@
       "platform": "Devfolio",
       "platformUrl": "https://builders-day-hackunion.devfolio.co",
       "description": "Builders Day by HackUnion on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+<<<<<<< HEAD
       "id": "https://builders-day-hackunion.devfolio.co",
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
     {
       "name": "Cognition - GameJam '26",
+=======
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff208",
+      "id": "6a9cfc30756797e5b17ff208",
+      "name": "HACK WITH GDG S4",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "organizer": "Devfolio Community",
       "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
       "prizePool": "₹2,50,000+ & Grants",
       "prizePoolUSD": 3000,
       "mode": "Offline",
       "level": "National",
+<<<<<<< HEAD
       "registrationDeadline": "2026-09-17",
       "submissionDeadline": "2026-09-26",
       "resultDate": "2026-10-01",
@@ -1228,6 +2213,9 @@
       "mode": "Offline",
       "level": "National",
       "registrationDeadline": "2026-09-22",
+=======
+      "registrationDeadline": "2026-09-25",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "submissionDeadline": "2026-10-10",
       "resultDate": "2026-10-15",
       "teamSize": {
@@ -1240,12 +2228,55 @@
         "Offline"
       ],
       "platform": "Devfolio",
+<<<<<<< HEAD
       "platformUrl": "https://define4.devfolio.co",
       "description": "DEFINE 4.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://define4.devfolio.co",
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
     {
+=======
+      "platformUrl": "https://hack-with-gdg-s4.devfolio.co",
+      "description": "HACK WITH GDG S4 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff209",
+      "id": "6a9cfc30756797e5b17ff209",
+      "name": "BOSS Battle",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+      "mode": "Online",
+      "level": "National",
+      "registrationDeadline": "2026-09-28",
+      "submissionDeadline": "2026-10-05",
+      "resultDate": "2026-10-10",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Devfolio",
+        "No Restrictions",
+        "Online"
+      ],
+      "platform": "Devfolio",
+      "platformUrl": "https://boss-battle.devfolio.co",
+      "description": "BOSS Battle on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff20a",
+      "id": "6a9cfc30756797e5b17ff20a",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "name": "Hackify 3.0",
       "organizer": "Devfolio Community",
       "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
@@ -1253,7 +2284,11 @@
       "prizePoolUSD": 3000,
       "mode": "Offline",
       "level": "National",
+<<<<<<< HEAD
       "registrationDeadline": "2026-09-22",
+=======
+      "registrationDeadline": "2026-09-29",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "submissionDeadline": "2026-10-11",
       "resultDate": "2026-10-16",
       "teamSize": {
@@ -1268,6 +2303,7 @@
       "platform": "Devfolio",
       "platformUrl": "https://hackify-3.devfolio.co",
       "description": "Hackify 3.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+<<<<<<< HEAD
       "id": "https://hackify-3.devfolio.co",
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
@@ -1376,6 +2412,16 @@
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
     {
+=======
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff20b",
+      "id": "6a9cfc30756797e5b17ff20b",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "name": "CodeStorm 2026: FutureForge",
       "organizer": "Devfolio Community",
       "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
@@ -1400,10 +2446,21 @@
       "platform": "Devfolio",
       "platformUrl": "https://codestorm-futureforge.devfolio.co",
       "description": "CodeStorm 2026: FutureForge on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+<<<<<<< HEAD
       "id": "https://codestorm-futureforge.devfolio.co",
       "scrapedAt": "2026-09-13T21:20:52.820Z"
     },
     {
+=======
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff20c",
+      "id": "6a9cfc30756797e5b17ff20c",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "name": "HackTopus'FE",
       "organizer": "Devfolio Community",
       "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
@@ -1414,6 +2471,8 @@
       "registrationDeadline": "2026-09-29",
       "submissionDeadline": "2026-10-16",
       "resultDate": "2026-10-21",
+<<<<<<< HEAD
+=======
       "teamSize": {
         "min": 1,
         "max": 4
@@ -1424,6 +2483,38 @@
         "Offline"
       ],
       "platform": "Devfolio",
+      "platformUrl": "https://hacktopusgdg.devfolio.co",
+      "description": "HackTopus'FE on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff20d",
+      "id": "6a9cfc30756797e5b17ff20d",
+      "name": "HackInverse 1.0",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-09-30",
+      "submissionDeadline": "2026-10-11",
+      "resultDate": "2026-10-16",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Devfolio",
+        "No Restrictions",
+        "Offline"
+      ],
+      "platform": "Devfolio",
+<<<<<<< HEAD
       "platformUrl": "https://hacktopusgdg.devfolio.co",
       "description": "HackTopus'FE on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hacktopusgdg.devfolio.co",
@@ -1440,11 +2531,34 @@
       "registrationDeadline": "2026-10-03",
       "submissionDeadline": "2026-10-04",
       "resultDate": "2026-10-06",
+=======
+      "platformUrl": "https://hackinverse-s1.devfolio.co",
+      "description": "HackInverse 1.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff203",
+      "id": "6a9cfc30756797e5b17ff203",
+      "name": "Cognition - GameJam '26",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-09-11",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1467,11 +2581,39 @@
       "registrationDeadline": "2026-09-26",
       "submissionDeadline": "2026-09-27",
       "resultDate": "2026-09-29",
+=======
+        "Devfolio",
+        "No Restrictions",
+        "Offline"
+      ],
+      "platform": "Devfolio",
+      "platformUrl": "https://cognition-gamejam-1.devfolio.co",
+      "description": "Cognition - GameJam '26 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff202",
+      "id": "6a9cfc30756797e5b17ff202",
+      "name": "WebCraft24",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-09-10",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1655,12 +2797,39 @@
       "level": "Global",
       "registrationDeadline": "2026-09-16",
       "submissionDeadline": "2026-09-16",
+=======
+        "Devfolio",
+        "No Restrictions",
+        "Offline"
+      ],
+      "platform": "Devfolio",
+      "platformUrl": "https://webcraft24.devfolio.co",
+      "description": "WebCraft24 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff201",
+      "id": "6a9cfc30756797e5b17ff201",
+      "name": "Metamorph 2.0",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-09-06",
+      "submissionDeadline": "2026-09-13",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "resultDate": "2026-09-18",
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1683,11 +2852,41 @@
       "registrationDeadline": "2026-09-28",
       "submissionDeadline": "2026-09-28",
       "resultDate": "2026-09-30",
+=======
+        "Devfolio",
+        "Blockchain",
+        "AI",
+        "Hardware",
+        "Offline"
+      ],
+      "platform": "Devfolio",
+      "platformUrl": "https://metamorph-2.devfolio.co",
+      "description": "Metamorph 2.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff200",
+      "id": "6a9cfc30756797e5b17ff200",
+      "name": "Hackrit",
+      "organizer": "Devfolio Community",
+      "banner": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
+      "prizePool": "₹2,50,000+ & Grants",
+      "prizePoolUSD": 3000,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-09-06",
+      "submissionDeadline": "2026-09-12",
+      "resultDate": "2026-09-17",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1710,11 +2909,39 @@
       "registrationDeadline": "2026-09-23",
       "submissionDeadline": "2026-09-23",
       "resultDate": "2026-09-25",
+=======
+        "Devfolio",
+        "No Restrictions",
+        "Offline"
+      ],
+      "platform": "Devfolio",
+      "platformUrl": "https://hackrit2026.devfolio.co",
+      "description": "Hackrit on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1ff",
+      "id": "6a9cfc30756797e5b17ff1ff",
+      "name": "ShellHacks",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019eba43-4b03-57da-a9d7-20c1c2b37c2f/shellhacks-b9_64975df7ea93_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1737,11 +2964,39 @@
       "registrationDeadline": "2026-09-25",
       "submissionDeadline": "2026-09-25",
       "resultDate": "2026-09-27",
+=======
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://shellhacks.net/",
+      "description": "Official MLH Member Hackathon: ShellHacks. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.471Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1fe",
+      "id": "6a9cfc30756797e5b17ff1fe",
+      "name": "HackGT 13",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019ebcbd-d209-438a-5e1d-98f6f5acdf78/hackgt-13_244af84f615d_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1764,11 +3019,39 @@
       "registrationDeadline": "2026-10-14",
       "submissionDeadline": "2026-10-14",
       "resultDate": "2026-10-16",
+=======
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "http://hack.gt/",
+      "description": "Official MLH Member Hackathon: HackGT 13. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.599Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1fd",
+      "id": "6a9cfc30756797e5b17ff1fd",
+      "name": "HackNex Season 2",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019fc7ec-aa0d-6dd7-a328-4430b8561143/hacknex-season-2_32b1327cf67c_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1791,11 +3074,69 @@
       "registrationDeadline": "2026-09-26",
       "submissionDeadline": "2026-09-26",
       "resultDate": "2026-09-28",
+=======
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://innovocon.online/events/hacknex",
+      "description": "Official MLH Member Hackathon: HackNex Season 2. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:52.103Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.338Z",
+      "updatedAt": "2026-09-06T05:37:52.338Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f6",
+      "id": "6a9cfc30756797e5b17ff1f6",
+      "name": "HackWesTX 26",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019f4d37-69e6-9ff4-b97c-442e4d8365dd/hackwestx-26_57eccfd478c3_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://hackwestx.gdgttu.com/",
+      "description": "Official MLH Member Hackathon: HackWesTX 26. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.447Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1ef",
+      "id": "6a9cfc30756797e5b17ff1ef",
+      "name": "IoT Hackathon",
+      "organizer": "Bannari Amman Institute of Technology",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-678f8a8926850_bit_v-prayukti-25_logo.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-02-04",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1818,11 +3159,129 @@
       "registrationDeadline": "2026-10-02",
       "submissionDeadline": "2026-10-02",
       "resultDate": "2026-10-04",
+=======
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/iot-hackathon-v-prayukti25-bannari-amman-institute-of-technology-1369976",
+      "description": "IoT Hackathon hosted by Bannari Amman Institute of Technology. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f0",
+      "id": "6a9cfc30756797e5b17ff1f0",
+      "name": "AIML Hackathon",
+      "organizer": "Bannari Amman Institute of Technology",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-678f987416b52_bit_v-prayukti-25_logo.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-02-02",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/aiml-hackathon-v-prayukti25-bannari-amman-institute-of-technology-1370024",
+      "description": "AIML Hackathon hosted by Bannari Amman Institute of Technology. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f1",
+      "id": "6a9cfc30756797e5b17ff1f1",
+      "name": "DEV",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://dev.to/",
+      "description": "Official MLH Member Hackathon: DEV. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f2",
+      "id": "6a9cfc30756797e5b17ff1f2",
+      "name": "For Businesses",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://sponsor.mlh.com/",
+      "description": "Official MLH Member Hackathon: For Businesses. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.430Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f3",
+      "id": "6a9cfc30756797e5b17ff1f3",
+      "name": "Global Hack Week: Data",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019ef04e-9f2a-9984-aa31-8c35be31ecee/global-hack-week-data_2df693026c40_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+<<<<<<< HEAD
         "Luma",
         "Global Tech",
         "Online",
@@ -1845,11 +3304,39 @@
       "registrationDeadline": "2026-09-28",
       "submissionDeadline": "2026-10-18",
       "resultDate": "2026-10-28",
+=======
+        "MLH",
+        "Student Hackathon",
+        "Online"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://events.mlh.io/events/14416-global-hack-week-data",
+      "description": "Official MLH Member Hackathon: Global Hack Week: Data. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f4",
+      "id": "6a9cfc30756797e5b17ff1f4",
+      "name": "HackRice",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019eb89d-9e95-6c0e-9ea2-23a31e8e7377/hackrice-71_a24484ae7194_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "teamSize": {
         "min": 1,
         "max": 4
       },
       "tags": [
+<<<<<<< HEAD
         "GDG",
         "Google Cloud",
         "Solution Challenge",
@@ -1867,6 +3354,628 @@
       "banner": "https://res.cloudinary.com/startup-grind/image/upload/c_fill,dpr_2.0,f_auto,g_center,q_auto:good/v1/gcs/platform-data-goog/event_banners/gdev-eccosystems-bevy-chapters-background-blue_8YN69r8.png",
       "prizePool": "$30,000 Google Cloud & Mentorship",
       "prizePoolUSD": 30000,
+=======
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://hackrice.com/",
+      "description": "Official MLH Member Hackathon: HackRice. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.419Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f5",
+      "id": "6a9cfc30756797e5b17ff1f5",
+      "name": "HackMTY 2026",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019f3e34-c45f-dcab-d5fd-93e28eb7f583/hackmty-2026_796ca37fb7b9_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://hackmty.com/",
+      "description": "Official MLH Member Hackathon: HackMTY 2026. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.415Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f7",
+      "id": "6a9cfc30756797e5b17ff1f7",
+      "name": "HackHers @GSU",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019f6c64-61a8-4fe6-b7ff-fe6a0e1c2e70/hackhers-gsu_851cf0da2ef9_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://hackhers.club/",
+      "description": "Official MLH Member Hackathon: HackHers @GSU. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.468Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f8",
+      "id": "6a9cfc30756797e5b17ff1f8",
+      "name": "Hack the North",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019eb80b-8bf1-7351-4da1-a6ce77b8c8c8/hack-the-north-e8_6951a630b7be_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://hackthenorth.com/",
+      "description": "Official MLH Member Hackathon: Hack the North. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.473Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1f9",
+      "id": "6a9cfc30756797e5b17ff1f9",
+      "name": "VTHacks 14",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019f047d-2e8b-c25e-8952-866d6853dd8f/vthacks-14_22ad9e116ea4_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://vthacks.com/",
+      "description": "Official MLH Member Hackathon: VTHacks 14. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.824Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1fa",
+      "id": "6a9cfc30756797e5b17ff1fa",
+      "name": "HopHacks",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019f3cf8-f70e-4410-ab78-1c4ce3652624/hophacks-40-1ae4_29a74151f03f_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://www.hophacks.com/",
+      "description": "Official MLH Member Hackathon: HopHacks. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.520Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1fb",
+      "id": "6a9cfc30756797e5b17ff1fb",
+      "name": "SteelHacks XIII",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019f0a98-f82a-c88e-dde6-05883a7da120/steelhacks-xiii_31f927d688fd_medium.jpg",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://steelhacks.org/",
+      "description": "Official MLH Member Hackathon: SteelHacks XIII. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.466Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1fc",
+      "id": "6a9cfc30756797e5b17ff1fc",
+      "name": "&HACKS XII",
+      "organizer": "Major League Hacking (MLH)",
+      "banner": "https://mlhusercontent.com/backgrounds/events/019faf62-7511-5a98-6d6c-7c9ed67da498/hacks-xii_a85626413d55_medium.png",
+      "prizePool": "$10,000 in Swag & Grants",
+      "prizePoolUSD": 10000,
+      "mode": "Offline",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-09-30",
+      "resultDate": "2026-10-03",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "MLH",
+        "Student Hackathon",
+        "Global"
+      ],
+      "platform": "MLH",
+      "platformUrl": "https://andhacks.cs.wm.edu/",
+      "description": "Official MLH Member Hackathon: &HACKS XII. Connect with fellow student builders and hackers worldwide on MLH!",
+      "scrapedAt": "2026-09-06T05:37:51.468Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.337Z",
+      "updatedAt": "2026-09-06T05:37:52.337Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1ee",
+      "id": "6a9cfc30756797e5b17ff1ee",
+      "name": "WCE Hackathon 2025",
+      "organizer": "Walchand College of Engineering (WCE), Sangli",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6796726a2d1ba_hackathon_2025_logo.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-02-24",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/wce-hackathon-2025-walchand-college-of-engineering-wce-sangli-1371008",
+      "description": "WCE Hackathon 2025 hosted by Walchand College of Engineering (WCE), Sangli. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e2",
+      "id": "6a9cfc30756797e5b17ff1e2",
+      "name": "HackCelestial 3.0",
+      "organizer": "Pillai University, Navi Mumbai",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6a82eb2034e41_uploadedmanual-687b9de5a100d_hackcelestial_logo.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-09-27",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/hackcelestial-30-pillai-university-navi-mumbai-1737808",
+      "description": "HackCelestial 3.0 hosted by Pillai University, Navi Mumbai. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e3",
+      "id": "6a9cfc30756797e5b17ff1e3",
+      "name": "Inspiron 5.0",
+      "organizer": "COEP Technological University, Pune, Maharashtra",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-697de4a1d16f7_csi_logo.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-03-21",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/inspiron-50-computer-society-of-indiacsi-coep-tech-student-chapter-1630859",
+      "description": "Inspiron 5.0 hosted by COEP Technological University, Pune, Maharashtra. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e4",
+      "id": "6a9cfc30756797e5b17ff1e4",
+      "name": "WCE Hackathon 2026",
+      "organizer": "Walchand College of Engineering",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-697874c58b400_hackathon_logo.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-02-26",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/wce-hackathon-2026-walchand-college-of-engineering-1630840",
+      "description": "WCE Hackathon 2026 hosted by Walchand College of Engineering. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e5",
+      "id": "6a9cfc30756797e5b17ff1e5",
+      "name": "Innovate  X Hackathon",
+      "organizer": "Shyam Lal College, University of Delhi",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6978b7c814f35__innovation_council.jpg",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-02-09",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/innovate-x-hackathon-shyam-lal-college-university-of-delhi-1631069",
+      "description": "Innovate  X Hackathon hosted by Shyam Lal College, University of Delhi. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e6",
+      "id": "6a9cfc30756797e5b17ff1e6",
+      "name": "Changethon",
+      "organizer": "Indian Institute of Technology (IIT), Roorkee",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6953a1d0599ca_logo_without_pointers.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2026-02-10",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/changethon-national-social-summit-2026-iit-roorkee-1616317",
+      "description": "Changethon hosted by Indian Institute of Technology (IIT), Roorkee. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e7",
+      "id": "6a9cfc30756797e5b17ff1e7",
+      "name": "Innerve X: India’s Largest Student Driven Hackathon",
+      "organizer": "Army Institute of Technology (AIT), Pune",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-691b1e43217c2_innerve_x_-_favicon.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-12-29",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/innerve-x-indias-largest-student-driven-hackathon-army-institute-of-technology-ait-pune-1595880",
+      "description": "Innerve X: India’s Largest Student Driven Hackathon hosted by Army Institute of Technology (AIT), Pune. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e8",
+      "id": "6a9cfc30756797e5b17ff1e8",
+      "name": "India's Biggest AI Hackathon",
+      "organizer": "Masters' Union School of Business",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-68ac5c3fdcb4b_mu_logo__1___1_.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-11-16",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/indias-biggest-ai-hackathon-masters-union-school-of-business-1546867",
+      "description": "India's Biggest AI Hackathon hosted by Masters' Union School of Business. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e9",
+      "id": "6a9cfc30756797e5b17ff1e9",
+      "name": "Myntra HackerRamp: WeForShe 2025",
+      "organizer": "Myntra",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-689cb29d1f57e_updated_logo.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-09-03",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/crp-myntra-hackerramp-weforshe-2025-myntra-1513857",
+      "description": "Myntra HackerRamp: WeForShe 2025 hosted by Myntra. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1ea",
+      "id": "6a9cfc30756797e5b17ff1ea",
+      "name": "Swift-Hack",
+      "organizer": "Bennett University (BU), Greater Noida",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-68068be167500_unstop_mobile_banner.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-04-24",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/swift-hack-rescon-40-bennett-university-bu-greater-noida-1467125",
+      "description": "Swift-Hack hosted by Bennett University (BU), Greater Noida. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1eb",
+      "id": "6a9cfc30756797e5b17ff1eb",
+      "name": "Code Uncode",
+      "organizer": "Kirori Mal College (KMC), University of Delhi, Delhi",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-67dd43648ca9e_technival_x_-_tcp_poster.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-03-24",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/code-uncode-kirori-mal-college-kmc-du-delhi-1437224",
+      "description": "Code Uncode hosted by Kirori Mal College (KMC), University of Delhi, Delhi. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1ec",
+      "id": "6a9cfc30756797e5b17ff1ec",
+      "name": "Odoo x Mindbend'25 Hackathon",
+      "organizer": "Sardar Vallabhbhai National Institute of Technology (SVNIT), Surat",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-67bc447a19540_mindbend_logo-01__2_.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-03-23",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/odoo-x-mindbend25-hackathon-svnit-surat-1410832",
+      "description": "Odoo x Mindbend'25 Hackathon hosted by Sardar Vallabhbhai National Institute of Technology (SVNIT), Surat. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1ed",
+      "id": "6a9cfc30756797e5b17ff1ed",
+      "name": "Best COO",
+      "organizer": "National Institute of Technology (NIT), Warangal",
+      "banner": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-67a7a53ebb83b_curalogo_prev_ui.png",
+      "prizePool": "Prizes & Certificates",
+      "prizePoolUSD": 1500,
+      "mode": "Offline",
+      "level": "National",
+      "registrationDeadline": "2025-02-15",
+      "submissionDeadline": "2026-09-26",
+      "resultDate": "2026-10-01",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Hackathon",
+        "Unstop",
+        "National Level"
+      ],
+      "platform": "Unstop",
+      "platformUrl": "https://unstop.com/hackathons/best-coo-cura25-nit-warangal-1394635",
+      "description": "Best COO hosted by National Institute of Technology (NIT), Warangal. Official live competition registered on Unstop.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.336Z",
+      "updatedAt": "2026-09-06T05:37:52.336Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e1",
+      "id": "6a9cfc30756797e5b17ff1e1",
+      "name": "OpenCV AI Competition 2026, powered by AWS",
+      "organizer": "OpenCV",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/087/526/datas/medium_square.png",
+      "prizePool": "$20,250",
+      "prizePoolUSD": 20250,
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "mode": "Online",
       "level": "Global",
       "registrationDeadline": "2026-09-28",
@@ -1882,6 +3991,7 @@
         "Solution Challenge",
         "Flutter"
       ],
+<<<<<<< HEAD
       "platform": "GDG",
       "platformUrl": "https://gdg.community.dev/events/details/google-gdg-goa-presents-hackathon/",
       "description": "Hackathon hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
@@ -1895,6 +4005,25 @@
       "prizePool": "$30,000 Google Cloud & Mentorship",
       "prizePoolUSD": 30000,
       "mode": "Hybrid",
+=======
+      "platform": "Devpost",
+      "platformUrl": "https://opencv26.devpost.com/",
+      "description": "OpenCV AI Competition 2026, powered by AWS hosted by OpenCV. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1e0",
+      "id": "6a9cfc30756797e5b17ff1e0",
+      "name": "VoltHacks",
+      "organizer": "Dialogate",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/620/967/datas/medium_square.png",
+      "prizePool": "$35,785",
+      "prizePoolUSD": 35785,
+      "mode": "Online",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "level": "Global",
       "registrationDeadline": "2026-09-28",
       "submissionDeadline": "2026-10-18",
@@ -1909,6 +4038,7 @@
         "Solution Challenge",
         "Flutter"
       ],
+<<<<<<< HEAD
       "platform": "GDG",
       "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-benha-university-benha-egypt-presents-hackathon/",
       "description": "Hackathon hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
@@ -1922,6 +4052,25 @@
       "prizePool": "$30,000 Google Cloud & Mentorship",
       "prizePoolUSD": 30000,
       "mode": "Hybrid",
+=======
+      "platform": "Devpost",
+      "platformUrl": "https://volthacks.devpost.com/",
+      "description": "VoltHacks hosted by Dialogate. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1df",
+      "id": "6a9cfc30756797e5b17ff1df",
+      "name": "AI Builders Hackathon",
+      "organizer": "OSC",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/783/650/datas/medium_square.png",
+      "prizePool": "$33,900",
+      "prizePoolUSD": 33900,
+      "mode": "Online",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "level": "Global",
       "registrationDeadline": "2026-09-28",
       "submissionDeadline": "2026-10-18",
@@ -1936,6 +4085,7 @@
         "Solution Challenge",
         "Flutter"
       ],
+<<<<<<< HEAD
       "platform": "GDG",
       "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-nanasaheb-mahadik-college-of-engineering-sangli-india-presents-hackathon/",
       "description": "Hackathon hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
@@ -2192,6 +4342,25 @@
       "prizePool": "$30,000 Google Cloud & Mentorship",
       "prizePoolUSD": 30000,
       "mode": "Hybrid",
+=======
+      "platform": "Devpost",
+      "platformUrl": "https://ai-builders-hackathon-2026.devpost.com/",
+      "description": "AI Builders Hackathon hosted by OSC. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1de",
+      "id": "6a9cfc30756797e5b17ff1de",
+      "name": "Build, Ship, Shape: Amazon Developer Hackathon",
+      "organizer": "Amazon",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/173/047/datas/medium_square.png",
+      "prizePool": "$138,000",
+      "prizePoolUSD": 138000,
+      "mode": "Online",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "level": "Global",
       "registrationDeadline": "2026-09-28",
       "submissionDeadline": "2026-10-18",
@@ -2206,6 +4375,7 @@
         "Solution Challenge",
         "Flutter"
       ],
+<<<<<<< HEAD
       "platform": "GDG",
       "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-techno-main-salt-lake-kolkata-india-presents-hackathon-prep-101-how-to-prepare-for-a-hackathon/",
       "description": "Hackathon Prep 101 - How to prepare for a hackathon ? hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
@@ -2219,6 +4389,25 @@
       "prizePool": "$30,000 Google Cloud & Mentorship",
       "prizePoolUSD": 30000,
       "mode": "Hybrid",
+=======
+      "platform": "Devpost",
+      "platformUrl": "https://amazonappdev2026.devpost.com/",
+      "description": "Build, Ship, Shape: Amazon Developer Hackathon hosted by Amazon. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1dd",
+      "id": "6a9cfc30756797e5b17ff1dd",
+      "name": "Nebius x NVIDIA Global AI Hackathon",
+      "organizer": "nebius",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/173/025/datas/medium_square.png",
+      "prizePool": "$50,000",
+      "prizePoolUSD": 50000,
+      "mode": "Online",
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
       "level": "Global",
       "registrationDeadline": "2026-09-28",
       "submissionDeadline": "2026-10-18",
@@ -2233,11 +4422,149 @@
         "Solution Challenge",
         "Flutter"
       ],
+<<<<<<< HEAD
       "platform": "GDG",
       "platformUrl": "https://gdg.community.dev/events/details/google-gdg-on-campus-texas-tech-university-lubbock-united-states-presents-hackathon-101/",
       "description": "Hackathon 101 hosted on GDG Events. Official Google Developer Groups hackathon for solving real-world challenges.",
       "id": "https://gdg.community.dev/events/details/google-gdg-on-campus-texas-tech-university-lubbock-united-states-presents-hackathon-101/",
       "scrapedAt": "2026-09-13T21:20:52.820Z"
+=======
+      "platform": "Devpost",
+      "platformUrl": "https://nebiusglobalaihackathon.devpost.com/",
+      "description": "Nebius x NVIDIA Global AI Hackathon hosted by nebius. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1dc",
+      "id": "6a9cfc30756797e5b17ff1dc",
+      "name": "CALL-E: Your Code Is Calling",
+      "organizer": "CALL-E",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/977/426/datas/medium_square.png",
+      "prizePool": "$10,000",
+      "prizePoolUSD": 10000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-10-04",
+      "resultDate": "2026-10-11",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Communication",
+        "Enterprise",
+        "Machine Learning/AI",
+        "Devpost",
+        "Global"
+      ],
+      "platform": "Devpost",
+      "platformUrl": "https://call-e.devpost.com/",
+      "description": "CALL-E: Your Code Is Calling hosted by CALL-E. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1db",
+      "id": "6a9cfc30756797e5b17ff1db",
+      "name": "Agents for Humans Hackathon",
+      "organizer": "Amazon",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/064/760/datas/medium_square.jpg",
+      "prizePool": "$40,000",
+      "prizePoolUSD": 40000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-10-04",
+      "resultDate": "2026-10-11",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Beginner Friendly",
+        "Machine Learning/AI",
+        "Open Ended",
+        "Devpost",
+        "Global"
+      ],
+      "platform": "Devpost",
+      "platformUrl": "https://agentsforhumans.devpost.com/",
+      "description": "Agents for Humans Hackathon hosted by Amazon. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1da",
+      "id": "6a9cfc30756797e5b17ff1da",
+      "name": "Agentic Cinema: The Blockbuster Hackathon",
+      "organizer": "Google",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/901/608/datas/medium_square.jpg",
+      "prizePool": "$75,000",
+      "prizePoolUSD": 75000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-10-04",
+      "resultDate": "2026-10-11",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Databases",
+        "Machine Learning/AI",
+        "Open Ended",
+        "Devpost",
+        "Global"
+      ],
+      "platform": "Devpost",
+      "platformUrl": "https://agentic-cinema.devpost.com/",
+      "description": "Agentic Cinema: The Blockbuster Hackathon hosted by Google. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.335Z",
+      "updatedAt": "2026-09-06T05:37:52.335Z"
+    },
+    {
+      "_id": "6a9cfc30756797e5b17ff1d9",
+      "id": "6a9cfc30756797e5b17ff1d9",
+      "name": "RevenueCat Shipaton 2026",
+      "organizer": "RevenueCat",
+      "banner": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/004/663/632/datas/medium_square.jpg",
+      "prizePool": "$740,000",
+      "prizePoolUSD": 740000,
+      "mode": "Online",
+      "level": "Global",
+      "registrationDeadline": "2026-09-20",
+      "submissionDeadline": "2026-10-04",
+      "resultDate": "2026-10-11",
+      "teamSize": {
+        "min": 1,
+        "max": 4
+      },
+      "tags": [
+        "Design",
+        "Gaming",
+        "Mobile",
+        "Devpost",
+        "Global"
+      ],
+      "platform": "Devpost",
+      "platformUrl": "https://revenuecat-shipaton-2026.devpost.com/",
+      "description": "RevenueCat Shipaton 2026 hosted by RevenueCat. Join this live challenge directly on Devpost.",
+      "scrapedAt": "2026-09-06T05:37:51.380Z",
+      "__v": 0,
+      "createdAt": "2026-09-06T05:37:52.334Z",
+      "updatedAt": "2026-09-06T05:37:52.334Z"
+>>>>>>> 71567bf3c0b4ce3274f5c7614400d0af86c148ed
     }
   ]
 }
