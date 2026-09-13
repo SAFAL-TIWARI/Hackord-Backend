@@ -332,17 +332,6 @@ async function sendNotification({ recipientUser, type, title, body, link, metada
     });
     if (viaSocketSuccess) {
       results.emailSent = true;
-
-      // Guaranteed Dual-Delivery: Dispatches via EmailJS concurrently so the user receives the notification instantly
-      if (process.env.VIASOCKET_MIRROR_EMAILJS !== "false") {
-        try {
-          await sendEmailJSEmail({ recipientUser, title, body, actionUrl, metadata });
-          console.log(`[notificationService] 🪞 Dual-delivery dispatched via EmailJS to ${recipientUser.email}`);
-        } catch (mErr) {
-          console.warn("[notificationService] Dual-delivery EmailJS warning:", mErr.message);
-        }
-      }
-
       return results;
     }
   } catch (err) {
