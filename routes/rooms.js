@@ -198,6 +198,17 @@ router.post("/", async (req, res) => {
       name,
       problem: problem || "",
       description: description || "",
+      hackathon_type: req.body.hackathonType || req.body.hackathon_type || "Hackathon",
+      duration: req.body.duration || "",
+      venue: req.body.venue || "",
+      schedule: req.body.schedule || "",
+      submission_checklist: Array.isArray(req.body.submissionChecklist)
+        ? req.body.submissionChecklist
+        : Array.isArray(req.body.submission_checklist)
+        ? req.body.submission_checklist
+        : typeof req.body.submissionChecklist === "string"
+        ? req.body.submissionChecklist.split("\n").map((s) => s.trim()).filter(Boolean)
+        : [],
       github_url: req.body.github_url || req.body.githubUrl || "",
       meeting_code: req.body.meeting_code || req.body.meetingCode || "",
       max_size: maxSize || 6,

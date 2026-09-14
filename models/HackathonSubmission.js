@@ -29,6 +29,15 @@ const HackathonSubmissionSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    hackathonType: {
+      type: String,
+      enum: ["Hackathon", "Mini Hackathon"],
+      default: "Hackathon",
+    },
+    duration: { type: String, default: "" },
+    venue: { type: String, default: "" },
+    schedule: { type: String, default: "" },
+    submissionChecklist: [{ type: String }],
     mode: {
       type: String,
       enum: ["Online", "Offline", "Hybrid"],

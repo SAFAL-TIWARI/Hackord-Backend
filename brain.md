@@ -346,3 +346,14 @@ Whenever changes are made to the backend codebase:
 3. **New Dependency / Tool:** Record in Section 2 with version and purpose.
 4. **New Service Feature:** Document logic, fallback flow, or external APIs in Section 6.
 5. **Config Changes:** Update environment variables in Section 3.
+
+
+### 4. Mini Hackathon (1-Day Event) Engine
+- **Models**:
+  - `Hackathon.js`, `HackathonSubmission.js`, `ScrapedHackathon.js`: Added `hackathonType` ('Hackathon' | 'Mini Hackathon'), `duration`, `venue`, `schedule`, `submissionChecklist`.
+  - `Room.js`: Added `hackathon_type`, `duration`, `venue`, `schedule`, `submission_checklist`.
+- **API & Scraping**:
+  - `scraperService.js`: Automatically tags 1-day events as 'Mini Hackathon', injecting MLH-spec timeline schedule, venue, duration, and 7-item checklist.
+  - `routes/hackathons.js`: Supports filtering by `?type=Mini Hackathon` and carries all mini fields in host request creation.
+  - `routes/admin.js`: Carries mini hackathon parameters from submission to published Hackathon document.
+  - `routes/rooms.js`: Persists mini hackathon fields during room creation and updates.

@@ -10,6 +10,15 @@ const hackathonSchema = new mongoose.Schema(
     },
     prizePool: { type: String, required: true, default: "TBD" },
     prizePoolUSD: { type: Number, default: 0 },
+    hackathonType: {
+      type: String,
+      enum: ["Hackathon", "Mini Hackathon"],
+      default: "Hackathon",
+    },
+    duration: { type: String, default: "" },
+    venue: { type: String, default: "" },
+    schedule: { type: String, default: "" },
+    submissionChecklist: { type: [String], default: [] },
     mode: {
       type: String,
       enum: ["Online", "Offline", "Hybrid"],

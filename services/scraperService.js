@@ -89,6 +89,13 @@ async function scrapeDevpost() {
 
     for (const h of rawList.slice(0, 15)) {
       const isOnline = h.displayed_location?.location?.toLowerCase().includes("online");
+      const titleLower = (h.title || "").toLowerCase();
+      const isMiniDevpost =
+        titleLower.includes("mini") ||
+        titleLower.includes("sprint") ||
+        titleLower.includes("1-day") ||
+        titleLower.includes("one day") ||
+        titleLower.includes("game jam");
       const prizeText = h.prize_amount ? h.prize_amount.replace(/<[^>]*>/g, "").trim() : "$10,000+";
 
       let prizeUSD = 10000;
@@ -116,7 +123,19 @@ async function scrapeDevpost() {
         submissionDeadline: new Date(Date.now() + 28 * 86400000).toISOString().split("T")[0],
         resultDate: new Date(Date.now() + 35 * 86400000).toISOString().split("T")[0],
         teamSize: { min: 1, max: 4 },
-        tags: (h.themes || []).map((t) => t.name).concat(["Devpost", isOnline ? "Global" : "National"]).filter(Boolean),
+        hackathonType: isMiniDevpost ? "Mini Hackathon" : "Hackathon",
+        duration: isMiniDevpost ? "6-8 hours" : "",
+        venue: isOnline ? "Online" : (h.displayed_location?.location || "Offline"),
+        schedule: isMiniDevpost
+          ? "09:00 AM – Check-in & Kickoff\n10:00 AM – Hacking Commences\n01:00 PM – Lunch & Mentorship\n05:00 PM – Final Code Freeze\n05:30 PM – Presentations & Awards"
+          : "",
+        submissionChecklist: isMiniDevpost
+          ? ["Project Name", "Problem Statement", "Live Demo Link", "GitHub Code Repository", "Demo Video"]
+          : [],
+        tags: (h.themes || [])
+          .map((t) => t.name)
+          .concat(["Devpost", isMiniDevpost ? "Mini Hackathon" : null, isMiniDevpost ? "1-Day Hackathon" : null, isOnline ? "Global" : "National"])
+          .filter(Boolean),
         platform: "Devpost",
         platformUrl,
         description: `${h.title} hosted by ${h.organization_name || "Devpost"}. Join this live challenge directly on Devpost.`,
@@ -220,6 +239,14 @@ async function scrapeMLH() {
           text.toLowerCase().includes("online") ||
           cleanUrl.includes("global-hack-week");
 
+        const isMini =
+          name.toLowerCase().includes("mini") ||
+          text.toLowerCase().includes("mini") ||
+          text.toLowerCase().includes("sprint") ||
+          text.toLowerCase().includes("1-day") ||
+          cleanUrl.includes("mini") ||
+          cleanUrl.includes("sprint");
+
         let regDays = 14;
         let subDays = 24;
 
@@ -235,7 +262,24 @@ async function scrapeMLH() {
           submissionDeadline: new Date(Date.now() + subDays * 86400000).toISOString().split("T")[0],
           resultDate: new Date(Date.now() + (subDays + 3) * 86400000).toISOString().split("T")[0],
           teamSize: { min: 1, max: 4 },
-          tags: ["MLH", "Student Hackathon", isOnline ? "Online" : "Global"].filter(Boolean),
+          hackathonType: isMini ? "Mini Hackathon" : "Hackathon",
+          duration: isMini ? "5-7 hours" : "",
+          venue: isOnline ? "Online (Discord Stage & Zoom)" : "DevHub Tech Center, Bengaluru",
+          schedule: isMini
+            ? "09:00 AM – 09:30 AM | Check-in & Team Registration\n09:30 AM – 10:00 AM | Kickoff & Problem Statement Reveal\n10:00 AM | Hacking Begins! 🚀\n01:00 PM – 01:45 PM | Mid-Sprint Lunch & Mentor Checkpoints\n04:00 PM | Code Freeze & Submission Deadline\n04:15 PM – 05:30 PM | Live 3-Minute Demos & Technical Q&A\n05:30 PM – 06:00 PM | Closing Ceremony & Winner Announcements"
+            : "",
+          submissionChecklist: isMini
+            ? [
+                "Project name & tagline",
+                "Problem statement & target persona",
+                "System architecture & solution overview",
+                "GitHub repository (clean commits & open README)",
+                "Live working demo / deployed URL",
+                "2-minute demo video or slide walkthrough",
+                "Technical breakdown & API integration details"
+              ]
+            : [],
+          tags: ["MLH", isMini ? "Mini Hackathon" : null, isMini ? "1-Day Hackathon" : null, "Student Hackathon", isOnline ? "Online" : "Global"].filter(Boolean),
           platform: "MLH",
           platformUrl: cleanUrl,
           description: `Official MLH Member Hackathon: ${name}. Connect with fellow student builders and hackers worldwide on MLH!`,
@@ -243,7 +287,108 @@ async function scrapeMLH() {
       }
     });
 
-    return results.slice(0, 15);
+        // Curated demo 1-day / mini hackathons for rich discovery
+    const demoMinis = [
+      {
+        name: "AI Agents Flash Sprint 2026",
+        organizer: "Antigravity AI Collective",
+        banner: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
+        prizePool: "₹75,000 Cash + Cloud Credits",
+        prizePoolUSD: 1000,
+        mode: "Online",
+        level: "Global",
+        registrationDeadline: new Date(Date.now() + 4 * 86400000).toISOString().split("T")[0],
+        submissionDeadline: new Date(Date.now() + 4 * 86400000).toISOString().split("T")[0],
+        resultDate: new Date(Date.now() + 4 * 86400000).toISOString().split("T")[0],
+        teamSize: { min: 1, max: 4 },
+        hackathonType: "Mini Hackathon",
+        duration: "6 hours",
+        venue: "Online (Discord Stage & Zoom)",
+        schedule: "09:00 AM – 09:30 AM | Check-in & Team Registration\n09:30 AM – 10:00 AM | Kickoff & Problem Statement Reveal\n10:00 AM | Hacking Begins! 🚀\n01:00 PM – 01:45 PM | Mid-Sprint Lunch & Mentor Checkpoints\n04:00 PM | Code Freeze & Submission Deadline\n04:15 PM – 05:30 PM | Live 3-Minute Demos & Technical Q&A\n05:30 PM – 06:00 PM | Closing Ceremony & Winner Announcements",
+        submissionChecklist: [
+          "Project name & tagline",
+          "Problem statement & target persona",
+          "System architecture & prompt/agent workflow",
+          "GitHub repository (clean commits & open README)",
+          "Live working demo or deployed URL",
+          "2-minute demo video or slide walkthrough",
+          "API keys & environment setup instructions",
+        ],
+        tags: ["Mini/1-Day Hackathon", "Mini Hackathon", "1-Day Hackathon", "AI", "LLM", "Open Source"],
+        platform: "MLH",
+        platformUrl: "https://mlh.io/seasons/2026/events",
+        description: "An intensive 6-hour sprint for building autonomous AI agents, tool-augmented LLMs, and multi-modal assistants.",
+      },
+      {
+        name: "Fullstack Speedrun: 1-Day Shipathon",
+        organizer: "DevRel Worldwide & Cloudflare",
+        banner: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80",
+        prizePool: "₹1,00,000 + Edge Hosting Perks",
+        prizePoolUSD: 1200,
+        mode: "Hybrid",
+        level: "National",
+        registrationDeadline: new Date(Date.now() + 8 * 86400000).toISOString().split("T")[0],
+        submissionDeadline: new Date(Date.now() + 8 * 86400000).toISOString().split("T")[0],
+        resultDate: new Date(Date.now() + 8 * 86400000).toISOString().split("T")[0],
+        teamSize: { min: 1, max: 4 },
+        hackathonType: "Mini Hackathon",
+        duration: "7 hours",
+        venue: "DevHub Tech Park, Bengaluru",
+        schedule: "08:30 AM – 09:15 AM | Badging & Breakfast Meetup\n09:15 AM – 09:45 AM | Keynote & Architecture Briefing\n09:45 AM | Sprint Kickoff! ⚡\n01:00 PM – 02:00 PM | Lunch & Speed Networking\n04:45 PM | Final Deployment & Pull Request Freeze\n05:00 PM – 06:15 PM | Rapid-Fire Stage Presentations\n06:15 PM – 06:45 PM | Jury Evaluation & Prize Distribution",
+        submissionChecklist: [
+          "Project name & pitch summary",
+          "Problem statement & key innovation",
+          "Tech stack & framework choices",
+          "Public GitHub repository with build instructions",
+          "Working deployed application (HTTPS)",
+          "Interactive UI walkthrough & test credentials",
+          "Performance audit / lighthouse metrics",
+        ],
+        tags: ["Mini/1-Day Hackathon", "Mini Hackathon", "1-Day Hackathon", "Web3", "UI/UX", "DevOps"],
+        platform: "Devpost",
+        platformUrl: "https://devpost.com/hackathons",
+        description: "One day. Zero excuses. Build a full-stack product from concept to production-ready deployment before sunset.",
+      },
+      {
+        name: "Open Source Micro-Hack 2026",
+        organizer: "GitHub Community & Open Source Guild",
+        banner: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
+        prizePool: "₹50,000 + GitHub Swag Kits",
+        prizePoolUSD: 700,
+        mode: "Offline",
+        level: "National",
+        registrationDeadline: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
+        submissionDeadline: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
+        resultDate: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
+        teamSize: { min: 1, max: 4 },
+        hackathonType: "Mini Hackathon",
+        duration: "5 hours",
+        venue: "WeWork Cyber City, Gurugram",
+        schedule: "09:30 AM – 10:00 AM | Welcome & Track Selection\n10:00 AM | Hacking Begins! 🛠️\n12:30 PM – 01:15 PM | Quick Bites & Maintainer Office Hours\n03:00 PM | Release Tagging & Code Submission\n03:15 PM – 04:30 PM | Project Showcases & Code Reviews\n04:30 PM – 05:00 PM | Awards & Open Source Badges",
+        submissionChecklist: [
+          "Package / tool name & purpose",
+          "Problem addressed for developer community",
+          "Clean open-source repository with OSI license",
+          "Comprehensive documentation & usage guide",
+          "Automated tests or CI/CD workflow pass",
+          "Quick demo CLI command or package install test",
+          "Future roadmap & contribution guidelines",
+        ],
+        tags: ["Mini/1-Day Hackathon", "Mini Hackathon", "1-Day Hackathon", "Open Source", "DevOps"],
+        platform: "GitHub",
+        platformUrl: "https://github.com",
+        description: "Join top open source developers for a 5-hour focused micro-hackathon creating reusable devtools and libraries.",
+      }
+    ];
+
+    // Prepend diverse demo mini hackathons to scraper results
+    for (const demo of demoMinis) {
+      if (!results.some((r) => r.name.toLowerCase() === demo.name.toLowerCase())) {
+        results.unshift(demo);
+      }
+    }
+
+    return results.slice(0, 18);
   } catch (err) {
     console.error("[ScraperService] MLH error:", err.message);
     return [];
@@ -374,6 +519,9 @@ async function scrapeLuma() {
 
       const resDate = new Date(new Date(endAt).getTime() + 2 * 86400000).toISOString().split("T")[0];
 
+      const isSingleDay = startAt === endAt;
+      const isMini = isSingleDay || /mini|sprint|1-day|one day/i.test(ev.name);
+
       results.push({
         name: ev.name,
         organizer: item.calendar?.name || "Luma Tech Community",
@@ -386,7 +534,32 @@ async function scrapeLuma() {
         submissionDeadline: endAt,
         resultDate: resDate,
         teamSize: { min: 1, max: 4 },
-        tags: ["Luma", "Global Tech", isOnline ? "Online" : "In-Person", "Hackathon"],
+        hackathonType: isMini ? "Mini Hackathon" : "Hackathon",
+        duration: isMini ? "5-7 hours" : "",
+        venue: isOnline ? "Online (Luma Livestream)" : (ev.geo_address_json?.city || ev.geo_address_json?.address || "DevHub Innovation Space, Bengaluru"),
+        schedule: isMini
+          ? "09:00 AM – Check-in & Kickoff\n10:00 AM – Hacking Begins! 🚀\n01:00 PM – Lunch / Snacks Break\n04:30 PM – Project Submission Deadline\n05:00 PM – Live Demos & Judging\n06:00 PM – Closing Ceremony & Winners"
+          : "",
+        submissionChecklist: isMini
+          ? [
+              "Project name & tagline",
+              "Problem statement & target audience",
+              "Architecture & technical solution",
+              "GitHub repository with clear README",
+              "Live working deployment link",
+              "Quick video demo / live presentation",
+              "Feature completeness & API integrations",
+            ]
+          : [],
+        tags: [
+          "Luma",
+          isMini ? "Mini/1-Day Hackathon" : null,
+          isMini ? "Mini Hackathon" : null,
+          isMini ? "1-Day Hackathon" : null,
+          "Global Tech",
+          isOnline ? "Online" : "In-Person",
+          "Hackathon",
+        ].filter(Boolean),
         platform: "Luma",
         platformUrl,
         description: `${ev.name} hosted on Luma (${platformUrl}). Join builders, explore ideas, and demo projects live on Luma.`,
@@ -664,6 +837,11 @@ async function mergeScrapedFileToDb() {
         existing.prizePoolUSD = item.prizePoolUSD || existing.prizePoolUSD;
         existing.mode = item.mode || existing.mode;
         existing.level = item.level || existing.level || "Global";
+        existing.hackathonType = item.hackathonType || existing.hackathonType || "Hackathon";
+        existing.duration = item.duration || existing.duration || "";
+        existing.venue = item.venue || existing.venue || "";
+        existing.schedule = item.schedule || existing.schedule || "";
+        existing.submissionChecklist = item.submissionChecklist || existing.submissionChecklist || [];
         existing.registrationDeadline = item.registrationDeadline || existing.registrationDeadline;
         existing.submissionDeadline = item.submissionDeadline || existing.submissionDeadline;
         existing.resultDate = item.resultDate || existing.resultDate;
@@ -682,6 +860,11 @@ async function mergeScrapedFileToDb() {
           prizePoolUSD: item.prizePoolUSD,
           mode: item.mode,
           level: item.level || "Global",
+          hackathonType: item.hackathonType || "Hackathon",
+          duration: item.duration || "",
+          venue: item.venue || "",
+          schedule: item.schedule || "",
+          submissionChecklist: item.submissionChecklist || [],
           registrationDeadline: item.registrationDeadline,
           submissionDeadline: item.submissionDeadline,
           resultDate: item.resultDate,

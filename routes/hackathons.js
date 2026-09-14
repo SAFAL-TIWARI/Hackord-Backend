@@ -16,6 +16,11 @@ function formatHackathon(h) {
     prizePoolUSD: h.prizePoolUSD,
     mode: h.mode,
     level: h.level || "National",
+    hackathonType: h.hackathonType || "Hackathon",
+    duration: h.duration || "",
+    venue: h.venue || "",
+    schedule: h.schedule || "",
+    submissionChecklist: h.submissionChecklist || [],
     registrationDeadline: h.registrationDeadline,
     submissionDeadline: h.submissionDeadline,
     resultDate: h.resultDate,
@@ -32,11 +37,15 @@ function formatHackathon(h) {
 // ─── GET /api/hackathons ─── Get all hackathons
 router.get("/", async (req, res) => {
   try {
-    const { level, mode, platform } = req.query;
+    const { level, mode, platform, type, hackathonType } = req.query;
     const filter = {};
     if (level && level !== "All") filter.level = level;
     if (mode && mode !== "All") filter.mode = mode;
     if (platform && platform !== "All") filter.platform = platform;
+    const requestedType = type || hackathonType;
+    if (requestedType && requestedType !== "All") {
+      filter.hackathonType = requestedType;
+    }
 
     let hackathons = await Hackathon.find(filter).sort({ createdAt: -1 });
 
@@ -168,6 +177,11 @@ router.post("/", protect, adminOnly, async (req, res) => {
       resultDate: resultDate || new Date().toISOString().split("T")[0],
       teamSize: teamSize || { min: 1, max: 4 },
       tags: Array.isArray(tags) ? tags : typeof tags === "string" ? tags.split(",").map((t) => t.trim()) : [],
+      hackathonType: req.body.hackathonType || "Hackathon",
+      duration: req.body.duration || "",
+      venue: req.body.venue || "",
+      schedule: req.body.schedule || "",
+      submissionChecklist: Array.isArray(req.body.submissionChecklist) ? req.body.submissionChecklist : typeof req.body.submissionChecklist === "string" ? req.body.submissionChecklist.split("\n").map(s => s.trim()).filter(Boolean) : [],
       platform: platform || "Hackord",
       platformUrl: platformUrl || "",
       description,
