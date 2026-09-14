@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-14T00:29:19.042Z",
+  "updatedAt": "2026-09-14T00:33:38.306Z",
   "totalCount": 68,
   "status": "pending_admin_approval",
   "hackathons": [
@@ -34,7 +34,7 @@
       "platformUrl": "https://revenuecat-shipaton-2026.devpost.com/",
       "description": "RevenueCat Shipaton 2026 hosted by RevenueCat. Join this live challenge directly on Devpost.",
       "id": "https://revenuecat-shipaton-2026.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Agents for Humans Hackathon",
@@ -67,7 +67,7 @@
       "platformUrl": "https://agentsforhumans.devpost.com/",
       "description": "Agents for Humans Hackathon hosted by Amazon. Join this live challenge directly on Devpost.",
       "id": "https://agentsforhumans.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Build, Ship, Shape: Amazon Developer Hackathon",
@@ -100,7 +100,7 @@
       "platformUrl": "https://amazonappdev2026.devpost.com/",
       "description": "Build, Ship, Shape: Amazon Developer Hackathon hosted by Amazon. Join this live challenge directly on Devpost.",
       "id": "https://amazonappdev2026.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Nebius x NVIDIA Global AI Hackathon",
@@ -133,7 +133,7 @@
       "platformUrl": "https://nebiusglobalaihackathon.devpost.com/",
       "description": "Nebius x NVIDIA Global AI Hackathon hosted by nebius. Join this live challenge directly on Devpost.",
       "id": "https://nebiusglobalaihackathon.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "CALL-E: Your Code Is Calling",
@@ -166,7 +166,7 @@
       "platformUrl": "https://call-e.devpost.com/",
       "description": "CALL-E: Your Code Is Calling hosted by CALL-E. Join this live challenge directly on Devpost.",
       "id": "https://call-e.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "AI Builders Hackathon",
@@ -199,7 +199,7 @@
       "platformUrl": "https://ai-builders-hackathon-2026.devpost.com/",
       "description": "AI Builders Hackathon hosted by OSC. Join this live challenge directly on Devpost.",
       "id": "https://ai-builders-hackathon-2026.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "OpenCV AI Competition 2026, powered by AWS",
@@ -232,7 +232,7 @@
       "platformUrl": "https://opencv26.devpost.com/",
       "description": "OpenCV AI Competition 2026, powered by AWS hosted by OpenCV. Join this live challenge directly on Devpost.",
       "id": "https://opencv26.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Global Innovation Build Challenge V2",
@@ -265,7 +265,7 @@
       "platformUrl": "https://gibc-v2.devpost.com/",
       "description": "Global Innovation Build Challenge V2 hosted by Kang Chiao International School Student . Join this live challenge directly on Devpost.",
       "id": "https://gibc-v2.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "NextStep Hacks 2026",
@@ -298,7 +298,7 @@
       "platformUrl": "https://nextstep2026.devpost.com/",
       "description": "NextStep Hacks 2026 hosted by HackAlphaX. Join this live challenge directly on Devpost.",
       "id": "https://nextstep2026.devpost.com/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "HackCelestial 3.0",
@@ -328,7 +328,7 @@
       "platformUrl": "https://unstop.com/hackathons/hackcelestial-30-pillai-university-navi-mumbai-1737808",
       "description": "HackCelestial 3.0 hosted by Pillai University, Navi Mumbai in Maharashtra. Official live competition registered on Unstop.",
       "id": "https://unstop.com/hackathons/hackcelestial-30-pillai-university-navi-mumbai-1737808",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Open Source Micro-Hack 2026",
@@ -370,7 +370,7 @@
       "platformUrl": "https://github.com/events/micro-hack-2026",
       "description": "Join top open source developers for a 5-hour focused micro-hackathon creating reusable devtools and libraries.",
       "id": "https://github.com/events/micro-hack-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Fullstack Speedrun: 1-Day Shipathon 2026",
@@ -413,7 +413,7 @@
       "platformUrl": "https://devpost.com/hackathons/shipathon-2026",
       "description": "One day. Zero excuses. Build a full-stack product from concept to production-ready deployment before sunset.",
       "id": "https://devpost.com/hackathons/shipathon-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "AI Agents Flash Sprint 2026",
@@ -456,7 +456,7 @@
       "platformUrl": "https://mlh.io/seasons/2026/events",
       "description": "An intensive 6-hour sprint for building autonomous AI agents, tool-augmented LLMs, and multi-modal assistants.",
       "id": "https://mlh.io/seasons/2026/events",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Kerala State Campus Hackathon 2026",
@@ -494,7 +494,7 @@
       "platformUrl": "https://devfolio.co/hackathons/kerala-state-campus-hackathon-2026",
       "description": "Flagship Kerala state hackathon organized by Kerala Startup Mission uniting college developer cells across Kerala for building next-gen web and hardware prototypes.",
       "id": "https://devfolio.co/hackathons/kerala-state-campus-hackathon-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Gujarat State Innovation Challenge 2026",
@@ -532,7 +532,7 @@
       "platformUrl": "https://unstop.com/hackathons/gujarat-state-innovation-challenge-2026",
       "description": "State-level hackathon encouraging university tech innovators across Gujarat to prototype industrial IoT and automated commerce solutions.",
       "id": "https://unstop.com/hackathons/gujarat-state-innovation-challenge-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Tamil Nadu State Collegiate Hackathon 2026",
@@ -572,7 +572,7 @@
       "platformUrl": "https://unstop.com/hackathons/tamil-nadu-state-collegiate-hackathon-2026",
       "description": "Official Tamil Nadu State hackathon supporting student startup teams from institutions across Chennai, Coimbatore, Madurai, and Trichy building intelligent systems.",
       "id": "https://unstop.com/hackathons/tamil-nadu-state-collegiate-hackathon-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Delhi-NCR Inter-College Code Championship 2026",
@@ -612,7 +612,7 @@
       "platformUrl": "https://unstop.com/hackathons/delhi-ncr-inter-college-code-championship-2026",
       "description": "Prestigious Delhi state-level inter-college coding championship challenging university students across Delhi-NCR to develop high-performance civic and fintech applications.",
       "id": "https://unstop.com/hackathons/delhi-ncr-inter-college-code-championship-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Karnataka State AI & Cloud Sprint 2026",
@@ -652,7 +652,7 @@
       "platformUrl": "https://devfolio.co/hackathons/karnataka-ai-sprint",
       "description": "A fast-paced state-level AI development sprint organized for Karnataka universities and developers solving high-scale logistics and developer tooling problems.",
       "id": "https://devfolio.co/hackathons/karnataka-ai-sprint",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Maharashtra State Developer Hackfest 2026",
@@ -691,7 +691,7 @@
       "platformUrl": "https://unstop.com/hackathons/maharashtra-state-developer-hackfest-2026",
       "description": "Official Maharashtra State Level Developer Hackathon bringing together top collegiate and engineering builders across Maharashtra to develop smart urban tech and open source tooling.",
       "id": "https://unstop.com/hackathons/maharashtra-state-developer-hackfest-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "DEV",
@@ -722,7 +722,7 @@
       "platformUrl": "https://dev.to/",
       "description": "Official MLH Member Hackathon: DEV. Connect with fellow student builders and hackers on MLH!",
       "id": "https://dev.to/",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "For Businesses",
@@ -753,7 +753,7 @@
       "platformUrl": "https://sponsor.mlh.com/",
       "description": "Official MLH Member Hackathon: For Businesses. Connect with fellow student builders and hackers on MLH!",
       "id": "https://sponsor.mlh.com/",
-      "scrapedAt": "2026-09-14T00:29:16.263Z"
+      "scrapedAt": "2026-09-14T00:33:36.019Z"
     },
     {
       "name": "Global Hack Week: Data",
@@ -784,7 +784,7 @@
       "platformUrl": "https://events.mlh.io/events/14416-global-hack-week-data",
       "description": "Official MLH Member Hackathon: Global Hack Week: Data. Connect with fellow student builders and hackers on MLH!",
       "id": "https://events.mlh.io/events/14416-global-hack-week-data",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "HackHers @GSU",
@@ -815,7 +815,7 @@
       "platformUrl": "https://hackhers.club/",
       "description": "Official MLH Member Hackathon: HackHers @GSU. Connect with fellow student builders and hackers on MLH!",
       "id": "https://hackhers.club/",
-      "scrapedAt": "2026-09-14T00:29:16.594Z"
+      "scrapedAt": "2026-09-14T00:33:36.395Z"
     },
     {
       "name": "Hack the North",
@@ -847,7 +847,7 @@
       "platformUrl": "https://hackthenorth.com/",
       "description": "Official MLH Member Hackathon: Hack the North. Connect with fellow student builders and hackers on MLH!",
       "id": "https://hackthenorth.com/",
-      "scrapedAt": "2026-09-14T00:29:17.758Z"
+      "scrapedAt": "2026-09-14T00:33:36.486Z"
     },
     {
       "name": "VTHacks 14",
@@ -878,7 +878,7 @@
       "platformUrl": "https://vthacks.com/",
       "description": "Official MLH Member Hackathon: VTHacks 14. Connect with fellow student builders and hackers on MLH!",
       "id": "https://vthacks.com/",
-      "scrapedAt": "2026-09-14T00:29:17.809Z"
+      "scrapedAt": "2026-09-14T00:33:36.349Z"
     },
     {
       "name": "HopHacks",
@@ -909,7 +909,7 @@
       "platformUrl": "https://www.hophacks.com/",
       "description": "Official MLH Member Hackathon: HopHacks. Connect with fellow student builders and hackers on MLH!",
       "id": "https://www.hophacks.com/",
-      "scrapedAt": "2026-09-14T00:29:16.573Z"
+      "scrapedAt": "2026-09-14T00:33:36.845Z"
     },
     {
       "name": "SteelHacks XIII",
@@ -940,7 +940,7 @@
       "platformUrl": "https://steelhacks.org/",
       "description": "Official MLH Member Hackathon: SteelHacks XIII. Connect with fellow student builders and hackers on MLH!",
       "id": "https://steelhacks.org/",
-      "scrapedAt": "2026-09-14T00:29:16.634Z"
+      "scrapedAt": "2026-09-14T00:33:36.481Z"
     },
     {
       "name": "&HACKS XII",
@@ -971,7 +971,7 @@
       "platformUrl": "https://andhacks.cs.wm.edu/",
       "description": "Official MLH Member Hackathon: &HACKS XII. Connect with fellow student builders and hackers on MLH!",
       "id": "https://andhacks.cs.wm.edu/",
-      "scrapedAt": "2026-09-14T00:29:17.147Z"
+      "scrapedAt": "2026-09-14T00:33:37.265Z"
     },
     {
       "name": "HackNex Season 2",
@@ -1003,7 +1003,7 @@
       "platformUrl": "https://innovocon.online/events/hacknex",
       "description": "Official MLH Member Hackathon: HackNex Season 2. Connect with fellow student builders and hackers on MLH!",
       "id": "https://innovocon.online/events/hacknex",
-      "scrapedAt": "2026-09-14T00:29:16.013Z"
+      "scrapedAt": "2026-09-14T00:33:36.130Z"
     },
     {
       "name": "HackGT 13",
@@ -1034,7 +1034,7 @@
       "platformUrl": "http://hack.gt/",
       "description": "Official MLH Member Hackathon: HackGT 13. Connect with fellow student builders and hackers on MLH!",
       "id": "http://hack.gt/",
-      "scrapedAt": "2026-09-14T00:29:17.299Z"
+      "scrapedAt": "2026-09-14T00:33:36.220Z"
     },
     {
       "name": "ShellHacks",
@@ -1066,7 +1066,7 @@
       "platformUrl": "https://shellhacks.net/",
       "description": "Official MLH Member Hackathon: ShellHacks. Connect with fellow student builders and hackers on MLH!",
       "id": "https://shellhacks.net/",
-      "scrapedAt": "2026-09-14T00:29:18.875Z"
+      "scrapedAt": "2026-09-14T00:33:38.179Z"
     },
     {
       "name": "Hack the Hill",
@@ -1098,7 +1098,7 @@
       "platformUrl": "https://hackthehill.com/",
       "description": "Official MLH Member Hackathon: Hack the Hill. Connect with fellow student builders and hackers on MLH!",
       "id": "https://hackthehill.com/",
-      "scrapedAt": "2026-09-14T00:29:18.359Z"
+      "scrapedAt": "2026-09-14T00:33:36.287Z"
     },
     {
       "name": "OwlHacks",
@@ -1130,7 +1130,7 @@
       "platformUrl": "https://www.owlhacks.com/",
       "description": "Official MLH Member Hackathon: OwlHacks. Connect with fellow student builders and hackers on MLH!",
       "id": "https://www.owlhacks.com/",
-      "scrapedAt": "2026-09-14T00:29:15.943Z"
+      "scrapedAt": "2026-09-14T00:33:36.468Z"
     },
     {
       "name": "hackUMBC",
@@ -1161,7 +1161,7 @@
       "platformUrl": "https://hackumbc.tech/",
       "description": "Official MLH Member Hackathon: hackUMBC. Connect with fellow student builders and hackers on MLH!",
       "id": "https://hackumbc.tech/",
-      "scrapedAt": "2026-09-14T00:29:16.192Z"
+      "scrapedAt": "2026-09-14T00:33:36.455Z"
     },
     {
       "name": "DivHacks",
@@ -1193,7 +1193,7 @@
       "platformUrl": "https://www.columbiadivhacks.org/",
       "description": "Official MLH Member Hackathon: DivHacks. Connect with fellow student builders and hackers on MLH!",
       "id": "https://www.columbiadivhacks.org/",
-      "scrapedAt": "2026-09-14T00:29:15.973Z"
+      "scrapedAt": "2026-09-14T00:33:36.211Z"
     },
     {
       "name": "HackSpire'26",
@@ -1221,7 +1221,7 @@
       "platformUrl": "https://hackspire26.devfolio.co",
       "description": "HackSpire'26 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hackspire26.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Realm Hack '26",
@@ -1249,7 +1249,7 @@
       "platformUrl": "https://realm-hack-1.devfolio.co",
       "description": "Realm Hack '26 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://realm-hack-1.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "HackOphobia",
@@ -1277,7 +1277,7 @@
       "platformUrl": "https://hackophobia.devfolio.co",
       "description": "HackOphobia on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hackophobia.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Cognition - GameJam '26",
@@ -1305,7 +1305,7 @@
       "platformUrl": "https://cognition-gamejam-1.devfolio.co",
       "description": "Cognition - GameJam '26 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://cognition-gamejam-1.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "DEVHACK 2026",
@@ -1335,7 +1335,7 @@
       "platformUrl": "https://devhack2026.devfolio.co",
       "description": "DEVHACK 2026 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://devhack2026.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Recursive",
@@ -1363,7 +1363,7 @@
       "platformUrl": "https://recursiveacm.devfolio.co",
       "description": "Recursive on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://recursiveacm.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Builders Day by HackUnion",
@@ -1391,7 +1391,7 @@
       "platformUrl": "https://builders-day-hackunion.devfolio.co",
       "description": "Builders Day by HackUnion on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://builders-day-hackunion.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Hackify 3.0",
@@ -1419,7 +1419,7 @@
       "platformUrl": "https://hackify-3.devfolio.co",
       "description": "Hackify 3.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hackify-3.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "DEFINE 4.0",
@@ -1447,7 +1447,7 @@
       "platformUrl": "https://define4.devfolio.co",
       "description": "DEFINE 4.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://define4.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "GlitchFiesta",
@@ -1475,7 +1475,7 @@
       "platformUrl": "https://glitchfiesta2026.devfolio.co",
       "description": "GlitchFiesta on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://glitchfiesta2026.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "HACKBIOS 2K26",
@@ -1503,7 +1503,7 @@
       "platformUrl": "https://hackbios2k26.devfolio.co",
       "description": "HACKBIOS 2K26 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hackbios2k26.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "HACK WITH GDG S4",
@@ -1531,7 +1531,7 @@
       "platformUrl": "https://hack-with-gdg-s4.devfolio.co",
       "description": "HACK WITH GDG S4 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hack-with-gdg-s4.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "BOSS Battle",
@@ -1559,7 +1559,7 @@
       "platformUrl": "https://boss-battle.devfolio.co",
       "description": "BOSS Battle on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://boss-battle.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "CodeStorm 2026: FutureForge",
@@ -1589,7 +1589,7 @@
       "platformUrl": "https://codestorm-futureforge.devfolio.co",
       "description": "CodeStorm 2026: FutureForge on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://codestorm-futureforge.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "HackTopus'FE",
@@ -1617,7 +1617,7 @@
       "platformUrl": "https://hacktopusgdg.devfolio.co",
       "description": "HackTopus'FE on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hacktopusgdg.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "HackInverse 1.0",
@@ -1645,7 +1645,7 @@
       "platformUrl": "https://hackinverse-s1.devfolio.co",
       "description": "HackInverse 1.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hackinverse-s1.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Codeutsava X.0",
@@ -1673,7 +1673,7 @@
       "platformUrl": "https://codeutsava-x.devfolio.co",
       "description": "Codeutsava X.0 on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://codeutsava-x.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Hefty-Hacks",
@@ -1702,7 +1702,7 @@
       "platformUrl": "https://hefty-hacks.devfolio.co",
       "description": "Hefty-Hacks on Devfolio. Experience premier developer hackathons and build innovative web3, AI, and software apps.",
       "id": "https://hefty-hacks.devfolio.co",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Hack-Nation 7th Global AI Hackathon",
@@ -1734,7 +1734,7 @@
       "platformUrl": "https://lu.ma/z3za7zow",
       "description": "Hack-Nation 7th Global AI Hackathon hosted on Luma (https://lu.ma/z3za7zow). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/z3za7zow",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "The Harness Engineering & Model Wrangling Hackathon",
@@ -1766,7 +1766,7 @@
       "platformUrl": "https://lu.ma/j4jecx72",
       "description": "The Harness Engineering & Model Wrangling Hackathon hosted on Luma (https://lu.ma/j4jecx72). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/j4jecx72",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Vertothon",
@@ -1798,7 +1798,7 @@
       "platformUrl": "https://lu.ma/ffyyqkmd",
       "description": "Vertothon hosted on Luma (https://lu.ma/ffyyqkmd). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/ffyyqkmd",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Test Flight: Glasswing Ventures AI Hackathon ($300K In Compute!) - Sponsored by Microsoft Azure & AWS",
@@ -1830,7 +1830,7 @@
       "platformUrl": "https://lu.ma/gzpv85yq",
       "description": "Test Flight: Glasswing Ventures AI Hackathon ($300K In Compute!) - Sponsored by Microsoft Azure & AWS hosted on Luma (https://lu.ma/gzpv85yq). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/gzpv85yq",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Zurich Hackathon",
@@ -1862,7 +1862,7 @@
       "platformUrl": "https://lu.ma/hack-zurich-24Sep26",
       "description": "Zurich Hackathon hosted on Luma (https://lu.ma/hack-zurich-24Sep26). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/hack-zurich-24Sep26",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "AI Hackathon",
@@ -1905,7 +1905,7 @@
       "platformUrl": "https://lu.ma/fisruwvh",
       "description": "AI Hackathon hosted on Luma (https://lu.ma/fisruwvh). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/fisruwvh",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Health in Climate AI Hackathon NYC",
@@ -1937,7 +1937,7 @@
       "platformUrl": "https://lu.ma/ka3uxc6b",
       "description": "Health in Climate AI Hackathon NYC hosted on Luma (https://lu.ma/ka3uxc6b). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/ka3uxc6b",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "AITX Houston Hackathon",
@@ -1969,7 +1969,7 @@
       "platformUrl": "https://lu.ma/aitx-ise0",
       "description": "AITX Houston Hackathon hosted on Luma (https://lu.ma/aitx-ise0). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/aitx-ise0",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Bir Hackathon Nasıl Kazanılır? Blockchain 101 ve Ürün Geliştirme",
@@ -2012,7 +2012,7 @@
       "platformUrl": "https://lu.ma/blockchain101-istanbul-sep-2026",
       "description": "Bir Hackathon Nasıl Kazanılır? Blockchain 101 ve Ürün Geliştirme hosted on Luma (https://lu.ma/blockchain101-istanbul-sep-2026). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/blockchain101-istanbul-sep-2026",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Miro × n8n hackathon: From diagram to automation",
@@ -2055,7 +2055,7 @@
       "platformUrl": "https://lu.ma/n8n-znks",
       "description": "Miro × n8n hackathon: From diagram to automation hosted on Luma (https://lu.ma/n8n-znks). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/n8n-znks",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Post-ROSCon Hackathon",
@@ -2098,7 +2098,7 @@
       "platformUrl": "https://lu.ma/vo6zoq5b",
       "description": "Post-ROSCon Hackathon hosted on Luma (https://lu.ma/vo6zoq5b). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/vo6zoq5b",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Legal Hackathon",
@@ -2141,7 +2141,7 @@
       "platformUrl": "https://lu.ma/hack-kloten-23Sep26",
       "description": "Legal Hackathon hosted on Luma (https://lu.ma/hack-kloten-23Sep26). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/hack-kloten-23Sep26",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "Code and Coffee Hackathon",
@@ -2184,7 +2184,7 @@
       "platformUrl": "https://lu.ma/hmruf0su",
       "description": "Code and Coffee Hackathon hosted on Luma (https://lu.ma/hmruf0su). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/hmruf0su",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "The Spread Hackathon x NYC",
@@ -2227,7 +2227,7 @@
       "platformUrl": "https://lu.ma/spread-nyc",
       "description": "The Spread Hackathon x NYC hosted on Luma (https://lu.ma/spread-nyc). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/spread-nyc",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     },
     {
       "name": "SKYHACK by LX launch",
@@ -2270,7 +2270,7 @@
       "platformUrl": "https://lu.ma/my6uey6n",
       "description": "SKYHACK by LX launch hosted on Luma (https://lu.ma/my6uey6n). Join builders, explore ideas, and demo projects live on Luma.",
       "id": "https://lu.ma/my6uey6n",
-      "scrapedAt": "2026-09-14T00:29:15.858Z"
+      "scrapedAt": "2026-09-14T00:33:35.923Z"
     }
   ]
 }
