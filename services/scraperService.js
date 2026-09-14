@@ -575,11 +575,11 @@ async function scrapeMLH() {
         if (!name || name.length < 3) {
           name = card.find("h3, h4, h5").first().text().trim();
         }
-        if (!name || name.length < 2) return;
-        if (cleanUrl.includes("sponsor.mlh") || cleanUrl.includes("dev.to") || name.toLowerCase() === "for businesses" || name.toLowerCase() === "dev") return;
+        if (!name || name.length < 2) continue;
+        if (cleanUrl.includes("sponsor.mlh") || cleanUrl.includes("dev.to") || name.toLowerCase() === "for businesses" || name.toLowerCase() === "dev") continue;
 
         // Skip past hackathons
-        if (isPastHackathon({ name, url: cleanUrl }, todayStr)) return;
+        if (isPastHackathon({ name, url: cleanUrl }, todayStr)) continue;
 
         const bgImg = card.find('img[src*="backgrounds"]').attr("src");
         const logoImg = card.find('img[src*="logos"]').attr("src");
@@ -592,7 +592,7 @@ async function scrapeMLH() {
         const text = card.text().trim().replace(/\s+/g, " ");
 
         // Check if card explicitly describes a past event from 2024/2025
-        if (/\b(2024|2025)\b/.test(text) && !/\b(2026|2027)\b/.test(text)) return;
+        if (/\b(2024|2025)\b/.test(text) && !/\b(2026|2027)\b/.test(text)) continue;
 
         const isOnline =
           text.toLowerCase().includes("digital") ||
@@ -1002,7 +1002,14 @@ async function scrapeHackathonsToFile(options = {}) {
     scrapeGDG(),
   ]);
 
-  const rawAll = [...devpost, ...unstop, ...mlh, ...devfolio, ...luma, ...gdg];
+  const rawAll = [
+    ...(Array.isArray(devpost) ? devpost : []),
+    ...(Array.isArray(unstop) ? unstop : []),
+    ...(Array.isArray(mlh) ? mlh : []),
+    ...(Array.isArray(devfolio) ? devfolio : []),
+    ...(Array.isArray(luma) ? luma : []),
+    ...(Array.isArray(gdg) ? gdg : []),
+  ];
   console.log(`[ScraperService] Fetched ${rawAll.length} raw scraped hackathon items across all platforms.`);
 
   // Validate items in parallel for maximum speed (concurrency)
