@@ -18,7 +18,13 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: function () {
-        return !this.googleId && !this.githubId;
+        return (
+          !this.googleId &&
+          !this.githubId &&
+          !this.discordId &&
+          !this.microsoftId &&
+          !this.redditId
+        );
       },
     },
     googleId: {
@@ -26,6 +32,18 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     githubId: {
+      type: String,
+      default: "",
+    },
+    discordId: {
+      type: String,
+      default: "",
+    },
+    microsoftId: {
+      type: String,
+      default: "",
+    },
+    redditId: {
       type: String,
       default: "",
     },
@@ -52,7 +70,15 @@ const userSchema = new mongoose.Schema(
     },
     github: { type: String, default: "" },
     linkedin: { type: String, default: "" },
+    discord: { type: String, default: "" },
     portfolio: { type: String, default: "" },
+    customLinks: [
+      {
+        platform: { type: String, default: "" },
+        title: { type: String, default: "" },
+        url: { type: String, default: "" },
+      },
+    ],
     completedHackathons: {
       type: [
         {

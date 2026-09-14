@@ -25,6 +25,144 @@ function generateToken(userId) {
   });
 }
 
+
+/**
+ * Intelligently syncs and merges profile details from an incoming OAuth provider
+ * into an existing Hackord user account while strictly PRESERVING prior details,
+ * custom edits, and identities synced from other platforms.
+ */
+function syncUserProfileFromOAuth(user, {
+  provider,
+  providerId,
+  name,
+  avatar,
+  bio,
+  github,
+  discord,
+  portfolio,
+  location,
+  customLinks = [],
+}) {
+  let changed = false;
+
+  // 1. Link provider identity if not already linked
+  if (provider === "google" && !user.googleId) {
+    user.googleId = providerId;
+    changed = true;
+  }
+  if (provider === "github" && !user.githubId) {
+    user.githubId = providerId;
+    changed = true;
+  }
+  if (provider === "discord" && !user.discordId) {
+    user.discordId = providerId;
+    changed = true;
+  }
+  if (provider === "microsoft" && !user.microsoftId) {
+    user.microsoftId = providerId;
+    changed = true;
+  }
+  if (provider === "reddit" && !user.redditId) {
+    user.redditId = providerId;
+    changed = true;
+  }
+
+  // 2. Avatar Update:
+  // User's profile avatar is updated on every login from that platform.
+  // If the incoming platform provides a real profile photo, it becomes the active avatar.
+  // If the incoming platform only has a dicebear placeholder, it only updates if user has no avatar.
+  if (avatar && avatar.trim() !== "") {
+    const isNewAvatarDicebear = avatar.includes("dicebear.com");
+    const currentAvatarIsReal = user.avatar && !user.avatar.includes("dicebear.com");
+    if (!isNewAvatarDicebear || !currentAvatarIsReal) {
+      if (user.avatar !== avatar.trim()) {
+        user.avatar = avatar.trim();
+        changed = true;
+      }
+    }
+  }
+
+  // 3. Name Upgrade:
+  // If user currently has a generic fallback placeholder name, upgrade to provider's name
+  const placeholderNames = [
+    "Developer",
+    "GitHub Developer",
+    "Discord Builder",
+    "Microsoft Developer",
+    "user",
+  ];
+  if (name && (!user.name || placeholderNames.includes(user.name.trim()))) {
+    user.name = name.trim();
+    changed = true;
+  }
+
+  // 4. Bio: Fill if empty (preserve existing bio)
+  if (bio && bio.trim() && (!user.bio || user.bio.trim() === "")) {
+    user.bio = bio.trim();
+    changed = true;
+  }
+
+  // 5. GitHub: Always ensure user's GitHub URL is synced from GitHub login
+  if (github && github.trim() && (!user.github || user.github === "" || user.github !== github.trim())) {
+    user.github = github.trim();
+    changed = true;
+  }
+
+  // 6. Discord: Always ensure user's Discord profile/handle is synced from Discord login
+  if (discord && discord.trim() && (!user.discord || user.discord === "" || user.discord !== discord.trim())) {
+    user.discord = discord.trim();
+    changed = true;
+  }
+
+  // 7. Portfolio / Blog Website: Fill if empty (preserve existing portfolio)
+  if (portfolio && portfolio.trim() && (!user.portfolio || user.portfolio.trim() === "")) {
+    let cleanUrl = portfolio.trim();
+    if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+      cleanUrl = `https://${cleanUrl}`;
+    }
+    user.portfolio = cleanUrl;
+    changed = true;
+  }
+
+  // 8. Location / City: Fill if empty (preserve existing city/country)
+  if (location && location.trim() && (!user.city && !user.country)) {
+    user.city = location.trim();
+    changed = true;
+  }
+
+  // 9. Custom Links (e.g. Reddit, Twitter/X): Merge without duplicates or wiping other links
+  if (Array.isArray(customLinks) && customLinks.length > 0) {
+    if (!Array.isArray(user.customLinks)) {
+      user.customLinks = [];
+    }
+    for (const link of customLinks) {
+      if (!link || !link.url) continue;
+      const cleanUrl = link.url.trim().toLowerCase();
+      const cleanPlatform = (link.platform || "").trim().toLowerCase();
+
+      const exists = user.customLinks.some((existing) => {
+        const existingUrl = (existing.url || "").trim().toLowerCase();
+        const existingPlatform = (existing.platform || "").trim().toLowerCase();
+        return (
+          existingUrl === cleanUrl ||
+          (cleanPlatform && existingPlatform === cleanPlatform)
+        );
+      });
+
+      if (!exists) {
+        user.customLinks.push({
+          platform: link.platform || "website",
+          title: link.title || "Social Link",
+          url: link.url.trim(),
+        });
+        changed = true;
+      }
+    }
+  }
+
+  return changed;
+}
+
 // ─── POST /api/auth/signup ───────────────────────────────────────────
 router.post("/signup", signupRateLimiter, async (req, res) => {
   try {
@@ -190,13 +328,13 @@ router.post("/google", oauthRateLimiter, async (req, res) => {
     let isNewUser = false;
 
     if (user) {
-      if (!user.googleId) {
-        user.googleId = googleId;
-        if (!user.avatar && picture) {
-          user.avatar = picture;
-        }
-        await user.save();
-      }
+      syncUserProfileFromOAuth(user, {
+        provider: "google",
+        providerId: googleId,
+        name: name,
+        avatar: picture,
+      });
+      await user.save();
     } else {
       isNewUser = true;
       const baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "");
@@ -321,16 +459,32 @@ router.post("/github", oauthRateLimiter, async (req, res) => {
 
     let isNewUser = false;
 
+    const githubCustomLinks = [];
+    if (ghProfile.twitter_username) {
+      githubCustomLinks.push({
+        platform: "twitter",
+        title: "Twitter / X",
+        url: `https://x.com/${ghProfile.twitter_username}`,
+      });
+    }
+
+    let githubBlogUrl = (ghProfile.blog || "").trim();
+    if (githubBlogUrl && !githubBlogUrl.startsWith("http://") && !githubBlogUrl.startsWith("https://")) {
+      githubBlogUrl = `https://${githubBlogUrl}`;
+    }
+
     if (user) {
-      if (!user.githubId) {
-        user.githubId = githubId;
-      }
-      if (!user.github || user.github === "") {
-        user.github = githubUrl;
-      }
-      if (!user.avatar && ghProfile.avatar_url) {
-        user.avatar = ghProfile.avatar_url;
-      }
+      syncUserProfileFromOAuth(user, {
+        provider: "github",
+        providerId: githubId,
+        name: ghProfile.name || ghProfile.login,
+        avatar: ghProfile.avatar_url,
+        bio: ghProfile.bio || "",
+        github: githubUrl,
+        portfolio: githubBlogUrl,
+        location: ghProfile.location || "",
+        customLinks: githubCustomLinks,
+      });
       await user.save();
     } else {
       isNewUser = true;
@@ -343,6 +497,9 @@ router.post("/github", oauthRateLimiter, async (req, res) => {
         avatar: ghProfile.avatar_url || `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(ghProfile.login || email)}`,
         github: githubUrl,
         bio: ghProfile.bio || "",
+        portfolio: githubBlogUrl,
+        city: ghProfile.location || "",
+        customLinks: githubCustomLinks,
       });
 
       sendNotification({
@@ -369,6 +526,394 @@ router.post("/github", oauthRateLimiter, async (req, res) => {
 });
 
 // ─── GET /api/auth/me ────────────────────────────────────────────────
+
+// ─── POST /api/auth/discord ───
+router.post("/discord", oauthRateLimiter, async (req, res) => {
+  try {
+    const { code, redirectUri } = req.body;
+    if (!code) {
+      return res.status(400).json({ message: "Discord authorization code is required" });
+    }
+
+    const clientId = process.env.DISCORD_CLIENT_ID || process.env.VITE_DISCORD_CLIENT_ID;
+    const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      return res.status(500).json({ message: "Discord Client ID and Secret are not configured on server" });
+    }
+
+    let redirect_uri = (redirectUri || "").trim();
+    if (!redirect_uri) {
+      redirect_uri = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/login` : "http://localhost:5173/login";
+    }
+    redirect_uri = redirect_uri.replace(/\/+$/, "");
+
+    // Exchange code for token
+    const tokenParams = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "authorization_code",
+      code: code.trim(),
+      redirect_uri,
+    });
+
+    const tokenResp = await fetch("https://discord.com/api/v10/oauth2/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "Hackord-App/1.0.0 (https://hackord.com)",
+      },
+      body: tokenParams.toString(),
+    });
+
+    const tokenData = await tokenResp.json();
+    if (tokenData.error || !tokenData.access_token) {
+      console.error("[discordTokenExchangeError]", tokenData, {
+        sentRedirectUri: redirect_uri,
+        codePreview: code ? `${code.substring(0, 6)}...` : null,
+      });
+      return res.status(401).json({
+        message: tokenData.error_description || tokenData.error || "Failed to exchange Discord authorization code",
+      });
+    }
+
+    const accessToken = tokenData.access_token;
+
+    // Fetch user profile from Discord
+    const userResp = await fetch("https://discord.com/api/v10/users/@me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!userResp.ok) {
+      return res.status(401).json({ message: "Failed to fetch user profile from Discord" });
+    }
+
+    const discordUser = await userResp.json();
+    const discordId = String(discordUser.id);
+    let email = discordUser.email;
+    if (!email) {
+      email = `${discordUser.username || discordId}@users.noreply.discord.com`;
+    }
+
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
+    const displayName = discordUser.global_name || discordUser.username || "Discord Builder";
+    const discordAvatar = discordUser.avatar
+      ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
+      : `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(discordUser.username || emailClean)}`;
+
+    let user = await User.findOne({
+      $or: [{ discordId }, { email: emailClean }],
+    });
+
+    let isNewUser = false;
+
+    const discordProfileUrl = `https://discord.com/users/${discordUser.id}`;
+
+    if (user) {
+      syncUserProfileFromOAuth(user, {
+        provider: "discord",
+        providerId: discordId,
+        name: displayName,
+        avatar: discordUser.avatar ? discordAvatar : null,
+        discord: discordProfileUrl,
+      });
+      await user.save();
+    } else {
+      isNewUser = true;
+      const baseUsername = (discordUser.username || emailClean.split("@")[0]).replace(/[^a-zA-Z0-9_]/g, "");
+      user = await User.create({
+        name: displayName,
+        email: emailClean,
+        discordId,
+        username: baseUsername,
+        avatar: discordAvatar,
+        discord: discordProfileUrl,
+        bio: "",
+      });
+
+      sendNotification({
+        recipientUser: user,
+        type: "welcome",
+        title: "Welcome to Hackord! 🚀",
+        body: `Hi ${(user.name || "there").split(" ")[0]}, welcome to Hackord! Your account has been created via Discord. Explore hackathons, form teams, and build incredible projects.`,
+        link: "/dashboard",
+      }).catch((e) => console.error("[discordSignupWelcomeNotifErr]", e.message));
+    }
+
+    await clearFailedAttempts(emailClean, ip);
+    const token = generateToken(user._id);
+
+    res.json({
+      token,
+      user: user.toJSON(),
+      isNewUser,
+    });
+  } catch (err) {
+    console.error("[discordAuthErr]", err);
+    res.status(500).json({ message: "Server error during Discord authentication" });
+  }
+});
+
+// ─── POST /api/auth/microsoft ───
+router.post("/microsoft", oauthRateLimiter, async (req, res) => {
+  try {
+    const { code, redirectUri } = req.body;
+    if (!code) {
+      return res.status(400).json({ message: "Microsoft authorization code is required" });
+    }
+
+    const clientId = process.env.MICROSOFT_CLIENT_ID || process.env.VITE_MICROSOFT_CLIENT_ID;
+    const clientSecret = process.env.MICROSOFT_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      return res.status(500).json({ message: "Microsoft Client ID and Secret are not configured on server" });
+    }
+
+    let redirect_uri = (redirectUri || "").trim();
+    if (!redirect_uri) {
+      redirect_uri = process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/login` : "http://localhost:5173/login";
+    }
+    redirect_uri = redirect_uri.replace(/\/+$/, "");
+
+    // Exchange authorization code for token via Microsoft Entra ID endpoint
+    const tokenParams = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "authorization_code",
+      code: code.trim(),
+      redirect_uri,
+      scope: "openid profile email User.Read",
+    });
+
+    const tokenResp = await fetch("https://login.microsoftonline.com/common/oauth2/v2.0/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "Hackord-App/1.0.0 (https://hackord.com)",
+      },
+      body: tokenParams.toString(),
+    });
+
+    const tokenData = await tokenResp.json();
+    if (tokenData.error || !tokenData.access_token) {
+      console.error("[microsoftTokenExchangeError]", tokenData, {
+        sentRedirectUri: redirect_uri,
+        codePreview: code ? `${code.substring(0, 6)}...` : null,
+      });
+      return res.status(401).json({
+        message: tokenData.error_description || tokenData.error || "Failed to exchange Microsoft authorization code",
+      });
+    }
+
+    const accessToken = tokenData.access_token;
+
+    // Fetch user profile from Microsoft Graph API
+    const userResp = await fetch("https://graph.microsoft.com/v1.0/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!userResp.ok) {
+      return res.status(401).json({ message: "Failed to fetch user profile from Microsoft Graph" });
+    }
+
+    const msUser = await userResp.json();
+    const microsoftId = String(msUser.id);
+    let email = msUser.mail || msUser.userPrincipalName;
+    if (!email) {
+      email = `${microsoftId}@users.noreply.microsoft.com`;
+    }
+
+    const displayName = msUser.displayName || "Microsoft Developer";
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
+    const avatar = `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(displayName || emailClean)}`;
+
+    let user = await User.findOne({
+      $or: [{ microsoftId }, { email: emailClean }],
+    });
+
+    let isNewUser = false;
+
+    if (user) {
+      syncUserProfileFromOAuth(user, {
+        provider: "microsoft",
+        providerId: microsoftId,
+        name: displayName,
+        bio: msUser.jobTitle || "",
+        location: msUser.officeLocation || "",
+      });
+      await user.save();
+    } else {
+      isNewUser = true;
+      const baseUsername = (emailClean.split("@")[0]).replace(/[^a-zA-Z0-9_]/g, "");
+      user = await User.create({
+        name: displayName,
+        email: emailClean,
+        microsoftId,
+        username: baseUsername,
+        avatar,
+        bio: msUser.jobTitle ? `${msUser.jobTitle}` : "",
+      });
+
+      sendNotification({
+        recipientUser: user,
+        type: "welcome",
+        title: "Welcome to Hackord! 🚀",
+        body: `Hi ${(user.name || "there").split(" ")[0]}, welcome to Hackord! Your account has been created via Microsoft. Explore hackathons, form teams, and build incredible projects.`,
+        link: "/dashboard",
+      }).catch((e) => console.error("[microsoftSignupWelcomeNotifErr]", e.message));
+    }
+
+    await clearFailedAttempts(emailClean, ip);
+    const token = generateToken(user._id);
+
+    res.json({
+      token,
+      user: user.toJSON(),
+      isNewUser,
+    });
+  } catch (err) {
+    console.error("[microsoftAuthErr]", err);
+    res.status(500).json({ message: "Server error during Microsoft authentication" });
+  }
+});
+
+// ─── POST /api/auth/reddit ───
+router.post("/reddit", oauthRateLimiter, async (req, res) => {
+  try {
+    const { code, redirectUri } = req.body;
+    if (!code) {
+      return res.status(400).json({ message: "Reddit authorization code is required" });
+    }
+
+    const clientId = process.env.REDDIT_CLIENT_ID || process.env.VITE_REDDIT_CLIENT_ID;
+    const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      return res.status(500).json({ message: "Reddit Client ID and Secret are not configured on server" });
+    }
+
+    const redirect_uri = redirectUri || (process.env.FRONTEND_URL ? `${process.env.FRONTEND_URL}/login` : "http://localhost:5173/login");
+
+    // Reddit requires HTTP Basic Auth with Client ID & Secret
+    const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+
+    const tokenResp = await fetch("https://www.reddit.com/api/v1/access_token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${basicAuth}`,
+        "User-Agent": "Hackord:v1.0.0 (by /u/hackord)",
+      },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri,
+      }).toString(),
+    });
+
+    const tokenData = await tokenResp.json();
+    if (tokenData.error || !tokenData.access_token) {
+      console.error("[redditTokenExchangeError]", tokenData);
+      return res.status(401).json({
+        message: tokenData.error_description || tokenData.error || "Failed to exchange Reddit authorization code",
+      });
+    }
+
+    const accessToken = tokenData.access_token;
+
+    // Fetch user profile from Reddit OAuth endpoint
+    const userResp = await fetch("https://oauth.reddit.com/api/v1/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "User-Agent": "Hackord:v1.0.0 (by /u/hackord)",
+      },
+    });
+
+    if (!userResp.ok) {
+      return res.status(401).json({ message: "Failed to fetch user profile from Reddit" });
+    }
+
+    const redditUser = await userResp.json();
+    const redditId = String(redditUser.id);
+    const username = redditUser.name || `reddit_user_${redditId}`;
+    const email = `${username}@users.noreply.reddit.com`;
+    const displayName = (redditUser.subreddit && redditUser.subreddit.title) || username;
+
+    let avatar = "";
+    if (redditUser.icon_img) {
+      avatar = redditUser.icon_img.replace(/&amp;/g, "&");
+    }
+    if (!avatar) {
+      avatar = `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(username)}`;
+    }
+
+    const { ip, email: emailClean } = normalizeClientInfo(req, email);
+
+    let user = await User.findOne({
+      $or: [{ redditId }, { email: emailClean }],
+    });
+
+    let isNewUser = false;
+
+    const redditUrl = `https://www.reddit.com/user/${username}`;
+    const redditCustomLinks = [
+      {
+        platform: "reddit",
+        title: "Reddit",
+        url: redditUrl,
+      },
+    ];
+
+    if (user) {
+      syncUserProfileFromOAuth(user, {
+        provider: "reddit",
+        providerId: redditId,
+        name: displayName,
+        avatar: redditUser.icon_img ? avatar : null,
+        bio: (redditUser.subreddit && redditUser.subreddit.public_description) || "",
+        customLinks: redditCustomLinks,
+      });
+      await user.save();
+    } else {
+      isNewUser = true;
+      const baseUsername = username.replace(/[^a-zA-Z0-9_]/g, "");
+      user = await User.create({
+        name: displayName,
+        email: emailClean,
+        redditId,
+        username: baseUsername,
+        avatar,
+        bio: (redditUser.subreddit && redditUser.subreddit.public_description) || "",
+        customLinks: redditCustomLinks,
+      });
+
+      sendNotification({
+        recipientUser: user,
+        type: "welcome",
+        title: "Welcome to Hackord! 🚀",
+        body: `Hi ${(user.name || "there").split(" ")[0]}, welcome to Hackord! Your account has been created via Reddit. Explore hackathons, form teams, and build incredible projects.`,
+        link: "/dashboard",
+      }).catch((e) => console.error("[redditSignupWelcomeNotifErr]", e.message));
+    }
+
+    await clearFailedAttempts(emailClean, ip);
+    const token = generateToken(user._id);
+
+    res.json({
+      token,
+      user: user.toJSON(),
+      isNewUser,
+    });
+  } catch (err) {
+    console.error("[redditAuthErr]", err);
+    res.status(500).json({ message: "Server error during Reddit authentication" });
+  }
+});
+
 router.get("/me", protect, async (req, res) => {
   try {
     res.json({ user: req.user });
@@ -383,7 +928,8 @@ router.put("/profile", protect, async (req, res) => {
   try {
     const allowedFields = [
       "name", "username", "avatar", "college", "city", "country",
-      "bio", "experience", "skills", "github", "linkedin", "portfolio",
+      "bio", "experience", "skills", "github", "linkedin", "discord", "portfolio",
+        "customLinks",
       "completedHackathons",
     ];
 
