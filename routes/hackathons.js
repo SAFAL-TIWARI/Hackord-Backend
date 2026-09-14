@@ -37,7 +37,8 @@ function formatHackathon(h) {
 // ─── GET /api/hackathons ─── Get all hackathons
 router.get("/", async (req, res) => {
   try {
-    const { level, mode, platform, type, hackathonType } = req.query;
+    const { level, mode, platform, type, hackathonType, includePast } = req.query;
+    const todayStr = new Date().toISOString().split("T")[0];
     const filter = {};
     if (level && level !== "All") filter.level = level;
     if (mode && mode !== "All") filter.mode = mode;
@@ -45,6 +46,12 @@ router.get("/", async (req, res) => {
     const requestedType = type || hackathonType;
     if (requestedType && requestedType !== "All") {
       filter.hackathonType = requestedType;
+    }
+
+    // Exclude past or ended hackathons by default
+    if (includePast !== "true") {
+      filter.submissionDeadline = { $gte: todayStr };
+      filter.name = { $not: /\b(2020|2021|2022|2023|2024|2025|'24|'25|2k24|2k25)\b/i };
     }
 
     let hackathons = await Hackathon.find(filter).sort({ createdAt: -1 });
