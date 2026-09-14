@@ -1,6 +1,6 @@
 {
   "updatedAt": "2026-09-14T23:18:47.899Z",
-  "totalCount": 68,
+  "totalCount": 66,
   "status": "published_to_db",
   "hackathons": [
     {
@@ -2090,41 +2090,6 @@
       "updatedAt": "2026-09-14T23:18:44.605Z"
     },
     {
-      "_id": "6aa880d4cb4b171a868cbbd8",
-      "id": "6aa880d4cb4b171a868cbbd8",
-      "name": "For Businesses",
-      "organizer": "Major League Hacking (MLH)",
-      "banner": "https://sponsor.mlh.io/img/social/facebook.png",
-      "prizePool": "$10,000 in Swag & Grants",
-      "prizePoolUSD": 10000,
-      "hackathonType": "Hackathon",
-      "duration": "",
-      "venue": "Tech Community Center",
-      "schedule": "",
-      "submissionChecklist": [],
-      "mode": "Offline",
-      "level": "Global",
-      "registrationDeadline": "2026-09-28",
-      "submissionDeadline": "2026-10-08",
-      "resultDate": "2026-10-11",
-      "teamSize": {
-        "min": 1,
-        "max": 4
-      },
-      "tags": [
-        "MLH",
-        "Student Hackathon",
-        "Global"
-      ],
-      "platform": "MLH",
-      "platformUrl": "https://sponsor.mlh.com/",
-      "description": "Official MLH Member Hackathon: For Businesses. Connect with fellow student builders and hackers on MLH!",
-      "scrapedAt": "2026-09-14T23:18:41.566Z",
-      "__v": 0,
-      "createdAt": "2026-09-14T23:18:44.604Z",
-      "updatedAt": "2026-09-14T23:18:44.604Z"
-    },
-    {
       "_id": "6aa880d4cb4b171a868cbbcf",
       "id": "6aa880d4cb4b171a868cbbcf",
       "name": "Build, Ship, Shape: Amazon Developer Hackathon",
@@ -2416,41 +2381,6 @@
       "platform": "Unstop",
       "platformUrl": "https://unstop.com/hackathons/hackcelestial-30-pillai-university-navi-mumbai-1737808",
       "description": "HackCelestial 3.0 hosted by Pillai University, Navi Mumbai in Maharashtra. Official live competition registered on Unstop.",
-      "scrapedAt": "2026-09-14T23:18:41.534Z",
-      "__v": 0,
-      "createdAt": "2026-09-14T23:18:44.604Z",
-      "updatedAt": "2026-09-14T23:18:44.604Z"
-    },
-    {
-      "_id": "6aa880d4cb4b171a868cbbd7",
-      "id": "6aa880d4cb4b171a868cbbd7",
-      "name": "DEV",
-      "organizer": "Major League Hacking (MLH)",
-      "banner": "https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3otvb2z646ytpt1hl2rv.jpg",
-      "prizePool": "$10,000 in Swag & Grants",
-      "prizePoolUSD": 10000,
-      "hackathonType": "Hackathon",
-      "duration": "",
-      "venue": "Tech Community Center",
-      "schedule": "",
-      "submissionChecklist": [],
-      "mode": "Offline",
-      "level": "Global",
-      "registrationDeadline": "2026-09-28",
-      "submissionDeadline": "2026-10-08",
-      "resultDate": "2026-10-11",
-      "teamSize": {
-        "min": 1,
-        "max": 4
-      },
-      "tags": [
-        "MLH",
-        "Student Hackathon",
-        "Global"
-      ],
-      "platform": "MLH",
-      "platformUrl": "https://dev.to/",
-      "description": "Official MLH Member Hackathon: DEV. Connect with fellow student builders and hackers on MLH!",
       "scrapedAt": "2026-09-14T23:18:41.534Z",
       "__v": 0,
       "createdAt": "2026-09-14T23:18:44.604Z",

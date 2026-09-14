@@ -12,6 +12,45 @@ const FILE_PATH = path.join(__dirname, "../data/scraped_hackathons.json");
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36";
 
+
+/**
+ * Scrapes the actual real banner / og:image / twitter:image from a hackathon page.
+ */
+async function extractRealPageBanner(url) {
+  if (!url || typeof url !== "string" || !url.startsWith("http")) return null;
+  try {
+    const res = await axios.get(url, {
+      headers: {
+        "User-Agent": USER_AGENT,
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      },
+      timeout: 5000,
+      maxRedirects: 5,
+    });
+    const $ = cheerio.load(res.data);
+    let img =
+      $('meta[property="og:image"]').attr("content") ||
+      $('meta[property="og:image:url"]').attr("content") ||
+      $('meta[property="og:image:secure_url"]').attr("content") ||
+      $('meta[name="twitter:image"]').attr("content") ||
+      $('meta[name="twitter:image:src"]').attr("content") ||
+      $('link[rel="image_src"]').attr("href");
+
+    if (img) {
+      img = img.trim();
+      if (img.startsWith("//")) return "https:" + img;
+      if (img.startsWith("/")) {
+        const u = new URL(url);
+        return `${u.protocol}//${u.host}${img}`;
+      }
+      return img;
+    }
+  } catch {
+    // ignore network/timeout errors
+  }
+  return null;
+}
+
 // Ensure data directory exists
 function ensureDataDirExists() {
   const dir = path.dirname(FILE_PATH);
@@ -303,11 +342,18 @@ async function scrapeDevpost() {
       }
 
       const platformUrl = h.url || "https://devpost.com";
-      const banner = h.thumbnail_url
-        ? h.thumbnail_url.startsWith("//")
-          ? "https:" + h.thumbnail_url
-          : h.thumbnail_url
-        : "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80";
+      let banner = "";
+      if (h.thumbnail_url) {
+        let thumb = h.thumbnail_url.startsWith("//") ? "https:" + h.thumbnail_url : h.thumbnail_url;
+        if (thumb.includes("medium_square")) {
+          banner = thumb.replace("medium_square", "original");
+        } else {
+          banner = thumb;
+        }
+      }
+      if (!banner && platformUrl && platformUrl !== "https://devpost.com") {
+        banner = await extractRealPageBanner(platformUrl);
+      }
 
       const detectedLevel = detectHackathonLevel({
         title: h.title,
@@ -410,11 +456,30 @@ async function scrapeUnstop() {
       // 3. Skip if title mentions past years (2020-2025, '24, '25)
       if (isPastHackathon({ name: h.title, url: h.public_url }, todayStr)) continue;
 
-      const bannerUrl =
-        h.banner_mobile?.image_url ||
-        h.logoUrl2 ||
-        h.banner_desktop?.image_url ||
-        "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80";
+      let bannerUrl = null;
+      if (h.id) {
+        try {
+          const compRes = await axios.get(`https://unstop.com/api/public/competition/${h.id}`, {
+            headers: { "User-Agent": USER_AGENT },
+            timeout: 4000,
+          });
+          const comp = compRes.data?.data?.competition;
+          if (comp) {
+            bannerUrl =
+              comp.banner?.image_url ||
+              comp.banner_mobile?.image_url ||
+              comp.banner_desktop?.image_url ||
+              comp.logoUrl2 ||
+              comp.logoUrl;
+          }
+        } catch {}
+      }
+      if (!bannerUrl) {
+        bannerUrl = h.banner_mobile?.image_url || h.banner_desktop?.image_url || h.logoUrl2;
+      }
+      if (!bannerUrl && h.public_url) {
+        bannerUrl = await extractRealPageBanner("https://unstop.com/" + h.public_url);
+      }
 
       const isOnline =
         h.filters?.some((f) => f.name?.toLowerCase().includes("online")) ||
@@ -494,7 +559,7 @@ async function scrapeMLH() {
     const results = [];
     const seenUrls = new Set();
 
-    $("a").each((i, el) => {
+    for (const el of $("a").toArray()) {
       const href = $(el).attr("href") || "";
       if (
         (href.includes("utm_campaign=events") || href.includes("events.mlh.io/events/") || href.includes("utm_source=mlh")) &&
@@ -511,13 +576,18 @@ async function scrapeMLH() {
           name = card.find("h3, h4, h5").first().text().trim();
         }
         if (!name || name.length < 2) return;
+        if (cleanUrl.includes("sponsor.mlh") || cleanUrl.includes("dev.to") || name.toLowerCase() === "for businesses" || name.toLowerCase() === "dev") return;
 
         // Skip past hackathons
         if (isPastHackathon({ name, url: cleanUrl }, todayStr)) return;
 
-        const img =
-          card.find("img").attr("src") ||
-          "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80";
+        const bgImg = card.find('img[src*="backgrounds"]').attr("src");
+        const logoImg = card.find('img[src*="logos"]').attr("src");
+        const anyImg = card.find("img").first().attr("src");
+        let img = bgImg || logoImg || anyImg;
+        if (!img && cleanUrl) {
+          img = await extractRealPageBanner(cleanUrl);
+        }
 
         const text = card.text().trim().replace(/\s+/g, " ");
 
@@ -609,268 +679,6 @@ async function scrapeMLH() {
           description: `Official MLH Member Hackathon: ${name}. Connect with fellow student builders and hackers on MLH!`,
         });
       }
-    });
-
-    // Curated active 2026 State-Level and Mini hackathons ensuring complete coverage
-    const curatedStateAndMiniHackathons = [
-      {
-        name: "Maharashtra State Developer Hackfest 2026",
-        organizer: "Maharashtra State Innovation Society & Tech Council",
-        banner: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80",
-        prizePool: "₹2,50,000 Cash + State Grants",
-        prizePoolUSD: 3000,
-        mode: "Offline",
-        level: "State",
-        registrationDeadline: new Date(Date.now() + 10 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 18 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 20 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 2, max: 4 },
-        hackathonType: "Hackathon",
-        duration: "24 hours",
-        venue: "COEP Technological Grounds, Pune, Maharashtra",
-        schedule: "Day 1: 09:00 AM Registration & Inauguration\n11:00 AM Hacking Commences\n08:00 PM Mentor Checkpoint 1\nDay 2: 09:00 AM Code Freeze & Jury Walkthrough\n01:00 PM State Awards Ceremony",
-        submissionChecklist: [
-          "State Problem Statement & Solution Pitch",
-          "Working Code Repository on GitHub",
-          "Live Working Demonstration",
-          "Citizen Impact & Architecture Blueprint",
-        ],
-        tags: ["State Level", "Maharashtra", "Hackathon", "Smart Governance", "Open Source", "Maharashtra State"],
-        platform: "Unstop",
-        platformUrl: "https://unstop.com/hackathons/maharashtra-state-developer-hackfest-2026",
-        description: "Official Maharashtra State Level Developer Hackathon bringing together top collegiate and engineering builders across Maharashtra to develop smart urban tech and open source tooling.",
-      },
-      {
-        name: "Karnataka State AI & Cloud Sprint 2026",
-        organizer: "Karnataka Innovation & Technology Society (KITS)",
-        banner: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80",
-        prizePool: "₹2,00,000 Cash + Cloud Credits",
-        prizePoolUSD: 2400,
-        mode: "Hybrid",
-        level: "State",
-        registrationDeadline: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 16 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 1, max: 4 },
-        hackathonType: "Mini Hackathon",
-        duration: "8 hours",
-        venue: "K-tech Innovation Hub, Bengaluru, Karnataka",
-        schedule: "09:00 AM – Check-in & Keynote\n10:00 AM – Sprint Kickoff\n01:30 PM – Mentorship Checkpoint\n05:00 PM – Code Freeze & Demo Showcases\n06:00 PM – State Winner Distribution",
-        submissionChecklist: [
-          "Project Name & Karnataka State Use Case",
-          "AI Agent / Cloud Architecture Flowchart",
-          "Clean GitHub Repo with Deployed URL",
-          "Interactive Demo Video",
-        ],
-        tags: ["State Level", "Karnataka", "Mini Hackathon", "AI", "Cloud", "Bengaluru", "Karnataka State"],
-        platform: "Devfolio",
-        platformUrl: "https://devfolio.co/hackathons/karnataka-ai-sprint",
-        description: "A fast-paced state-level AI development sprint organized for Karnataka universities and developers solving high-scale logistics and developer tooling problems.",
-      },
-      {
-        name: "Delhi-NCR Inter-College Code Championship 2026",
-        organizer: "Delhi Skill & Entrepreneurship University (DSEU)",
-        banner: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
-        prizePool: "₹1,50,000 + Incubation Support",
-        prizePoolUSD: 1800,
-        mode: "Offline",
-        level: "State",
-        registrationDeadline: new Date(Date.now() + 9 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 16 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 2, max: 4 },
-        hackathonType: "Hackathon",
-        duration: "12 hours",
-        venue: "DSEU Okhla Innovation Campus, New Delhi, Delhi",
-        schedule: "08:30 AM – Campus Check-in\n09:30 AM – Track Unveiling & Hacking Kickoff\n01:00 PM – Food & Mentor Evaluation\n05:30 PM – Submission Cutoff\n06:30 PM – State Winner Trophies",
-        submissionChecklist: [
-          "Inter-College Problem Statement Pitch",
-          "Public GitHub Repository",
-          "Fullstack Working Prototype",
-          "Technical Architecture Slides",
-        ],
-        tags: ["State Level", "Delhi", "Inter-College", "Delhi-NCR", "Web3", "Fullstack", "Delhi State"],
-        platform: "Unstop",
-        platformUrl: "https://unstop.com/hackathons/delhi-ncr-inter-college-code-championship-2026",
-        description: "Prestigious Delhi state-level inter-college coding championship challenging university students across Delhi-NCR to develop high-performance civic and fintech applications.",
-      },
-      {
-        name: "Tamil Nadu State Collegiate Hackathon 2026",
-        organizer: "Tamil Nadu Startup & Innovation Mission (TANSIM)",
-        banner: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80",
-        prizePool: "₹3,00,000 Cash & Grants",
-        prizePoolUSD: 3600,
-        mode: "Offline",
-        level: "State",
-        registrationDeadline: new Date(Date.now() + 11 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 21 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 23 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 1, max: 4 },
-        hackathonType: "Hackathon",
-        duration: "30 hours",
-        venue: "Anna University Guindy Campus, Chennai, Tamil Nadu",
-        schedule: "Day 1: 08:00 AM Registration\n10:00 AM Grand Hackathon Kickoff\n06:00 PM Mentorship Stage 1\nDay 2: 12:00 PM Final Review & Demo Pitches\n04:00 PM Tamil Nadu State Awards",
-        submissionChecklist: [
-          "Problem Statement & Target Audience",
-          "Source Code with MIT License",
-          "Deployed Live Application",
-          "Hardware / IoT / Cloud Integration Docs",
-        ],
-        tags: ["State Level", "Tamil Nadu", "Hackathon", "IoT", "AIML", "Chennai", "Tamil Nadu State"],
-        platform: "Unstop",
-        platformUrl: "https://unstop.com/hackathons/tamil-nadu-state-collegiate-hackathon-2026",
-        description: "Official Tamil Nadu State hackathon supporting student startup teams from institutions across Chennai, Coimbatore, Madurai, and Trichy building intelligent systems.",
-      },
-      {
-        name: "Gujarat State Innovation Challenge 2026",
-        organizer: "i-Hub Gujarat Student Startup Council",
-        banner: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80",
-        prizePool: "₹1,75,000 Cash + Incubation",
-        prizePoolUSD: 2100,
-        mode: "Offline",
-        level: "State",
-        registrationDeadline: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 19 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 21 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 2, max: 4 },
-        hackathonType: "Hackathon",
-        duration: "24 hours",
-        venue: "KCG Education Campus, Ahmedabad, Gujarat",
-        schedule: "Day 1: 09:00 AM Keynote\n10:00 AM Coding Starts\nDay 2: 10:00 AM Submission Deadline\n02:00 PM Awards Presentation",
-        submissionChecklist: [
-          "Innovation Abstract",
-          "GitHub Source Code",
-          "Live Deployed Prototype",
-          "Business Viability Brief",
-        ],
-        tags: ["State Level", "Gujarat", "Inter-College", "Ahmedabad", "Gujarat State"],
-        platform: "Unstop",
-        platformUrl: "https://unstop.com/hackathons/gujarat-state-innovation-challenge-2026",
-        description: "State-level hackathon encouraging university tech innovators across Gujarat to prototype industrial IoT and automated commerce solutions.",
-      },
-      {
-        name: "Kerala State Campus Hackathon 2026",
-        organizer: "Kerala Startup Mission (KSUM)",
-        banner: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80",
-        prizePool: "₹2,00,000 + Maker Village Access",
-        prizePoolUSD: 2400,
-        mode: "Hybrid",
-        level: "State",
-        registrationDeadline: new Date(Date.now() + 13 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 22 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 24 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 2, max: 4 },
-        hackathonType: "Hackathon",
-        duration: "24 hours",
-        venue: "Integrated Startup Complex, Kalamassery, Kochi, Kerala",
-        schedule: "Day 1: 09:30 AM Inauguration\n10:30 AM Hacking Begins\nDay 2: 11:00 AM Code Freeze & Pitches\n03:00 PM KSUM State Honors",
-        submissionChecklist: [
-          "Application Architecture Diagram",
-          "Public GitHub Repository",
-          "Live Demo Video",
-        ],
-        tags: ["State Level", "Kerala", "Hackathon", "KSUM", "Kochi", "Kerala State"],
-        platform: "Devfolio",
-        platformUrl: "https://devfolio.co/hackathons/kerala-state-campus-hackathon-2026",
-        description: "Flagship Kerala state hackathon organized by Kerala Startup Mission uniting college developer cells across Kerala for building next-gen web and hardware prototypes.",
-      },
-      {
-        name: "AI Agents Flash Sprint 2026",
-        organizer: "Antigravity AI Collective",
-        banner: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
-        prizePool: "₹75,000 Cash + Cloud Credits",
-        prizePoolUSD: 1000,
-        mode: "Online",
-        level: "Global",
-        registrationDeadline: new Date(Date.now() + 4 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 4 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 4 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 1, max: 4 },
-        hackathonType: "Mini Hackathon",
-        duration: "6 hours",
-        venue: "Online (Discord Stage & Zoom)",
-        schedule: "09:00 AM – 09:30 AM | Check-in & Team Registration\n09:30 AM – 10:00 AM | Kickoff & Problem Statement Reveal\n10:00 AM | Hacking Begins! 🚀\n01:00 PM – 01:45 PM | Mid-Sprint Lunch & Mentor Checkpoints\n04:00 PM | Code Freeze & Submission Deadline\n04:15 PM – 05:30 PM | Live 3-Minute Demos & Technical Q&A\n05:30 PM – 06:00 PM | Closing Ceremony & Winner Announcements",
-        submissionChecklist: [
-          "Project name & tagline",
-          "Problem statement & target persona",
-          "System architecture & prompt/agent workflow",
-          "GitHub repository (clean commits & open README)",
-          "Live working demo or deployed URL",
-          "2-minute demo video or slide walkthrough",
-          "API keys & environment setup instructions",
-        ],
-        tags: ["Mini/1-Day Hackathon", "Mini Hackathon", "1-Day Hackathon", "AI", "LLM", "Open Source", "Global"],
-        platform: "MLH",
-        platformUrl: "https://mlh.io/seasons/2026/events",
-        description: "An intensive 6-hour sprint for building autonomous AI agents, tool-augmented LLMs, and multi-modal assistants.",
-      },
-      {
-        name: "Fullstack Speedrun: 1-Day Shipathon 2026",
-        organizer: "DevRel Worldwide & Cloudflare",
-        banner: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&q=80",
-        prizePool: "₹1,00,000 + Edge Hosting Perks",
-        prizePoolUSD: 1200,
-        mode: "Hybrid",
-        level: "National",
-        registrationDeadline: new Date(Date.now() + 8 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 8 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 8 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 1, max: 4 },
-        hackathonType: "Mini Hackathon",
-        duration: "7 hours",
-        venue: "DevHub Tech Park, Bengaluru, Karnataka",
-        schedule: "08:30 AM – 09:15 AM | Badging & Breakfast Meetup\n09:15 AM – 09:45 AM | Keynote & Architecture Briefing\n09:45 AM | Sprint Kickoff! ⚡\n01:00 PM – 02:00 PM | Lunch & Speed Networking\n04:45 PM | Final Deployment & Pull Request Freeze\n05:00 PM – 06:15 PM | Rapid-Fire Stage Presentations\n06:15 PM – 06:45 PM | Jury Evaluation & Prize Distribution",
-        submissionChecklist: [
-          "Project name & pitch summary",
-          "Problem statement & key innovation",
-          "Tech stack & framework choices",
-          "Public GitHub repository with build instructions",
-          "Working deployed application (HTTPS)",
-          "Interactive UI walkthrough & test credentials",
-          "Performance audit / lighthouse metrics",
-        ],
-        tags: ["Mini/1-Day Hackathon", "Mini Hackathon", "1-Day Hackathon", "Web3", "UI/UX", "DevOps", "National"],
-        platform: "Devpost",
-        platformUrl: "https://devpost.com/hackathons/shipathon-2026",
-        description: "One day. Zero excuses. Build a full-stack product from concept to production-ready deployment before sunset.",
-      },
-      {
-        name: "Open Source Micro-Hack 2026",
-        organizer: "GitHub Community & Open Source Guild",
-        banner: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80",
-        prizePool: "₹50,000 + GitHub Swag Kits",
-        prizePoolUSD: 700,
-        mode: "Offline",
-        level: "National",
-        registrationDeadline: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
-        submissionDeadline: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
-        resultDate: new Date(Date.now() + 12 * 86400000).toISOString().split("T")[0],
-        teamSize: { min: 1, max: 4 },
-        hackathonType: "Mini Hackathon",
-        duration: "5 hours",
-        venue: "WeWork Cyber City, Gurugram, Haryana",
-        schedule: "09:30 AM – 10:00 AM | Welcome & Track Selection\n10:00 AM | Hacking Begins! 💻\n12:30 PM – 01:15 PM | Quick Bites & Maintainer Office Hours\n03:00 PM | Release Tagging & Code Submission\n03:15 PM – 04:30 PM | Project Showcases & Code Reviews\n04:30 PM – 05:00 PM | Awards & Open Source Badges",
-        submissionChecklist: [
-          "Package / tool name & purpose",
-          "Problem addressed for developer community",
-          "Clean open-source repository with OSI license",
-          "Comprehensive documentation & usage guide",
-          "Automated tests or CI/CD workflow pass",
-          "Quick demo CLI command or package install test",
-          "Future roadmap & contribution guidelines",
-        ],
-        tags: ["Mini/1-Day Hackathon", "Mini Hackathon", "1-Day Hackathon", "Open Source", "DevOps", "National"],
-        platform: "GitHub",
-        platformUrl: "https://github.com/events/micro-hack-2026",
-        description: "Join top open source developers for a 5-hour focused micro-hackathon creating reusable devtools and libraries.",
-      },
-    ];
-
-    // Prepend diverse curated state and mini hackathons to scraper results
-    for (const demo of curatedStateAndMiniHackathons) {
-      if (!results.some((r) => r.name.toLowerCase() === demo.name.toLowerCase())) {
-        results.unshift(demo);
-      }
     }
 
     return results.slice(0, 25);
@@ -929,10 +737,13 @@ async function scrapeDevfolio() {
       if (endsAt && endsAt < todayStr) continue;
 
       const platformUrl = `https://${h.slug}.devfolio.co`;
-      const banner =
-        h.settings?.featured_cover_img_v2 ||
-        h.settings?.featured_cover_img ||
-        "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80";
+      let banner = h.settings?.featured_cover_img_v2 || h.settings?.featured_cover_img;
+      if (!banner) {
+        banner = await extractRealPageBanner(platformUrl);
+      }
+      if (!banner) {
+        banner = h.settings?.logo || h.hero_image || h.cover_image;
+      }
 
       const regDeadline = regEndsAt || endsAt || new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0];
       const subDeadline = endsAt || new Date(Date.now() + 25 * 86400000).toISOString().split("T")[0];
@@ -1015,10 +826,10 @@ async function scrapeLuma() {
       seenUrls.add(platformUrl);
 
       const isOnline = !ev.geo_address_json || ev.geo_address_json?.type === "online";
-      const banner =
-        ev.cover_url ||
-        item.calendar?.avatar_url ||
-        "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&q=80";
+      let banner = ev.cover_url || item.calendar?.avatar_url;
+      if (!banner && platformUrl) {
+        banner = await extractRealPageBanner(platformUrl);
+      }
 
       const finalStart = startAt || new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0];
       const finalEnd = endAt || new Date(new Date(finalStart).getTime() + 2 * 86400000).toISOString().split("T")[0];
@@ -1119,12 +930,14 @@ async function scrapeGDG() {
       const chapterLoc = item.chapter_location || "";
       const isVirtual = item.event_type_title?.toLowerCase().includes("virtual") || item.virtual_event_type;
 
-      const bannerUrl =
+      let bannerUrl =
         item.banner?.url ||
         item.cropped_banner_url ||
         item.picture_url ||
-        item.picture?.url ||
-        "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80";
+        item.picture?.url;
+      if (!bannerUrl && itemUrl) {
+        bannerUrl = await extractRealPageBanner(itemUrl);
+      }
 
       const detectedLevel = isVirtual
         ? "Global"
@@ -1209,8 +1022,17 @@ async function scrapeHackathonsToFile(options = {}) {
         return null;
       }
 
+      let finalBanner = item.banner;
+      if (!finalBanner || finalBanner.includes("unsplash")) {
+        const realBanner = await extractRealPageBanner(item.platformUrl);
+        if (realBanner) {
+          finalBanner = realBanner;
+        }
+      }
+
       return {
         ...item,
+        banner: finalBanner || item.banner,
         id: item.platformUrl || `${item.name}-${Date.now()}`,
         scrapedAt: new Date().toISOString(),
       };
